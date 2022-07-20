@@ -1,18 +1,17 @@
 /* Creative Toolkit - by dave caruso */
-import { LuaTable } from "./lua";
+import { Input } from "./input";
+import { astToJSON, LuaTable, TableOf } from "./lua-table";
 
-export class FTool extends LuaTable {
+export class Tool extends LuaTable {
   get Type(): string {
-    return LuaTable.internals.astToJSON((this.root as any).base);
+    return astToJSON((this.root as any).base);
   }
   set Type(value: string) {
     (this.root as any).base = { type: "Identifier", name: value };
   }
-
-  get Inputs(): LuaTable {
-    return this.get("Inputs");
+  get Inputs() {
+    return new TableOf(Input, this.get("Inputs"));
   }
-
   get FlowX(): number {
     return this.get("ViewInfo").get("Pos").get(0);
   }

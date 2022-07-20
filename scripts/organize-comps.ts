@@ -10,10 +10,10 @@ import {
   writeFileSync,
 } from "fs";
 import path from "path";
-import { FComposition } from "../util/fcomposition";
-import { FTool } from "../util/ftool";
-import { LuaTable } from "../util/lua";
+import { Composition } from "../src/bmfusion/composition";
+import { LuaTable } from "../src/bmfusion/lua-table";
 import { pascalCase } from "change-case";
+import { Input } from "../src/bmfusion/input";
 
 // INPUTS
 const PROJECT = "/home/dave/fuckingbullshit/stupid";
@@ -26,7 +26,7 @@ const COMP_ROOT = path.join(PROJECT, "comps");
 const listOfComps = readdirSync(COMP_ROOT).filter((x) => x.endsWith(".comp"));
 const comps = listOfComps.map(
   (filename) =>
-    new FComposition(readFileSync(path.join(COMP_ROOT, filename), "utf-8"))
+    new Composition(readFileSync(path.join(COMP_ROOT, filename), "utf-8"))
 );
 
 const longestNum = comps
@@ -53,16 +53,15 @@ comps.forEach((comp, i) => {
     label,
   });
 
-  const saver = comp.Tools.get("MainOutput") as LuaTable;
+  const saver = comp.Tools.get("MainOutput");
   if (saver) {
-    const tool = new FTool(saver);
-    if (tool.Type !== "Saver") {
+    if (saver.Type !== "Saver") {
       console.log(
         `${filename} has something named \`MainOutput\` that is not a Saver.`
       );
     }
-    const clipValue = tool.Inputs.get<LuaTable>("Clip").get<LuaTable>("Value");
-    const renderTo = clipValue.get<string>("Filename");
+    const clipValue = saver.Inputs.get("Clip")!.Value;
+    const renderTo = clipValue.get("Filename");
     const desiredRenderTo = `${RENDER_ROOT}/${pascalCase(
       PROJECT_NAME
     )}-Fusion-${pascalCase(label)}/.png`;
@@ -77,19 +76,16 @@ comps.forEach((comp, i) => {
       clipValue.set("FormatID", "PNGFormat");
     }
 
-    const createDir = tool.Inputs.get<LuaTable>("CreateDir");
+    const createDir = saver.Inputs.get("CreateDir");
     if (!createDir || createDir.get("Value") !== 1) {
       dirty = true;
-      tool.Inputs.set("CreateDir", new LuaTable(`Input { Value = 1 }`));
+      saver.Inputs.set("CreateDir", new Input(1));
     }
 
-    const outputFormat = tool.Inputs.get<LuaTable>("OutputFormat");
-    if (
-      !outputFormat ||
-      outputFormat.get<LuaTable>("Value").get(0) !== "PNGFormat"
-    ) {
+    const outputFormat = saver.Inputs.get("OutputFormat");
+    if (!outputFormat || outputFormat.get("Value").get(0) !== "PNGFormat") {
       dirty = true;
-      tool.Inputs.set(
+      saver.Inputs.set(
         "OutputFormat",
         new LuaTable(`Input { Value = FuId { "PNGFormat" } }`)
       );

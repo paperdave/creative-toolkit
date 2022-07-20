@@ -6,7 +6,7 @@ import { range } from "@davecode/utils";
 import { exec } from "bun-utilities";
 import { existsSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import path from "path";
-import { FComposition } from "../util/fcomposition";
+import { Composition } from "../src/bmfusion/composition";
 const { pascalCase } = require("change-case");
 
 // TODO: run orginize-comps.ts first
@@ -56,7 +56,7 @@ const COMP_RENDER_ROOT = path.join(
   `${pascalCase(PROJECT_NAME)}-Fusion-${pascalCase(prefix)}`
 );
 
-const comp = new FComposition(await Bun.file(compPath).text());
+const comp = new Composition(await Bun.file(compPath).text());
 
 const hashed = Bun.SHA1.hash(await Bun.file(compPath).arrayBuffer());
 const hex = [...hashed].map((x) => x.toString(16).padStart(2, "0")).join("");

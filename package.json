@@ -1,6 +1,7 @@
 {
   "name": "fuckingbullshit",
   "dependencies": {
+    "@davecode/types": "^1.0.3",
     "@davecode/utils": "^1.0.3",
     "bun-types": "^0.1.4",
     "bun-utilities": "^0.1.5",

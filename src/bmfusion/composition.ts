@@ -1,8 +1,8 @@
 /* Creative Toolkit - by dave caruso */
-import { FTool } from "./ftool";
-import { LuaTable } from "./lua";
+import { Tool } from "./tool";
+import { LuaTable, TableOf } from "./lua-table";
 
-export class FComposition extends LuaTable {
+export class Composition extends LuaTable {
   get CurrentTime(): number {
     return this.get("CurrentTime");
   }
@@ -117,16 +117,12 @@ export class FComposition extends LuaTable {
   set OutputClips(value: string[]) {
     this.set("OutputClips", value);
   }
-  get Tools(): LuaTable {
-    return this.get("Tools") as LuaTable;
-  }
-
-  getTool(id: string): FTool {
-    return new FTool(this.Tools.get(id));
+  get Tools() {
+    return new TableOf(Tool, this.get("Tools"));
   }
 
   static create() {
-    return new FComposition(`Composition {
+    return new Composition(`Composition {
       CurrentTime = 0,
       RenderRange = { 0, 1000 },
       GlobalRange = { 0, 1000 },

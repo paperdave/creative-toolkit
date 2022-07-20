@@ -4,10 +4,13 @@
 // fusion files are lua files that contain just a table. it works similar to json, but lets you do some more stuff
 // this file is a mini library that lets you do stuff with fusion files without wanting to kill yourself.
 
+import { Class } from "@davecode/types";
 import AST, { parse } from "luaparse";
-import util from "util";
 
-function astToJSON(t: AST.Node): any {
+/**
+ * Converts a LUA AST to a JSON object. Not all LUA ASTs are supported.
+ */
+export function astToJSON(t: AST.Node): any {
   switch (t.type) {
     case "StringLiteral":
     case "NumericLiteral":
@@ -50,7 +53,11 @@ function astToJSON(t: AST.Node): any {
       throw new Error(`unhandled type ${t.type}`);
   }
 }
-function jsonToAST(x: any): AST.Expression {
+
+/**
+ * Converts a JSON-like object to a LUA AST Expression.
+ */
+export function jsonToAST(x: any): AST.Expression {
   if (x instanceof LuaTable) {
     return (x as any).root;
   } else if (typeof x === "string") {
@@ -101,7 +108,9 @@ function jsonToAST(x: any): AST.Expression {
     throw new Error(`unhandled type ${typeof x}`);
   }
 }
-function astToString(t: AST.Node): string {
+
+/** Converts a LUA ast to a string. */
+export function astToString(t: AST.Node): string {
   switch (t.type) {
     case "StringLiteral":
     case "NumericLiteral":
@@ -163,19 +172,20 @@ function getOnTable(t: AST.TableConstructorExpression, key: string | number) {
   }
 }
 
-export class LuaTable {
-  static internals = { astToJSON, jsonToAST, astToString, getOnTable };
+export type LuaTableResolvable =
+  | string
+  | AST.TableConstructorExpression
+  | AST.TableCallExpression
+  | LuaTable;
 
+/**
+ * Abstraction on top of a LUA Table AST, similar to a Map.
+ */
+export class LuaTable {
   protected root: AST.TableConstructorExpression | AST.TableCallExpression;
   protected table: AST.TableConstructorExpression;
 
-  constructor(
-    data:
-      | string
-      | AST.TableConstructorExpression
-      | AST.TableCallExpression
-      | LuaTable
-  ) {
+  constructor(data?: LuaTableResolvable) {
     if (typeof data === "string") {
       const root = parse("__value__=" + data.replace(/\0$/, ""), {
         encodingMode: "x-user-defined",
@@ -185,8 +195,13 @@ export class LuaTable {
         | AST.TableCallExpression;
     } else if (data instanceof LuaTable) {
       this.root = data.root;
-    } else {
+    } else if (data) {
       this.root = data;
+    } else {
+      this.root = {
+        type: "TableConstructorExpression",
+        fields: [],
+      };
     }
     this.table =
       this.root.type === "TableCallExpression"
@@ -200,7 +215,7 @@ export class LuaTable {
       .map((x, i) => ("key" in x ? astToJSON(x.key) : i));
   }
 
-  get<T>(key: string | number): T {
+  get(key: string | number): any {
     const value = getOnTable(this.table, key);
     if (!value) return undefined as any;
     if (
@@ -230,7 +245,7 @@ export class LuaTable {
     }
   }
 
-  toArray(): unknown[] {
+  toArray(): any[] {
     return this.table.fields
       .filter((x) => x.type === "TableValue")
       .map((x) => astToJSON(x.value));
@@ -240,7 +255,11 @@ export class LuaTable {
     return astToString(this.root);
   }
 
-  [util.inspect.custom](depth: number, options: any) {
+  [Symbol.for("nodejs.util.inspect.custom")](
+    depth: number,
+    options: any,
+    inspect: any
+  ) {
     const name = (this.root as any)?.base?.name || "";
     const constructor =
       this.constructor.name === LuaTable.name
@@ -262,9 +281,10 @@ export class LuaTable {
     let inner = this.keys()
       .map((key) => {
         const value = this.get(key);
-        return `  ${key}: ${util
-          .inspect(value, newOptions)
-          .replace(/\n/g, `\n  `)},`;
+        return `  ${key}: ${inspect(value, newOptions).replace(
+          /\n/g,
+          `\n  `
+        )},`;
       })
       .join("\n")
       .slice(0, -1);
@@ -275,5 +295,25 @@ export class LuaTable {
     }
 
     return `${type} {${inner}}`;
+  }
+}
+
+export class TableOf<T extends LuaTable> extends LuaTable {
+  constructor(readonly childClass: Class<T>, data: LuaTableResolvable) {
+    super(data);
+  }
+
+  get(key: string | number): T | undefined {
+    const value = super.get(key);
+    if (!value) return undefined;
+    return new this.childClass(value) as any;
+  }
+
+  set(key: string, value: T | LuaTable) {
+    super.set(key, value);
+  }
+
+  toArray(): T[] {
+    return this.keys().map((key) => this.get(key)!);
   }
 }
