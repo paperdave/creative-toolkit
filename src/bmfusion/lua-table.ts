@@ -178,6 +178,17 @@ export type LuaTableResolvable =
   | AST.TableCallExpression
   | LuaTable;
 
+export function isTableResolvable(data: any): data is LuaTableResolvable {
+  return (
+    typeof data === "string" ||
+    data instanceof LuaTable ||
+    (typeof data === "object" &&
+      data !== null &&
+      "type" in data &&
+      (data.type === "TableConstructorExpression" ||
+        data.type === "TableCallExpression"))
+  );
+}
 /**
  * Abstraction on top of a LUA Table AST, similar to a Map.
  */

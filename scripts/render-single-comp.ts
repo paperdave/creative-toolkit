@@ -20,7 +20,7 @@ const PATH_TO_FUSION = "/opt/BlackmagicDesign/Fusion9/Fusion";
 //
 const COMP_ROOT = path.join(PROJECT, "comps");
 
-const COMP_INPUT_TEXT = "okay-fucker";
+const COMP_INPUT_TEXT = "text-bit";
 
 const allComps = readdirSync(COMP_ROOT).filter((x) => x.endsWith(".comp"));
 const [selectedName, ...otherNames] = allComps.filter(
@@ -63,7 +63,7 @@ const hex = [...hashed].map((x) => x.toString(16).padStart(2, "0")).join("");
 
 mkdirSync(COMP_RENDER_ROOT, { recursive: true });
 
-let toRender = range(comp.RenderRange[0], comp.RenderRange[1]);
+let toRender = range(comp.RenderRange[0], comp.RenderRange[1] + 1);
 
 const renderMeta = Bun.file(path.join(COMP_RENDER_ROOT, ".render.json"));
 if (existsSync(path.join(COMP_RENDER_ROOT, ".render.json"))) {

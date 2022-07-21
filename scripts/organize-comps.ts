@@ -60,7 +60,7 @@ comps.forEach((comp, i) => {
         `${filename} has something named \`MainOutput\` that is not a Saver.`
       );
     }
-    const clipValue = saver.Inputs.get("Clip")!.Value;
+    const clipValue = saver.Inputs.get("Clip")?.Value;
     const renderTo = clipValue.get("Filename");
     const desiredRenderTo = `${RENDER_ROOT}/${pascalCase(
       PROJECT_NAME

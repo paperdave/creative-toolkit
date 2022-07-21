@@ -1,10 +1,18 @@
 /* Creative Toolkit - by dave caruso */
-import { jsonToAST, LuaTable } from "./lua-table";
+import {
+  isTableResolvable,
+  jsonToAST,
+  LuaTable,
+  LuaTableResolvable,
+} from "./lua-table";
 
 export class Input<T = any> extends LuaTable {
   constructor(value: T) {
-    super();
-    this.Value = value;
+    let isResolved = isTableResolvable(value);
+    super(isResolved ? (value as unknown as LuaTableResolvable) : undefined);
+    if (!isResolved) {
+      this.Value = value;
+    }
   }
   get Value(): T {
     return this.get("Value");
