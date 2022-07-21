@@ -1,4 +1,3 @@
-/* Creative Toolkit - by dave caruso */
 import { Class } from "@davecode/types";
 import { LuaTable } from "./lua-table";
 

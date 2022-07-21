@@ -1,4 +1,3 @@
-/* Creative Toolkit - by dave caruso */
 import { Input } from "./input";
 import { astToJSON, LuaTable, TableOf } from "./lua-table";
 

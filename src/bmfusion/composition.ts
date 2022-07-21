@@ -1,4 +1,3 @@
-/* Creative Toolkit - by dave caruso */
 import { Tool } from "./tool";
 import { LuaTable, TableOf } from "./lua-table";
 import path from "node:path";

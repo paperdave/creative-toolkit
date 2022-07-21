@@ -1,7 +1,5 @@
-/* Creative Toolkit - by dave caruso */
 import { BoolNum, ClipAspectMode, ClipDepth, FormatID } from "./enum";
 import { LuaTable } from "./lua-table";
-import { FuId } from "./fuid";
 
 export class Clip extends LuaTable {
   get Length() {

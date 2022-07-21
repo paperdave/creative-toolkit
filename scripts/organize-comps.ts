@@ -1,14 +1,7 @@
 #!/usr/bin/env bun
-/* Creative Toolkit - by dave caruso */
 // CLI sets up composition names and saver format
 
-import {
-  readdirSync,
-  readFileSync,
-  renameSync,
-  unlinkSync,
-  writeFileSync,
-} from "fs";
+import { readdirSync } from "fs";
 import path from "path";
 import { Composition } from "../src/bmfusion/composition";
 import { pascalCase } from "change-case";

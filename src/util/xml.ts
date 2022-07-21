@@ -1,4 +1,3 @@
-/* Creative Toolkit - by dave caruso */
 type XMLChild = XML | string | number | boolean;
 type XMLChildren = XMLChild | XMLChild[];
 type XMLAttrs = Record<string, string | number | boolean>;

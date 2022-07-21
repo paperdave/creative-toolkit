@@ -1,4 +1,3 @@
-/* Creative Toolkit - by dave caruso */
 import { Clip } from "../clip";
 import { BoolNum, FormatID } from "../enum";
 import { FuId } from "../fuid";

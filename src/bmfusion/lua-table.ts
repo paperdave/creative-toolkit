@@ -1,12 +1,9 @@
-/* Creative Toolkit - by dave caruso */
-
 // fusion format stuff
 // fusion files are lua files that contain just a table. it works similar to json, but lets you do some more stuff
 // this file is a mini library that lets you do stuff with fusion files without wanting to kill yourself.
 
 import { Class } from "@davecode/types";
 import AST, { parse } from "luaparse";
-import { deepEqual } from "fast-equals";
 
 interface NodeWithDirty {
   dirty?: boolean;

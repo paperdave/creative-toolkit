@@ -1,6 +1,4 @@
 #!/usr/bin/env bun
-/* Creative Toolkit - by dave caruso */
-
 // CLI sets up composition names and saver format
 import { range } from "@davecode/utils";
 import { exec } from "bun-utilities";
