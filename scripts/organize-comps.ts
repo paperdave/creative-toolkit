@@ -24,9 +24,8 @@ const RENDER_ROOT = "/render";
 const COMP_ROOT = path.join(PROJECT, "comps");
 
 const listOfComps = readdirSync(COMP_ROOT).filter((x) => x.endsWith(".comp"));
-const comps = listOfComps.map(
-  (filename) =>
-    new Composition(readFileSync(path.join(COMP_ROOT, filename), "utf-8"))
+const comps = listOfComps.map((filename) =>
+  Composition.fromFile(path.join(COMP_ROOT, filename))
 );
 
 const longestNum = comps
@@ -45,8 +44,6 @@ comps.forEach((comp, i) => {
   ).join("-");
   const filename = `${prefix}_${label}.comp`;
 
-  let dirty = false;
-
   newFilenames.push({
     prefix,
     filename,
@@ -60,49 +57,20 @@ comps.forEach((comp, i) => {
         `${filename} has something named \`MainOutput\` that is not a Saver.`
       );
     }
+
     const renderId = `${pascalCase(PROJECT_NAME)}-Fusion-${pascalCase(label)}`;
-    const desiredRenderTo = `${RENDER_ROOT}/${renderId}/.png`;
 
-    if (saver.Clip.Filename !== desiredRenderTo) {
-      dirty = true;
-      saver.Clip.Filename = desiredRenderTo;
-    }
-
-    if (saver.Clip.FormatID !== FormatID.PNG) {
-      dirty = true;
-      saver.Clip.FormatID = FormatID.PNG;
-    }
-
-    if (saver.CreateDir !== BoolNum.True) {
-      dirty = true;
-      saver.CreateDir = BoolNum.True;
-    }
-
-    if (saver.OutputFormat !== FormatID.PNG) {
-      dirty = true;
-      saver.OutputFormat = FormatID.PNG;
-    }
+    saver.Clip.Filename = `${RENDER_ROOT}/${renderId}/.png`;
+    saver.Clip.FormatID = FormatID.PNG;
+    saver.CreateDir = BoolNum.True;
+    saver.OutputFormat = FormatID.PNG;
   }
 
-  if (dirty) {
+  if (comp.dirty) {
     console.log("modifying comp: " + label);
   }
 
-  if (originalName !== filename) {
-    console.log(`rename: ${originalName} --> ${filename}`);
-
-    if (dirty) {
-      unlinkSync(path.join(COMP_ROOT, originalName));
-      writeFileSync(path.join(COMP_ROOT, filename), comp.toString());
-    } else {
-      renameSync(
-        path.join(COMP_ROOT, originalName),
-        path.join(COMP_ROOT, filename)
-      );
-    }
-  } else if (dirty) {
-    writeFileSync(path.join(COMP_ROOT, filename), comp.toString());
-  }
+  comp.writeAndMoveFile(path.join(COMP_ROOT, filename));
 });
 
 console.log();

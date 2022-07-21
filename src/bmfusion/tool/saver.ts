@@ -13,7 +13,7 @@ export class SaverTool extends Tool {
     this.Inputs.set("Clip", Input.from(value));
   }
   get CreateDir(): BoolNum {
-    return this.Inputs.get("CreateDir").Value ?? false;
+    return this.Inputs.get("CreateDir")?.Value ?? false;
   }
   set CreateDir(value: BoolNum) {
     this.Inputs.set("CreateDir", Input.from(value));

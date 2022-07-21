@@ -1,8 +1,12 @@
 /* Creative Toolkit - by dave caruso */
 import { Tool } from "./tool";
 import { LuaTable, TableOf } from "./lua-table";
+import path from "node:path";
+import fs from "node:fs";
 
 export class Composition extends LuaTable {
+  filepath?: string;
+
   get CurrentTime(): number {
     return this.get("CurrentTime");
   }
@@ -119,6 +123,35 @@ export class Composition extends LuaTable {
   }
   get Tools() {
     return new TableOf(Tool, this.get("Tools"));
+  }
+
+  static fromFile(filepath: string) {
+    const comp = new Composition(fs.readFileSync(filepath, "utf-8"));
+    comp.filepath = path.resolve(filepath);
+    comp.dirty = false;
+    return comp;
+  }
+
+  writeAndMoveFile(filepath = this.filepath) {
+    if (!filepath) {
+      throw new Error("No filepath given or set on Composition");
+    }
+
+    filepath = path.resolve(filepath);
+    this.filepath = this.filepath ? path.resolve(this.filepath) : undefined;
+
+    const dirty = this.dirty;
+    if (this.filepath === filepath) {
+      if (dirty) {
+        fs.writeFileSync(filepath, this.toString());
+      }
+    } else if (dirty || !this.filepath) {
+      fs.writeFileSync(filepath, this.toString());
+      if (this.filepath) fs.unlinkSync(this.filepath);
+    } else {
+      fs.renameSync(this.filepath, filepath);
+    }
+    this.filepath = filepath;
   }
 
   static create() {

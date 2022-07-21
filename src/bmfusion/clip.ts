@@ -74,6 +74,6 @@ export class Clip extends LuaTable {
     return this.get("FormatID");
   }
   set FormatID(value: FormatID) {
-    this.set("FormatID", FuId.from(value));
+    this.set("FormatID", value);
   }
 }

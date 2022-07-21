@@ -6,6 +6,11 @@
 
 import { Class } from "@davecode/types";
 import AST, { parse } from "luaparse";
+import { deepEqual } from "fast-equals";
+
+interface NodeWithDirty {
+  dirty?: boolean;
+}
 
 /**
  * Converts a LUA AST to a JSON object. Not all LUA ASTs are supported.
@@ -197,6 +202,61 @@ export function isTableResolvable(data: any): data is LuaTableResolvable {
         data.type === "TableCallExpression"))
   );
 }
+
+function tableNodeIsDirty(table: AST.TableConstructorExpression): boolean {
+  if ((table as NodeWithDirty).dirty) return true;
+  return table.fields.some((field) => {
+    if (field.value.type === "TableConstructorExpression") {
+      return tableNodeIsDirty(field.value);
+    } else if (field.value.type === "TableCallExpression") {
+      return tableNodeIsDirty(
+        field.value.arguments as AST.TableConstructorExpression
+      );
+    }
+    return false;
+  });
+}
+
+function tableNodeClearDirty(table: AST.TableConstructorExpression) {
+  delete (table as NodeWithDirty).dirty;
+  for (const { value } of table.fields) {
+    if (value.type === "TableConstructorExpression") {
+      tableNodeClearDirty(value);
+    } else if (value.type === "TableCallExpression") {
+      tableNodeClearDirty(value.arguments as AST.TableConstructorExpression);
+    }
+  }
+}
+
+function astNodesEqual(a: AST.Node, b: AST.Node): boolean {
+  if (a === b) return true;
+  if (a.type !== b.type) return false;
+
+  return (
+    //
+    (a.type === "Identifier" && a.name === (b as AST.Identifier).name) ||
+    //
+    (a.type.endsWith("Literal") &&
+      (a as AST.StringLiteral).value === (b as AST.StringLiteral).value) ||
+    //
+    (a.type === "TableCallExpression" &&
+      astNodesEqual(a.base, (b as AST.TableCallExpression).base) &&
+      astNodesEqual(a.arguments, (b as AST.TableCallExpression).arguments)) ||
+    //
+    (a.type === "TableConstructorExpression" &&
+      a.fields.every((field, i) =>
+        astNodesEqual(field, (b as AST.TableConstructorExpression).fields[i])
+      )) ||
+    //
+    ((a.type === "TableKey" || a.type === "TableKeyString") &&
+      astNodesEqual(a.key, (b as AST.TableKey).key) &&
+      astNodesEqual(a.value, (b as AST.TableKey).value)) ||
+    //
+    (a.type === "TableValue" &&
+      astNodesEqual(a.value, (b as AST.TableKey).value))
+  );
+}
+
 /**
  * Abstraction on top of a LUA Table AST, similar to a Map.
  */
@@ -250,7 +310,7 @@ export class LuaTable {
     return astToJSON(value);
   }
 
-  set(key: string, value: unknown) {
+  set(key: string, value: unknown, noDirty?: boolean) {
     const field = this.table.fields.find(
       (x) => "key" in x && astToJSON(x.key) === key
     );
@@ -263,8 +323,18 @@ export class LuaTable {
           name: key,
         },
       });
+      if (!noDirty) {
+        this.dirty = true;
+      }
     } else {
-      field.value = jsonToAST(value);
+      const newAst = jsonToAST(value);
+      if (!astNodesEqual(newAst, field.value)) {
+        if (!noDirty) {
+          console.log("modify", newAst, field.value);
+          this.dirty = true;
+        }
+        field.value = newAst;
+      }
     }
   }
 
@@ -276,6 +346,22 @@ export class LuaTable {
 
   toString(): string {
     return astToString(this.root);
+  }
+
+  unmarkDirty() {
+    tableNodeClearDirty(this.table);
+  }
+
+  get dirty() {
+    return tableNodeIsDirty(this.table);
+  }
+
+  set dirty(v: boolean) {
+    if (v) {
+      (this.table as NodeWithDirty).dirty = true;
+    } else {
+      this.unmarkDirty();
+    }
   }
 
   get length() {
