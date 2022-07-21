@@ -11,13 +11,13 @@ import {
 } from "fs";
 import path from "path";
 import { Composition } from "../src/bmfusion/composition";
-import { LuaTable } from "../src/bmfusion/lua-table";
 import { pascalCase } from "change-case";
-import { Input } from "../src/bmfusion/input";
+import { SaverTool } from "../src/bmfusion/tool/saver";
+import { BoolNum, FormatID } from "../src/bmfusion/enum";
 
 // INPUTS
-const PROJECT = "/home/dave/fuckingbullshit/stupid";
-const PROJECT_NAME = "stupid";
+const PROJECT = "/home/dave/fuckingbullshit/local-test2";
+const PROJECT_NAME = "local-test2";
 const RENDER_ROOT = "/render";
 
 //
@@ -53,42 +53,34 @@ comps.forEach((comp, i) => {
     label,
   });
 
-  const saver = comp.Tools.get("MainOutput");
+  const saver = comp.Tools.get("MainOutput", SaverTool);
   if (saver) {
     if (saver.Type !== "Saver") {
       console.log(
         `${filename} has something named \`MainOutput\` that is not a Saver.`
       );
     }
-    const clipValue = saver.Inputs.get("Clip")?.Value;
-    const renderTo = clipValue.get("Filename");
-    const desiredRenderTo = `${RENDER_ROOT}/${pascalCase(
-      PROJECT_NAME
-    )}-Fusion-${pascalCase(label)}/.png`;
+    const renderId = `${pascalCase(PROJECT_NAME)}-Fusion-${pascalCase(label)}`;
+    const desiredRenderTo = `${RENDER_ROOT}/${renderId}/.png`;
 
-    if (renderTo !== desiredRenderTo) {
+    if (saver.Clip.Filename !== desiredRenderTo) {
       dirty = true;
-      clipValue.set("Filename", desiredRenderTo);
+      saver.Clip.Filename = desiredRenderTo;
     }
 
-    if (clipValue.get("FormatID") !== "PNGFormat") {
+    if (saver.Clip.FormatID !== FormatID.PNG) {
       dirty = true;
-      clipValue.set("FormatID", "PNGFormat");
+      saver.Clip.FormatID = FormatID.PNG;
     }
 
-    const createDir = saver.Inputs.get("CreateDir");
-    if (!createDir || createDir.get("Value") !== 1) {
+    if (saver.CreateDir !== BoolNum.True) {
       dirty = true;
-      saver.Inputs.set("CreateDir", new Input(1));
+      saver.CreateDir = BoolNum.True;
     }
 
-    const outputFormat = saver.Inputs.get("OutputFormat");
-    if (!outputFormat || outputFormat.get("Value").get(0) !== "PNGFormat") {
+    if (saver.OutputFormat !== FormatID.PNG) {
       dirty = true;
-      saver.Inputs.set(
-        "OutputFormat",
-        new LuaTable(`Input { Value = FuId { "PNGFormat" } }`)
-      );
+      saver.OutputFormat = FormatID.PNG;
     }
   }
 
@@ -117,11 +109,11 @@ console.log();
 
 comps.forEach((comp, i) => {
   const { label } = newFilenames[i];
-  const saver = !!comp.Tools.get("MainOutput");
+  const saver = !!comp.Tools.has("MainOutput");
 
   console.log(
     `[${i}] ${label} - frames ${comp.RenderRange.join("-")} - ${
-      comp.Tools.keys().length
+      comp.Tools.length
     } Tools${saver ? "" : " [MISSING SAVER]"}`
   );
 });

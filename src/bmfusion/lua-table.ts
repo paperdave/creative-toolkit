@@ -172,6 +172,14 @@ function getOnTable(t: AST.TableConstructorExpression, key: string | number) {
   }
 }
 
+function hasOnTable(t: AST.TableConstructorExpression, key: string | number) {
+  if (typeof key === "number") {
+    return t.fields.filter((x) => x.type === "TableValue").length > key;
+  } else {
+    return t.fields.some((x) => "key" in x && astToJSON(x.key) === key);
+  }
+}
+
 export type LuaTableResolvable =
   | string
   | AST.TableConstructorExpression
@@ -226,14 +234,18 @@ export class LuaTable {
       .map((x, i) => ("key" in x ? astToJSON(x.key) : i));
   }
 
-  get(key: string | number): any {
+  has(key: string | number) {
+    return hasOnTable(this.table, key);
+  }
+
+  get<X = any>(key: string | number, as?: Class<X>): X {
     const value = getOnTable(this.table, key);
     if (!value) return undefined as any;
     if (
       value.type === "TableCallExpression" ||
       value.type === "TableConstructorExpression"
     ) {
-      return new LuaTable(value) as any;
+      return new (as ?? LuaTable)(value) as any;
     }
     return astToJSON(value);
   }
@@ -264,6 +276,10 @@ export class LuaTable {
 
   toString(): string {
     return astToString(this.root);
+  }
+
+  get length() {
+    return this.keys().length;
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](
@@ -310,14 +326,14 @@ export class LuaTable {
 }
 
 export class TableOf<T extends LuaTable> extends LuaTable {
-  constructor(readonly childClass: Class<T>, data: LuaTableResolvable) {
+  constructor(private readonly childClass: Class<T>, data: LuaTableResolvable) {
     super(data);
   }
 
-  get(key: string | number): T | undefined {
+  get<X = T>(key: string | number, as?: Class<X>): X {
     const value = super.get(key);
-    if (!value) return undefined;
-    return new this.childClass(value) as any;
+    if (!value) return undefined!;
+    return new (as ?? this.childClass)(value) as any;
   }
 
   set(key: string, value: T | LuaTable) {

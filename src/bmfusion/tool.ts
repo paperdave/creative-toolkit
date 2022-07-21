@@ -10,7 +10,7 @@ export class Tool extends LuaTable {
     (this.root as any).base = { type: "Identifier", name: value };
   }
   get Inputs() {
-    return new TableOf(Input, this.get("Inputs"));
+    return new TableOf(Input, this.get("Inputs")!);
   }
   get FlowX(): number {
     return this.get("ViewInfo").get("Pos").get(0);
