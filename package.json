@@ -1,5 +1,8 @@
 {
   "name": "fuckingbullshit",
+  "scripts": {
+    "env": "env"
+  },
   "dependencies": {
     "@davecode/types": "^1.0.3",
     "@davecode/utils": "^1.0.3",
