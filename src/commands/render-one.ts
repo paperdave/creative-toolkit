@@ -6,25 +6,28 @@ import { range } from '@davecode/utils';
 import { exec } from 'bun-utilities';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync, readdirSync, unlinkSync } from 'fs';
+import { arrangeComps } from './arrange';
 import { Composition } from '../bmfusion/composition';
 import { COMP_ROOT, PATH_TO_FUSION, PROJECT_NAME, RENDER_ROOT } from '../vars';
 
-export async function renderFusionComp(COMP_INPUT_TEXT: string) {
+export async function renderFusionComp(search: string) {
+  arrangeComps();
+
   const allComps = readdirSync(COMP_ROOT).filter(x => x.endsWith('.comp'));
   const [selectedName, ...otherNames] = allComps.filter(
     x =>
-      x === COMP_INPUT_TEXT ||
-      x.replace(/^[0-9]+-[0-9]+_/, '').replace(/.comp$/, '') === COMP_INPUT_TEXT ||
-      x.replace(/.comp$/, '') === COMP_INPUT_TEXT
+      x === search ||
+      x.replace(/^[0-9]+-[0-9]+_/, '').replace(/.comp$/, '') === search ||
+      x.replace(/.comp$/, '') === search
   );
 
   if (!selectedName) {
-    console.log(`Could not find comp named ${COMP_INPUT_TEXT}`);
+    console.log(`Could not find comp named ${search}`);
     process.exit(1);
   }
   if (otherNames.length > 0) {
     console.log(
-      `Found multiple comps named ${COMP_INPUT_TEXT}: ${[selectedName, ...otherNames].join(', ')}`
+      `Found multiple comps named ${search}: ${[selectedName, ...otherNames].join(', ')}`
     );
     process.exit(1);
   }
@@ -50,6 +53,7 @@ export async function renderFusionComp(COMP_INPUT_TEXT: string) {
   const renderMeta = Bun.file(path.join(COMP_RENDER_ROOT, '.render.json'));
   if (existsSync(path.join(COMP_RENDER_ROOT, '.render.json'))) {
     const parsed = await renderMeta.json();
+    console.log(parsed);
 
     const files = readdirSync(COMP_RENDER_ROOT);
     if (parsed.hash === hex) {
