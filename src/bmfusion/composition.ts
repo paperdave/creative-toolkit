@@ -1,22 +1,22 @@
-import { Tool } from "./tool";
-import { LuaTable, TableOf } from "./lua-table";
-import path from "node:path";
-import fs from "node:fs";
+import fs from 'node:fs';
+import path from 'node:path';
+import { LuaTable, TableOf } from './lua-table';
+import { Tool } from './tool';
 
 export class Composition extends LuaTable {
   filepath?: string;
 
   get CurrentTime(): number {
-    return this.get("CurrentTime");
+    return this.get('CurrentTime');
   }
   set CurrentTime(value: number) {
-    this.set("CurrentTime", value);
+    this.set('CurrentTime', value);
   }
   get RenderRange(): [number, number] {
-    return this.get("RenderRange").toArray();
+    return this.get('RenderRange').toArray();
   }
   set RenderRange(value: [number, number]) {
-    this.set("RenderRange", value);
+    this.set('RenderRange', value);
   }
   get RenderRangeStart(): number {
     return this.RenderRange[0];
@@ -34,10 +34,10 @@ export class Composition extends LuaTable {
     return this.RenderRange[1] - this.RenderRange[0];
   }
   get GlobalRange(): [number, number] {
-    return this.get("GlobalRange").toArray();
+    return this.get('GlobalRange').toArray();
   }
   set GlobalRange(value: [number, number]) {
-    this.set("GlobalRange", value);
+    this.set('GlobalRange', value);
   }
   get GlobalRangeStart(): number {
     return this.GlobalRange[0];
@@ -55,77 +55,77 @@ export class Composition extends LuaTable {
     return this.GlobalRange[1] - this.GlobalRange[0];
   }
   get IsHiQuality(): boolean {
-    return this.get("HiQ");
+    return this.get('HiQ');
   }
   set IsHiQuality(value: boolean) {
-    this.set("HiQ", value);
+    this.set('HiQ', value);
   }
   get PlaybackUpdateMode(): number {
-    return this.get("PlaybackUpdateMode");
+    return this.get('PlaybackUpdateMode');
   }
   set PlaybackUpdateMode(value: number) {
-    this.set("PlaybackUpdateMode", value);
+    this.set('PlaybackUpdateMode', value);
   }
   get Version(): string {
-    return this.get("Version");
+    return this.get('Version');
   }
   set Version(value: string) {
-    this.set("Version", value);
+    this.set('Version', value);
   }
   get SavedOutputs(): number {
-    return this.get("SavedOutputs");
+    return this.get('SavedOutputs');
   }
   set SavedOutputs(value: number) {
-    this.set("SavedOutputs", value);
+    this.set('SavedOutputs', value);
   }
   get HeldTools(): number {
-    return this.get("HeldTools");
+    return this.get('HeldTools');
   }
   set HeldTools(value: number) {
-    this.set("HeldTools", value);
+    this.set('HeldTools', value);
   }
   get DisabledTools(): number {
-    return this.get("DisabledTools");
+    return this.get('DisabledTools');
   }
   set DisabledTools(value: number) {
-    this.set("DisabledTools", value);
+    this.set('DisabledTools', value);
   }
   get LockedTools(): number {
-    return this.get("LockedTools");
+    return this.get('LockedTools');
   }
   set LockedTools(value: number) {
-    this.set("LockedTools", value);
+    this.set('LockedTools', value);
   }
   get AudioFilename(): string {
-    return this.get("AudioFilename");
+    return this.get('AudioFilename');
   }
   set AudioFilename(value: string) {
-    this.set("AudioFilename", value);
+    this.set('AudioFilename', value);
   }
   get AudioOffset(): number {
-    return this.get("AudioOffset");
+    return this.get('AudioOffset');
   }
   set AudioOffset(value: number) {
-    this.set("AudioOffset", value);
+    this.set('AudioOffset', value);
   }
   get IsResumable(): boolean {
-    return this.get("Resumable");
+    return this.get('Resumable');
   }
   set IsResumable(value: boolean) {
-    this.set("Resumable", value);
+    this.set('Resumable', value);
   }
   get OutputClips(): string[] {
-    return this.get("OutputClips");
+    return this.get('OutputClips');
   }
   set OutputClips(value: string[]) {
-    this.set("OutputClips", value);
+    this.set('OutputClips', value);
   }
   get Tools() {
-    return new TableOf(Tool, this.get("Tools"));
+    return new TableOf(Tool, this.get('Tools'));
   }
 
   static fromFile(filepath: string) {
-    const comp = new Composition(fs.readFileSync(filepath, "utf-8"));
+    const comp = new Composition(fs.readFileSync(filepath, 'utf-8'));
     comp.filepath = path.resolve(filepath);
     comp.dirty = false;
     return comp;
@@ -133,7 +133,7 @@ export class Composition extends LuaTable {
 
   writeAndMoveFile(filepath = this.filepath) {
     if (!filepath) {
-      throw new Error("No filepath given or set on Composition");
+      throw new Error('No filepath given or set on Composition');
     }
 
     filepath = path.resolve(filepath);
@@ -146,7 +146,9 @@ export class Composition extends LuaTable {
       }
     } else if (dirty || !this.filepath) {
       fs.writeFileSync(filepath, this.toString());
-      if (this.filepath) fs.unlinkSync(this.filepath);
+      if (this.filepath) {
+        fs.unlinkSync(this.filepath);
+      }
     } else {
       fs.renameSync(this.filepath, filepath);
     }

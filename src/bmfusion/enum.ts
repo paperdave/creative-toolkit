@@ -25,6 +25,6 @@ export enum ClippingMode {
 }
 
 export enum FormatID {
-  PNG = "PNGFormat",
-  OpenEXR = "OpenEXRFormat",
+  PNG = 'PNGFormat',
+  OpenEXR = 'OpenEXRFormat',
 }
