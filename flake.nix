@@ -18,7 +18,7 @@
     rec {
       devShells.${system}.default =
         let
-          repoName = "creative-toolkit";
+          repoName = "ct";
         in
         pkgs.mkShell {
           buildInputs = [
@@ -33,11 +33,15 @@
           
             __prompt_fn() {
               PS1="\[\e[95m\]${repoName}\[\e[97m\]"
-
-              if [[ "$PWD" == "$REPO"* ]]; then
-                PS1="''${PS1}\[\e[94m\]''${PWD/#$REPO/}"
+              
+             if [[ "$PWD" == "$REPO" ]]; then
+                :
+              elif [[ "$PWD" == "$REPO"* ]]; then
+                PS1="''${PS1} \[\e[90m\].''${PWD/#$REPO/}"
+              elif [[ "$PWD" == "$HOME"* ]]; then
+                PS1="''${PS1} \[\e[90m\]~''${PWD/#$HOME/}"
               else
-                PS1="''${PS1}:\[\e[93m\]$PWD"
+                PS1="''${PS1} \[\e[90m\]$PWD"
               fi
 
               PS1="''${PS1} \[\e[97m\]$\[\e[0m\] "
