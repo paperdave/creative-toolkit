@@ -7,6 +7,7 @@ import { tryOrFallback } from '@davecode/utils';
 import { ArrangeCommand } from './commands/a';
 import { InitCommand } from './commands/init';
 import { RenderCompCommand } from './commands/r';
+import { ThumbnailRenderCommand } from './commands/tr';
 import type { Paths, Project } from './project';
 import { resolveProject } from './project';
 
@@ -27,6 +28,7 @@ const commands = {
   init: InitCommand,
   a: ArrangeCommand,
   r: RenderCompCommand,
+  tr: ThumbnailRenderCommand,
 };
 
 const argv = minimist(process.argv.slice(2));

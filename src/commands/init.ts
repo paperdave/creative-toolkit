@@ -71,9 +71,13 @@ export const InitCommand: Command = {
       ViewInfo = OperatorInfo { Pos = { 829, 249 } },
     }`);
     thumbnailComp.Tools.set('MainOutput', saver);
-    thumbnailComp.writeAndMoveFile('./comps/thumbnail.comp');
 
     const firstComp = thumbnailComp.clone();
+
+    thumbnailComp.RenderRange = [0, 0];
+    thumbnailComp.GlobalRange = [0, 0];
+    thumbnailComp.writeAndMoveFile('./comps/thumbnail.comp');
+
     firstComp.writeAndMoveFile('./comps/first.comp');
 
     await ArrangeCommand.run({
