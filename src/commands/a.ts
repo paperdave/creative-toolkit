@@ -24,7 +24,7 @@ export const ArrangeCommand: Command = {
 
     for (const comp of comps) {
       const originalName = path.basename(comp.filepath!);
-      const label = originalName.replace(/^[0-9]+-[0-9]+_/, '').replace(/.comp$/, '');
+      const label = originalName.replace(/^[0-9]+-[0-9]+_|.comp$/g, '');
       const prefix = comp.RenderRange.map(x =>
         x.toString().padStart(longestNum.toString().length, '0')
       ).join('-');

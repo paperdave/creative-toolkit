@@ -6,6 +6,7 @@ import path from 'path';
 import { tryOrFallback } from '@davecode/utils';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
+import { FusionCommand } from './commands/f';
 import { InitCommand } from './commands/init';
 import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
@@ -13,9 +14,37 @@ import { ThumbnailRenderCommand } from './commands/tr';
 import type { Paths, Project } from './project';
 import { resolveProject } from './project';
 
+enum ArgParserState {
+  Program,
+  ProgramValue,
+}
+
+const commandArgList = [];
+const programArgList = [];
+let cmdName = '';
+let state = ArgParserState.Program;
+
+for (let i = 2; i < process.argv.length; i++) {
+  const arg = process.argv[i];
+  if (state === ArgParserState.Program) {
+    if (arg.startsWith('-')) {
+      state = ArgParserState.ProgramValue;
+      programArgList.push(arg);
+    } else {
+      cmdName = arg;
+      commandArgList.push(...process.argv.slice(i + 1));
+      break;
+    }
+  } else if (state === ArgParserState.ProgramValue) {
+    commandArgList.push(arg);
+    state = ArgParserState.Program;
+  }
+}
+
 export interface CommandContext {
   project: Project;
-  argv: minimist.ParsedArgs;
+  args: minimist.ParsedArgs;
+  argList: string[];
   pathOverrides: Partial<Paths>;
 }
 
@@ -26,18 +55,19 @@ export interface Command {
   run(args: CommandContext): Promise<void>;
 }
 
-const commands = {
+const commands: Record<string, Command> = {
   init: InitCommand,
   a: ArrangeCommand,
+  f: FusionCommand,
   r: RenderCompCommand,
   tr: ThumbnailRenderCommand,
   'audio-from': AudioFromFileCommand,
   path: PathCommand,
 };
 
-const argv = minimist(process.argv.slice(2));
+const programArgs = minimist(programArgList);
 
-if (argv.help || argv.h || argv._.length === 0) {
+if (programArgs.help || programArgs.h || !cmdName) {
   console.log('Creative Toolkit');
   console.log('');
   for (const { usage, desc, flags } of Object.values(commands)) {
@@ -58,25 +88,27 @@ if (argv.help || argv.h || argv._.length === 0) {
   process.exit(0);
 }
 
-const projectPath = path.resolve(argv.project ?? argv.p ?? '.').replace(/\/project\.json$/, '');
+const projectPath = path
+  .resolve(programArgs.project ?? programArgs.p ?? '.')
+  .replace(/\/project\.json$/, '');
 const paths: Partial<Paths> = {
-  render: argv['render-root'],
+  render: programArgs['render-root'],
 };
 const project = await tryOrFallback(() => resolveProject(projectPath, paths), null);
-const cmd = argv._.shift()! as keyof typeof commands;
 
-if (!project && cmd !== 'init') {
+if (!project && cmdName !== 'init') {
   console.error('Could not find a creative toolkit project. Run `ct init`.');
   process.exit(1);
 }
 
-if (commands[cmd]) {
-  await commands[cmd].run({
+if (commands[cmdName]) {
+  await commands[cmdName].run({
     project: project!,
-    argv,
+    args: minimist(commandArgList),
+    argList: commandArgList,
     pathOverrides: paths,
   });
-} else if (cmd) {
-  console.error(`Unknown command: ${cmd}`);
+} else if (cmdName) {
+  console.error(`Unknown command: ${cmdName}`);
   process.exit(1);
 }

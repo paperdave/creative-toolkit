@@ -9,7 +9,7 @@ export const ThumbnailRenderCommand: Command = {
   usage: 'ct tr',
   desc: 'thumbnail render',
   async run({ project, ...etc }) {
-    await RenderCompCommand.run({ ...etc, project, argv: { _: ['thumbnail'] } });
+    await RenderCompCommand.run({ ...etc, project, args: { _: ['thumbnail'] } });
 
     const thumb = path.join(project.root, `${project.id}.png`);
 

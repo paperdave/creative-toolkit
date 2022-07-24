@@ -37,6 +37,7 @@ export const InitCommand: Command = {
         id,
         name,
         dates: [[today, 'Project Start']],
+        format: 1,
       },
       pathOverrides
     );

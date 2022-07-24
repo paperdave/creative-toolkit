@@ -3,8 +3,8 @@ import type { Command } from '..';
 export const PathCommand: Command = {
   usage: 'ct path [<key> <p>]',
   desc: 'inspect/edit paths',
-  async run({ project, argv }) {
-    if (argv._.length === 0) {
+  async run({ project, args }) {
+    if (args._.length === 0) {
       console.log('Current Project Paths');
       console.log('');
 

@@ -13,7 +13,7 @@ export const RenderCompCommand: Command = {
   usage: 'ct r [comp]',
   desc: 'render comp by label',
   flags: [{ name: '--force -f', desc: 'clears cache' }],
-  async run({ project, argv, ...etc }) {
+  async run({ project, args: argv, ...etc }) {
     const search = argv._[0];
     const force = argv.force || argv.f;
     if (!search) {
@@ -23,7 +23,7 @@ export const RenderCompCommand: Command = {
 
     await ArrangeCommand.run({
       project,
-      argv: { _: [] },
+      args: { _: [] },
       ...etc,
     });
 

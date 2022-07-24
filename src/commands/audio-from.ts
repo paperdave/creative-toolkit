@@ -8,8 +8,8 @@ import { exists } from '../util/fs';
 export const AudioFromFileCommand: Command = {
   usage: 'ct audio-from [file]',
   desc: 'sets project audio using file',
-  async run({ project, argv, ...etc }) {
-    const file = argv._[0];
+  async run({ project, args, ...etc }) {
+    const file = args._[0];
     if (!file) {
       console.error('usage: ct audio-from [file]');
       return;
@@ -51,6 +51,6 @@ export const AudioFromFileCommand: Command = {
       `Project audio set from ${file}, (${path.relative(project.root, project.paths.audio)})`
     );
     console.log();
-    await ArrangeCommand.run({ ...etc, project, argv: { _: [] } });
+    await ArrangeCommand.run({ ...etc, project, args: { _: [] } });
   },
 };

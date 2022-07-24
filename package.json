@@ -6,7 +6,7 @@
   "dependencies": {
     "@davecode/types": "^1.0.3",
     "@davecode/utils": "^1.0.3",
-    "bun-promptx": "latest",
+    "bun-promptx": "^0.1.6",
     "bun-types": "^0.1.4",
     "bun-utilities": "^0.1.5",
     "change-case": "^4.1.2",
