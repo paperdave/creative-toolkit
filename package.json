@@ -6,6 +6,7 @@
   "dependencies": {
     "@davecode/types": "^1.0.3",
     "@davecode/utils": "^1.0.3",
+    "bun-promptx": "latest",
     "bun-types": "^0.1.4",
     "bun-utilities": "^0.1.5",
     "change-case": "^4.1.2",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@types/luaparse": "^0.2.8",
-    "@types/minimist": "^1.2.2"
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^18.0.6"
   }
 }

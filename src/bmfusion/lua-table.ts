@@ -2,8 +2,9 @@
 // fusion files are lua files that contain just a table. it works similar to json, but lets you do some more stuff
 // this file is a mini library that lets you do stuff with fusion files without wanting to kill yourself.
 
-import AST, { parse } from 'luaparse';
-import { Class } from '@davecode/types';
+import type AST from 'luaparse';
+import type { Class } from '@davecode/types';
+import { parse } from 'luaparse';
 
 interface NodeWithDirty {
   dirty?: boolean;
@@ -100,9 +101,8 @@ export function jsonToAST(x: any): AST.Expression {
         },
       })),
     };
-  } else {
-    throw new Error(`unhandled type ${typeof x}`);
   }
+  throw new Error(`unhandled type ${typeof x}`);
 }
 
 /** Converts a LUA ast to a string. */
@@ -132,9 +132,8 @@ export function astToString(t: AST.Node): string {
       }
       if (multiline) {
         return `{\n${t.fields.map(x => `\t${astToString(x).replace(/\n/g, '\n\t')},\n`).join('')}}`;
-      } else {
-        return `{ ${t.fields.map(x => `${astToString(x).replace(/\n/g, '\t')}`).join(', ')} }`;
       }
+      return `{ ${t.fields.map(x => `${astToString(x).replace(/\n/g, '\t')}`).join(', ')} }`;
     }
     case 'CallExpression':
       return `${astToString(t.base)}(${t.arguments.map(x => astToString(x)).join(',')})`;
@@ -155,17 +154,15 @@ export function astToString(t: AST.Node): string {
 function getOnTable(t: AST.TableConstructorExpression, key: string | number) {
   if (typeof key === 'number') {
     return t.fields.filter(x => x.type === 'TableValue')[key]?.value;
-  } else {
-    return t.fields.find(x => 'key' in x && astToJSON(x.key) === key)?.value;
   }
+  return t.fields.find(x => 'key' in x && astToJSON(x.key) === key)?.value;
 }
 
 function hasOnTable(t: AST.TableConstructorExpression, key: string | number) {
   if (typeof key === 'number') {
     return t.fields.filter(x => x.type === 'TableValue').length > key;
-  } else {
-    return t.fields.some(x => 'key' in x && astToJSON(x.key) === key);
   }
+  return t.fields.some(x => 'key' in x && astToJSON(x.key) === key);
 }
 
 export type LuaTableResolvable =
@@ -179,14 +176,16 @@ export function isTableResolvable(data: any): data is LuaTableResolvable {
     typeof data === 'string' ||
     data instanceof LuaTable ||
     (typeof data === 'object' &&
-      data !== null &&
+      data != null &&
       'type' in data &&
       (data.type === 'TableConstructorExpression' || data.type === 'TableCallExpression'))
   );
 }
 
 function tableNodeIsDirty(table: AST.TableConstructorExpression): boolean {
-  if ((table as NodeWithDirty).dirty) return true;
+  if ((table as NodeWithDirty).dirty) {
+    return true;
+  }
   return table.fields.some(field => {
     if (field.value.type === 'TableConstructorExpression') {
       return tableNodeIsDirty(field.value);
@@ -209,8 +208,12 @@ function tableNodeClearDirty(table: AST.TableConstructorExpression) {
 }
 
 function astNodesEqual(a: AST.Node, b: AST.Node): boolean {
-  if (a === b) return true;
-  if (a.type !== b.type) return false;
+  if (a === b) {
+    return true;
+  }
+  if (a.type !== b.type) {
+    return false;
+  }
 
   return (
     //
@@ -265,7 +268,7 @@ export class LuaTable {
         : this.root;
   }
 
-  keys(): (string | number)[] {
+  keys(): Array<string | number> {
     return this.table.fields
       .filter(x => 'key' in x)
       .map((x, i) => ('key' in x ? astToJSON(x.key) : i));
@@ -277,7 +280,9 @@ export class LuaTable {
 
   get<X = any>(key: string | number, as?: Class<X>): X {
     const value = getOnTable(this.table, key);
-    if (!value) return undefined as any;
+    if (!value) {
+      return undefined as any;
+    }
     if (value.type === 'TableCallExpression' || value.type === 'TableConstructorExpression') {
       return new (as ?? LuaTable)(value) as any;
     }
@@ -302,7 +307,6 @@ export class LuaTable {
       const newAst = jsonToAST(value);
       if (!astNodesEqual(newAst, field.value)) {
         if (!noDirty) {
-          console.log('modify', newAst, field.value);
           this.dirty = true;
         }
         field.value = newAst;
@@ -338,6 +342,10 @@ export class LuaTable {
     return this.keys().length;
   }
 
+  clone(): this {
+    return new this.constructor(this.toString());
+  }
+
   [Symbol.for('nodejs.util.inspect.custom')](depth: number, options: any, inspect: any) {
     const name = (this.root as any)?.base?.name || '';
     const constructor =
@@ -348,9 +356,7 @@ export class LuaTable {
       return type;
     }
 
-    const newOptions = Object.assign({}, options, {
-      depth: options.depth === null ? null : options.depth - 1,
-    });
+    const newOptions = { ...options, depth: options.depth === null ? null : options.depth - 1 };
 
     let inner = this.keys()
       .map(key => {
@@ -376,7 +382,9 @@ export class TableOf<T extends LuaTable> extends LuaTable {
 
   get<X = T>(key: string | number, as?: Class<X>): X {
     const value = super.get(key);
-    if (!value) return undefined!;
+    if (!value) {
+      return undefined!;
+    }
     return new (as ?? this.childClass)(value) as any;
   }
 
