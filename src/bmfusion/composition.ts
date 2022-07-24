@@ -169,7 +169,7 @@ export class Composition extends LuaTable {
       DisabledTools = 0,
       LockedTools = 0,
       AudioOffset = 0,
-      AutoRenderRange = true,
+      AutoRenderRange = false,
       Resumable = true,
       OutputClips = {},
       Tools = {},

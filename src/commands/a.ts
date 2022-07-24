@@ -10,6 +10,8 @@ export const ArrangeCommand: Command = {
   usage: 'ct a',
   desc: 'arrange',
   async run({ project }) {
+    await project.writeJSON();
+
     const comps = (await readdir(project.paths.comps))
       .filter(filename => filename.endsWith('.comp'))
       .map(filename => Composition.fromFile(path.join(project.paths.comps, filename)));
@@ -48,6 +50,13 @@ export const ArrangeCommand: Command = {
         saver.Clip.FormatID = FormatID.PNG;
         saver.CreateDir = BoolNum.True;
         saver.OutputFormat = FormatID.PNG;
+      }
+
+      if (filename !== 'thumbnail.comp') {
+        if (project.hasAudio) {
+          comp.AudioFilename = project.paths.audio;
+          comp.AudioOffset = 0;
+        }
       }
 
       if (comp.dirty) {

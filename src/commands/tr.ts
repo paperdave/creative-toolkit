@@ -1,5 +1,5 @@
 import path from 'path';
-import { copyFile, unlink } from 'fs/promises';
+import { unlink } from 'fs/promises';
 import type { Command } from '..';
 import { RenderCompCommand } from './r';
 import { RenderProgram } from '../project';
@@ -17,9 +17,7 @@ export const ThumbnailRenderCommand: Command = {
       await unlink(thumb);
     }
 
-    await copyFile(
-      path.join(project.getRenderFullPath(RenderProgram.Fusion, 'thumbnail'), '0000.png'),
-      thumb
-    );
+    const src = path.join(project.getRenderFullPath(RenderProgram.Fusion, 'thumbnail'), '0000.png');
+    Bun.write(Bun.file(thumb), Bun.file(src));
   },
 };

@@ -1,5 +1,7 @@
 import path from 'path';
 import { pascalCase } from 'change-case';
+import { existsSync } from 'fs';
+import type { ProjectJSON, ProjectJSONAnyVersion } from './project-json';
 import { exists, readJSON, walkUpDirectoryTree, writeJSON } from './util/fs';
 
 export enum RenderProgram {
@@ -7,26 +9,32 @@ export enum RenderProgram {
 }
 
 const win = process.platform === 'win32';
-const defaultPaths: Paths = {
+const defaultPaths = {
   projectJSON: 'project.json',
   comps: 'comps',
   render: win ? 'C:\\Render' : '/render',
+  audio: '{id}.wav',
+
   execFusion: win ? 'TODO' : '/opt/BlackmagicDesign/Fusion9/Fusion',
+  execFFmpeg: 'ffmpeg', // ffmpeg should be in PATH
 };
+export type Paths = typeof defaultPaths;
 
-export interface ProjectJSON {
-  id: string;
-  name: string;
-  dates: Array<[dateString: string, label: string]>;
-  paths?: Partial<Paths>;
-}
-
-export interface Paths {
-  projectJSON: string;
-  render: string;
-  comps: string;
-
-  execFusion: string;
+function resolveExec(pathname: string, root = process.cwd()): string {
+  if (pathname.startsWith('/')) {
+    return pathname;
+  }
+  if (pathname.startsWith('.')) {
+    return path.resolve(pathname, root);
+  }
+  const binPaths = process.env.PATH!.split(path.delimiter);
+  for (const binPath of binPaths) {
+    const execPath = path.join(binPath, pathname);
+    if (existsSync(execPath)) {
+      return execPath;
+    }
+  }
+  return null!;
 }
 
 export class Project {
@@ -36,6 +44,7 @@ export class Project {
   dates: Array<[dateString: string, label: string]>;
   paths: Paths;
   overridePaths: Partial<Paths> = {};
+  hasAudio: boolean;
 
   constructor(root: string, json: ProjectJSON, pathOverrides: Partial<Paths>) {
     this.root = path.resolve(root);
@@ -51,10 +60,14 @@ export class Project {
     for (const pathObject of pathObjects) {
       for (const key in pathObject) {
         if (pathObject[key as keyof Paths]) {
-          this.paths[key as keyof Paths] = path.resolve(this.root, pathObject[key as keyof Paths]);
+          this.paths[key as keyof Paths] = key.startsWith('exec')
+            ? resolveExec(pathObject[key as keyof Paths], this.root)
+            : path.resolve(this.root, pathObject[key as keyof Paths].replaceAll('{id}', this.id));
         }
       }
     }
+
+    this.hasAudio = existsSync(this.paths.audio);
   }
 
   get json(): ProjectJSON {
@@ -63,11 +76,12 @@ export class Project {
       name: this.name,
       dates: this.dates,
       paths: Object.keys(this.overridePaths).length > 0 ? this.overridePaths : undefined,
+      format: 1,
     };
   }
 
   async writeJSON() {
-    await writeJSON(this.paths.projectJSON, this.json);
+    await writeJSON(this.paths.projectJSON, this.json, { spaces: 2 });
   }
 
   getRenderId(program: string, shot: string) {
@@ -87,6 +101,6 @@ export async function resolveProject(startPath: string, paths: Partial<Paths>): 
     throw new Error('Could not find a creative toolkit project. Run `ct init`.');
   }
 
-  const json = (await readJSON(path.join(root, 'project.json'))) as ProjectJSON;
+  const json = (await readJSON(path.join(root, 'project.json'))) as ProjectJSONAnyVersion;
   return new Project(root, json, paths);
 }

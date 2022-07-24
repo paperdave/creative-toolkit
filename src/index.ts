@@ -5,7 +5,9 @@ import minimist from 'minimist';
 import path from 'path';
 import { tryOrFallback } from '@davecode/utils';
 import { ArrangeCommand } from './commands/a';
+import { AudioFromFileCommand } from './commands/audio-from';
 import { InitCommand } from './commands/init';
+import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
 import { ThumbnailRenderCommand } from './commands/tr';
 import type { Paths, Project } from './project';
@@ -29,6 +31,8 @@ const commands = {
   a: ArrangeCommand,
   r: RenderCompCommand,
   tr: ThumbnailRenderCommand,
+  'audio-from': AudioFromFileCommand,
+  path: PathCommand,
 };
 
 const argv = minimist(process.argv.slice(2));
@@ -37,17 +41,17 @@ if (argv.help || argv.h || argv._.length === 0) {
   console.log('Creative Toolkit');
   console.log('');
   for (const { usage, desc, flags } of Object.values(commands)) {
-    console.log(`${usage}${' '.repeat(18 - usage.length)}${desc}`);
+    console.log(`${usage}${' '.repeat(22 - usage.length)}${desc}`);
     if (flags) {
       for (const flag of flags) {
-        console.log(`  ${flag.name}${' '.repeat(16 - flag.name.length)}${flag.desc}`);
+        console.log(`  ${flag.name}${' '.repeat(20 - flag.name.length)}${flag.desc}`);
       }
     }
   }
   console.log('');
   console.log('global flags:');
-  console.log('  --project -p    set project folder');
-  console.log('  --render-root   set render root');
+  console.log('  --project -p        set project folder');
+  console.log('  --render-root       set render root');
   console.log();
   // console.log('$RENDER_ROOT      set render root');
   console.log('');
