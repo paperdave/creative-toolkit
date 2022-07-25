@@ -2,7 +2,7 @@
 import path from 'path/win32';
 import { createPrompt } from 'bun-promptx';
 import { exec, rmdir } from 'bun-utilities';
-import { readdirSync } from 'fs';
+import { readdirSync, unlinkSync } from 'fs';
 import { mkdir, readdir, symlink } from 'fs/promises';
 import { RenderCompCommand } from './r';
 import { Composition } from '../bmfusion/composition';
@@ -39,7 +39,6 @@ export const WebmRenderCommand = new Command({
     );
 
     const frameCount = Math.ceil(duration * 30);
-    console.log(frameCount);
 
     let lastFrame = 0;
     let lastComp: Composition = null!;
@@ -186,6 +185,7 @@ export const WebmRenderCommand = new Command({
     }
 
     rmdir(tmpDir, { recursive: true });
+    unlinkSync(path.join(project.root, `ffmpeg2pass-0.log`));
 
     console.log('Done');
   },
