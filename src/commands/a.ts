@@ -1,12 +1,12 @@
 import path from 'path';
 import { readdir } from 'fs/promises';
-import type { Command } from '..';
 import { Composition } from '../bmfusion/composition';
 import { BoolNum, FormatID } from '../bmfusion/enum';
 import { SaverTool } from '../bmfusion/tool/saver';
+import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 
-export const ArrangeCommand: Command = {
+export const ArrangeCommand = new Command({
   usage: 'ct a',
   desc: 'arrange',
   async run({ project }) {
@@ -81,4 +81,4 @@ export const ArrangeCommand: Command = {
         );
       });
   },
-};
+});

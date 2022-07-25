@@ -1,12 +1,12 @@
 import path from 'path';
 import { exec } from 'bun-utilities';
 import { readdir } from 'fs/promises';
-import type { Command } from '..';
+import { Command } from '../cmd';
 
-export const FusionCommand: Command = {
+export const FusionCommand = new Command({
   usage: 'ct f [...args]',
   desc: 'runs fusion, will resolve compname for you',
-  async run({ project, args, argList }) {
+  async run({ project, argList }) {
     const compAliases = Object.fromEntries(
       (await readdir(project.paths.comps))
         .filter(filename => filename.endsWith('.comp'))
@@ -21,4 +21,4 @@ export const FusionCommand: Command = {
     console.log(`fusion ${mappedArgs.join(' ')}`);
     exec([project.paths.execFusion, ...mappedArgs]);
   },
-};
+});

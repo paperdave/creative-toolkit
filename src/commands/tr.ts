@@ -1,15 +1,15 @@
 import path from 'path';
 import { unlink } from 'fs/promises';
-import type { Command } from '..';
 import { RenderCompCommand } from './r';
+import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists } from '../util/fs';
 
-export const ThumbnailRenderCommand: Command = {
+export const ThumbnailRenderCommand = new Command({
   usage: 'ct tr',
   desc: 'thumbnail render',
-  async run({ project, ...etc }) {
-    await RenderCompCommand.run({ ...etc, project, args: { _: ['thumbnail'] } });
+  async run({ project }) {
+    await RenderCompCommand.run({ project, args: 'thumbnail' });
 
     const thumb = path.join(project.root, `${project.id}.png`);
 
@@ -20,4 +20,4 @@ export const ThumbnailRenderCommand: Command = {
     const src = path.join(project.getRenderFullPath(RenderProgram.Fusion, 'thumbnail'), '0000.png');
     Bun.write(Bun.file(thumb), Bun.file(src));
   },
-};
+});

@@ -4,18 +4,16 @@ import { createPrompt } from 'bun-promptx';
 import { exec, rmdir } from 'bun-utilities';
 import { readdirSync } from 'fs';
 import { mkdir, readdir, symlink } from 'fs/promises';
-import type { Command } from '..';
-import { ArrangeCommand } from './a';
 import { RenderCompCommand } from './r';
 import { Composition } from '../bmfusion/composition';
+import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 
-export const WebmRenderCommand: Command = {
+export const WebmRenderCommand = new Command({
   usage: 'ct webm',
   desc: 'webm render',
+  arrangeFirst: true,
   async run({ project, ...etc }) {
-    await ArrangeCommand.run({ ...etc, project, args: { _: [''] } });
-
     if (!project.hasAudio) {
       console.error('no audio');
       return;
@@ -97,9 +95,8 @@ export const WebmRenderCommand: Command = {
 
     for (const comp of comps) {
       await RenderCompCommand.run({
-        ...etc,
         project,
-        args: { _: [comp.ctLabel!] },
+        args: [comp.ctLabel!],
       });
     }
 
@@ -119,13 +116,14 @@ export const WebmRenderCommand: Command = {
     const tmpDir = path.join(project.paths.temp, 'ct_' + Date.now() + '_frames');
     await mkdir(tmpDir);
 
-    const padLength = files.length.toString().length;
     await Promise.all(files.map((file, i) => symlink(file, path.join(tmpDir, `${i}.png`))));
     console.log(`Created ${files.length} symlinks in ${tmpDir}`);
 
     const input = path.join(tmpDir, `%d.png`);
     const output = path.join(project.root, `${project.id}.webm`);
 
+    // Following is taken from https://developers.google.com/media/vp9/settings/vod/
+    // We are targetting 1080p30
     const targetBitrate = 1800;
     const tileColumns = 2;
     const threads = 2 ** tileColumns * 2;
@@ -191,16 +189,4 @@ export const WebmRenderCommand: Command = {
 
     console.log('Done');
   },
-};
-
-// https://developers.google.com/media/vp9/settings/vod/
-// ```
-// ffmpeg -i tearsofsteel_4k.mov -vf scale=1920x1080 -b:v 1800k \
-//   -minrate 900k -maxrate 2610k -tile-columns 2 -g 240 -threads 8 \
-//   -quality good -crf 31 -c:v libvpx-vp9 -c:a libopus \
-//   -pass 1 -speed 4 tos-1920x1080-24-30fps.webm && \
-// ffmpeg -i tearsofsteel_4k.mov -vf scale=1920x1080 -b:v 1800k \
-//   -minrate 900k -maxrate 2610k -tile-columns 3 -g 240 -threads 8 \
-//   -quality good -crf 31 -c:v libvpx-vp9 -c:a libopus \
-//   -pass 2 -speed 4 -y tos-1920x1080-24-30fps.webm
-// ```
+});

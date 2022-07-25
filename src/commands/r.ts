@@ -3,29 +3,23 @@ import { range } from '@davecode/utils';
 import { exec } from 'bun-utilities';
 import { readFileSync } from 'fs';
 import { mkdir, readdir, unlink } from 'fs/promises';
-import type { Command } from '..';
-import { ArrangeCommand } from './a';
 import { Composition } from '../bmfusion/composition';
+import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists, readJSON, writeJSON } from '../util/fs';
 
-export const RenderCompCommand: Command = {
+export const RenderCompCommand = new Command({
   usage: 'ct r [comp]',
   desc: 'render comp by label',
   flags: [{ name: '--force -f', desc: 'clears cache' }],
-  async run({ project, args: argv, ...etc }) {
-    const search = argv._[0];
-    const force = argv.force || argv.f;
+  arrangeFirst: true,
+  async run({ project, args }) {
+    const search = args._[0];
+    const force = args.force || args.f;
     if (!search) {
       console.error('usage: ct r [comp]');
       return;
     }
-
-    await ArrangeCommand.run({
-      project,
-      args: { _: [] },
-      ...etc,
-    });
 
     const allCompNames = (await readdir(project.paths.comps)).filter(x => x.endsWith('.comp'));
 
@@ -109,14 +103,19 @@ export const RenderCompCommand: Command = {
       .map(({ start, end }) => (start === end ? start : `${start}..${end}`))
       .join(',');
 
-    const args = [project.paths.execFusion, '-render', compPath, '-frames', frameset, '-quit'];
+    const renderArgs = [
+      project.paths.execFusion,
+      '-render',
+      compPath,
+      '-frames',
+      frameset,
+      '-quit',
+    ];
 
-    console.log('Executing "' + args.join(' ') + '"');
-
-    const out = exec(args);
+    const out = exec(renderArgs);
     if (!out.isExecuted) {
       console.log('Failed to render comp');
       process.exit(1);
     }
   },
-};
+});

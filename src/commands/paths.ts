@@ -1,6 +1,6 @@
-import type { Command } from '..';
+import { Command } from '../cmd';
 
-export const PathCommand: Command = {
+export const PathCommand = new Command({
   usage: 'ct path [<key> <p>]',
   desc: 'inspect/edit paths',
   async run({ project, args }) {
@@ -13,4 +13,4 @@ export const PathCommand: Command = {
       }
     }
   },
-};
+});

@@ -4,6 +4,7 @@ import 'bun-utilities';
 import minimist from 'minimist';
 import path from 'path';
 import { tryOrFallback } from '@davecode/utils';
+import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
 import { FusionCommand } from './commands/f';
@@ -12,7 +13,7 @@ import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
 import { ThumbnailRenderCommand } from './commands/tr';
 import { WebmRenderCommand } from './commands/webm';
-import type { Paths, Project } from './project';
+import type { Paths } from './project';
 import { resolveProject } from './project';
 
 enum ArgParserState {
@@ -40,20 +41,6 @@ for (let i = 2; i < process.argv.length; i++) {
     commandArgList.push(arg);
     state = ArgParserState.Program;
   }
-}
-
-export interface CommandContext {
-  project: Project;
-  args: minimist.ParsedArgs;
-  argList: string[];
-  pathOverrides: Partial<Paths>;
-}
-
-export interface Command {
-  usage: string;
-  desc: string;
-  flags?: Array<{ name: string; desc: string }>;
-  run(args: CommandContext): Promise<void>;
 }
 
 const commands: Record<string, Command> = {
@@ -104,11 +91,14 @@ if (!project && cmdName !== 'init') {
 }
 
 if (commands[cmdName]) {
+  if (commands[cmdName].arrangeFirst) {
+    await ArrangeCommand.run({
+      project: project!,
+    });
+  }
   await commands[cmdName].run({
     project: project!,
-    args: minimist(commandArgList),
-    argList: commandArgList,
-    pathOverrides: paths,
+    args: commandArgList,
   });
 } else if (cmdName) {
   console.error(`Unknown command: ${cmdName}`);

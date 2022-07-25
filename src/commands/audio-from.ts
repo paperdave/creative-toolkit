@@ -1,14 +1,14 @@
 import path from 'path';
 import { createPrompt } from 'bun-promptx';
 import { exec } from 'bun-utilities';
-import type { Command } from '..';
 import { ArrangeCommand } from './a';
+import { Command } from '../cmd';
 import { exists } from '../util/fs';
 
-export const AudioFromFileCommand: Command = {
+export const AudioFromFileCommand = new Command({
   usage: 'ct audio-from [file]',
   desc: 'sets project audio using file',
-  async run({ project, args, ...etc }) {
+  async run({ project, args }) {
     const file = args._[0];
     if (!file) {
       console.error('usage: ct audio-from [file]');
@@ -51,6 +51,6 @@ export const AudioFromFileCommand: Command = {
       `Project audio set from ${file}, (${path.relative(project.root, project.paths.audio)})`
     );
     console.log();
-    await ArrangeCommand.run({ ...etc, project, args: { _: [] } });
+    await ArrangeCommand.run({ project });
   },
-};
+});

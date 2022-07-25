@@ -3,13 +3,13 @@ import { mkdir } from 'fs/promises';
 import { ArrangeCommand } from './a';
 import { Composition } from '../bmfusion/composition';
 import { SaverTool } from '../bmfusion/tool/saver';
-import type { Command } from '../index';
+import { Command } from '../cmd';
 import { Project } from '../project';
 
-export const InitCommand: Command = {
+export const InitCommand = new Command({
   usage: 'ct init',
   desc: 'setup project structure.',
-  async run({ project: existingProject, pathOverrides, ...etc }) {
+  async run({ project: existingProject }) {
     if (existingProject) {
       console.log(`Project already exists: ${existingProject.name}`);
       return;
@@ -39,7 +39,7 @@ export const InitCommand: Command = {
         dates: [[today, 'Project Start']],
         format: 1,
       },
-      pathOverrides
+      {}
     );
     await project.writeJSON();
 
@@ -83,8 +83,6 @@ export const InitCommand: Command = {
 
     await ArrangeCommand.run({
       project,
-      pathOverrides,
-      ...etc,
     });
   },
-};
+});
