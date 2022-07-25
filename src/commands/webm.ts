@@ -173,21 +173,19 @@ export const WebmRenderCommand: Command = {
       output,
     ].flat();
 
-    console.log(pass1Args.join(' '));
+    console.log('FFmpeg Pass 1');
     const pass1 = exec(pass1Args);
     if (pass1.exitCode) {
       console.error(`pass1 failed: ${pass1.stderr}`);
       return;
     }
-    console.log(pass1.stdout);
 
-    console.log(pass2Args.join(' '));
+    console.log('FFmpeg Pass 2');
     const pass2 = exec(pass2Args);
     if (pass2.exitCode) {
       console.error(`pass2 failed: ${pass1.stderr}`);
       return;
     }
-    console.log(pass2.stdout);
 
     rmdir(tmpDir, { recursive: true });
 
