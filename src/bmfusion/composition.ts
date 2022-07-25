@@ -6,6 +6,13 @@ import { Tool } from './tool';
 export class Composition extends LuaTable {
   filepath?: string;
 
+  get ctLabel() {
+    if (!this.filepath) {
+      return null;
+    }
+    return path.basename(this.filepath).replace(/^[0-9]+-[0-9]+_|.comp$/g, '');
+  }
+
   get CurrentTime(): number {
     return this.get('CurrentTime');
   }

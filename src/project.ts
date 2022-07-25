@@ -1,6 +1,6 @@
 import path from 'path';
 import { pascalCase } from 'change-case';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import type { ProjectJSON, ProjectJSONAnyVersion } from './project-json';
 import { exists, readJSON, walkUpDirectoryTree, writeJSON } from './util/fs';
 
@@ -14,9 +14,11 @@ const defaultPaths = {
   comps: 'comps',
   render: win ? 'C:\\Render' : '/render',
   audio: '{id}.wav',
+  temp: process.env.TEMP || process.env.TMPDIR || (win ? 'C:\\Temp' : '/tmp'),
 
   execFusion: win ? 'TODO' : '/opt/BlackmagicDesign/Fusion9/Fusion',
-  execFFmpeg: 'ffmpeg', // ffmpeg should be in PATH
+  execFFmpeg: 'ffmpeg',
+  execFFprobe: 'ffprobe',
 };
 export type Paths = typeof defaultPaths;
 
@@ -68,6 +70,10 @@ export class Project {
     }
 
     this.hasAudio = existsSync(this.paths.audio);
+
+    if (!existsSync(this.paths.temp)) {
+      mkdirSync(this.paths.temp);
+    }
   }
 
   get json(): ProjectJSON {

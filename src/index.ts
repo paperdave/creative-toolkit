@@ -11,6 +11,7 @@ import { InitCommand } from './commands/init';
 import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
 import { ThumbnailRenderCommand } from './commands/tr';
+import { WebmRenderCommand } from './commands/webm';
 import type { Paths, Project } from './project';
 import { resolveProject } from './project';
 
@@ -63,6 +64,7 @@ const commands: Record<string, Command> = {
   tr: ThumbnailRenderCommand,
   'audio-from': AudioFromFileCommand,
   path: PathCommand,
+  webm: WebmRenderCommand,
 };
 
 const programArgs = minimist(programArgList);
