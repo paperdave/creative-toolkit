@@ -6,7 +6,7 @@ import { Command } from '../cmd';
 import { exists } from '../util/fs';
 
 export const AudioFromFileCommand = new Command({
-  usage: 'ct audio-from [file]',
+  usage: 'ct audio-from <file>',
   desc: 'sets project audio using file',
   async run({ project, args }) {
     const file = args._[0];

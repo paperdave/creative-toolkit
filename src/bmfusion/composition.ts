@@ -6,11 +6,15 @@ import { Tool } from './tool';
 export class Composition extends LuaTable {
   filepath?: string;
 
+  static nameToCTLabel(filepath: string) {
+    return path.basename(filepath).replace(/^[0-9]+-[0-9]+_|.comp$/g, '');
+  }
+
   get ctLabel() {
     if (!this.filepath) {
       return null;
     }
-    return path.basename(this.filepath).replace(/^[0-9]+-[0-9]+_|.comp$/g, '');
+    return Composition.nameToCTLabel(this.filepath);
   }
 
   get CurrentTime(): number {

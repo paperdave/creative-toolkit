@@ -11,6 +11,7 @@ import { FusionCommand } from './commands/f';
 import { InitCommand } from './commands/init';
 import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
+import { SplitCommand } from './commands/split';
 import { ThumbnailRenderCommand } from './commands/tr';
 import { WebmRenderCommand } from './commands/webm';
 import type { Paths } from './project';
@@ -46,11 +47,12 @@ for (let i = 2; i < process.argv.length; i++) {
 const commands: Record<string, Command> = {
   init: InitCommand,
   a: ArrangeCommand,
-  f: FusionCommand,
-  r: RenderCompCommand,
-  tr: ThumbnailRenderCommand,
   'audio-from': AudioFromFileCommand,
+  f: FusionCommand,
   path: PathCommand,
+  r: RenderCompCommand,
+  split: SplitCommand,
+  tr: ThumbnailRenderCommand,
   webm: WebmRenderCommand,
 };
 
@@ -60,10 +62,10 @@ if (programArgs.help || programArgs.h || !cmdName) {
   console.log('Creative Toolkit');
   console.log('');
   for (const { usage, desc, flags } of Object.values(commands)) {
-    console.log(`${usage}${' '.repeat(22 - usage.length)}${desc}`);
+    console.log(`${usage}${' '.repeat(30 - usage.length)}${desc}`);
     if (flags) {
       for (const flag of flags) {
-        console.log(`  ${flag.name}${' '.repeat(20 - flag.name.length)}${flag.desc}`);
+        console.log(`  ${flag.name}${' '.repeat(28 - flag.name.length)}${flag.desc}`);
       }
     }
   }

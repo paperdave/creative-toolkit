@@ -9,7 +9,7 @@ import { RenderProgram } from '../project';
 import { exists, readJSON, writeJSON } from '../util/fs';
 
 export const RenderCompCommand = new Command({
-  usage: 'ct r [comp]',
+  usage: 'ct r <comp>',
   desc: 'render comp by label',
   flags: [{ name: '--force -f', desc: 'clears cache' }],
   arrangeFirst: true,

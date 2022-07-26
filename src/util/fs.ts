@@ -46,7 +46,7 @@ export async function writeJSON(
 ): Promise<void> {
   Bun.write(
     Bun.file(filepath),
-    textEncoder.encode(JSON.stringify(data, options?.replacer, options?.spaces))
+    textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces))
   );
 }
 
