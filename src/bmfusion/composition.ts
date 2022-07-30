@@ -134,23 +134,16 @@ export class Composition extends LuaTable {
   get Tools() {
     return new TableOf(Tool, this.get('Tools'));
   }
-
-  get unstable_PrefCompComments() {
-    return this.get('Prefs')?.get('Comp')?.get('Comments') ?? '';
+  
+  get CustomData() {
+    if (!this.get('CustomData')) {
+      this.set('CustomData', new LuaTable(), true);
+    }
+    return this.get('CustomData')!;
   }
 
-  set unstable_PrefCompComments(value: string) {
-    if (!this.has('Prefs')) {
-      this.set('Prefs', new LuaTable());
-    }
-    const prefs = this.get('Prefs');
-
-    if (!prefs.has('Comp')) {
-      prefs.set('Comp', new LuaTable());
-    }
-    const comp = prefs.get('Comp');
-
-    comp.set('Comments', value);
+  set CustomData(value: LuaTable) {
+    this.set('CustomData', value);
   }
 
   static fromFile(filepath: string) {
