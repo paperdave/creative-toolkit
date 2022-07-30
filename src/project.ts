@@ -9,6 +9,20 @@ export enum RenderProgram {
 }
 
 const win = process.platform === 'win32';
+
+const execFusion = [
+  'Fusion',
+  'fusion',
+  ...win ? [
+    'C:\\Program Files\\Blackmagic Design\\Fusion 18\\Fusion.exe',
+    'C:\\Program Files\\Blackmagic Design\\Fusion 17\\Fusion.exe',
+    'C:\\Program Files\\Blackmagic Design\\Fusion 9\\Fusion.exe',
+  ] : [
+    '/opt/BlackmagicDesign/Fusion17/Fusion',
+    '/opt/BlackmagicDesign/Fusion9/Fusion',
+  ]
+];
+
 const defaultPaths = {
   projectJSON: 'project.json',
   comps: 'comps',
@@ -16,16 +30,17 @@ const defaultPaths = {
   audio: '{id}.wav',
   temp: process.env.TEMP ?? process.env.TMPDIR ?? (win ? 'C:\\Temp' : '/tmp'),
 
-  execFusion: [
-    'Fusion',
-    'fusion',
+  execFusion,
+  execFusionRender: [
+    'FusionConsoleNode',
     ...win ? [
-      'C:\\Program Files\\Blackmagic Design\\Fusion 17\\Fusion.exe',
-      'C:\\Program Files\\Blackmagic Design\\Fusion 9\\Fusion.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 18\\FusionConsoleNode.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 17\\FusionConsoleNode.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 9\\FusionConsoleNode.exe',
     ] : [
-      '/opt/BlackmagicDesign/Fusion17/Fusion',
-      '/opt/BlackmagicDesign/Fusion9/Fusion',
-    ]
+      // TODO:
+    ],
+    ...execFusion,
   ],
   execFFmpeg: 'ffmpeg',
   execFFprobe: 'ffprobe',

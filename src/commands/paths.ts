@@ -9,7 +9,7 @@ export const PathCommand = new Command({
       console.log('');
 
       for (const path of Object.keys(project.paths)) {
-        console.log(`${path}:${' '.repeat(14 - path.length)} ${(project.paths as any)[path]}`);
+        console.log(`${path}:${' '.repeat(20 - path.length)} ${(project.paths as any)[path]}`);
       }
     }
   },

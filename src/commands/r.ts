@@ -107,7 +107,7 @@ export const RenderCompCommand = new Command({
       .join(',');
 
     const renderArgs = [
-      project.paths.execFusion,
+      project.paths.execFusionRender,
       '-render',
       compPath,
       '-frames',
@@ -117,7 +117,7 @@ export const RenderCompCommand = new Command({
 
     const out = exec(renderArgs);
     if (!out.isExecuted) {
-      console.log('Failed to render comp');
+      error('Failed to render comp');
       process.exit(1);
     }
   },

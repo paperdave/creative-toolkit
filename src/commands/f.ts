@@ -18,7 +18,6 @@ export const FusionCommand = new Command({
 
     const mappedArgs = argList.map(arg => compAliases[arg] ?? arg);
 
-    console.log(`fusion ${mappedArgs.join(' ')}`);
     exec([project.paths.execFusion, ...mappedArgs]);
   },
 });

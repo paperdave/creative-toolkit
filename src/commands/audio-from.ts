@@ -21,10 +21,6 @@ export const AudioFromFileCommand = new Command({
     }
 
     if (await exists(project.paths.audio)) {
-      // const { value } = prompt('overwrite existing audio? [yN] ', {
-      //   charLimit: 1,
-      //   required: false,
-      // });
       const { value } = await prompt({
         type: 'confirm',
         message: 'overwrite existing audio?',
