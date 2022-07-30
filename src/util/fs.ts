@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'path';
-import type { Awaitable } from '@davecode/types';
+import type { Awaitable } from '@paperdave/utils';
 
 const textEncoder = new TextEncoder();
 
 export function isRootDirectory(str: string) {
-  return str === '/' || (str.length === 3 && str.endsWith(':/'));
+  return str === '/' || (str.length === 3 && str.endsWith(':\\'));
 }
 
 export async function walkUpDirectoryTree(
@@ -26,7 +26,7 @@ export async function exists(...filepath: string[]): Promise<boolean> {
   try {
     await fs.access(path.resolve(...filepath));
     return true;
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === 'ENOENT') {
       return false;
     }
@@ -44,13 +44,13 @@ export async function writeJSON(
   data: unknown,
   options?: WriteJSONOptions
 ): Promise<void> {
-  Bun.write(
-    Bun.file(filepath),
-    textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces))
-  );
+  // await Bun.write(
+  //   Bun.file(filepath),
+  //   textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces))
+  // );
+  await fs.writeFile(filepath, textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces)));
 }
 
 export async function readJSON(filepath: string): Promise<unknown> {
-  // @ts-expect-error Jarred messed up the ts types here :/
-  return await Bun.file(filepath).json();
+  return JSON.parse(await fs.readFile(filepath, 'utf8'));
 }

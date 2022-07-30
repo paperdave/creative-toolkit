@@ -5,6 +5,7 @@ import { BoolNum, FormatID } from '../bmfusion/enum';
 import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
+import { info, warn } from '@paperdave/logger';
 
 export const ArrangeCommand = new Command({
   usage: 'ct a',
@@ -41,7 +42,7 @@ export const ArrangeCommand = new Command({
       const saver = comp.Tools.get('MainOutput', SaverTool);
       if (saver) {
         if (saver.Type !== 'Saver') {
-          console.log(`${filename} has something named \`MainOutput\` that is not a Saver.`);
+          warn(`${filename} has something named \`MainOutput\` that is not a Saver.`);
         }
 
         const renderId = project.getRenderId(RenderProgram.Fusion, label);
@@ -60,13 +61,13 @@ export const ArrangeCommand = new Command({
       }
 
       if (comp.dirty) {
-        console.log('modifying comp: ' + label);
+        info('modifying comp: ' + label);
       }
 
       comp.writeAndMoveFile(path.join(project.paths.comps, filename));
     }
 
-    console.log();
+    info();
 
     comps
       .filter(x => !x.filepath!.endsWith('thumbnail.comp'))
@@ -74,7 +75,7 @@ export const ArrangeCommand = new Command({
         const { label } = newFilenames[i];
         const saver = !!comp.Tools.has('MainOutput');
 
-        console.log(
+        info(
           `[${i}] ${label} - frames ${comp.RenderRange.join('-')} - ${comp.Tools.length} Tools${
             saver ? '' : ' [MISSING SAVER]'
           }`

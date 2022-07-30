@@ -5,26 +5,38 @@ import { Composition } from '../bmfusion/composition';
 import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { Project } from '../project';
+import { error, info, writeLine } from '@paperdave/logger';
+import prompt from 'prompts';
 
 export const InitCommand = new Command({
   usage: 'ct init',
   desc: 'setup project structure.',
   async run({ project: existingProject }) {
     if (existingProject) {
-      console.log(`Project already exists: ${existingProject.name}`);
+      error(`Project already exists: ${existingProject.name}`);
       return;
     }
 
     const root = process.cwd();
 
-    console.log('generating project at: ' + root);
-    console.log("if this isn't ok press Ctrl+C");
-    console.log('');
+    info('generating project at: ' + root);
+    info("if this isn't ok press Ctrl+C");
+    info('');
 
-    const name = prompt('name:')!;
+    const { name } = await prompt({
+      message: 'name:',
+      type: 'text',
+      name: 'name',
+    });
+    if (!name) {return;}
     const autoGenId = paramCase(name);
-    const id = prompt(`id:`, autoGenId)!;
-    console.log('');
+    const {id} = await prompt({
+      message: 'id:',
+      type: 'text',
+      name: 'id',
+      initial: autoGenId,
+    });
+    info('');
 
     const date = new Date();
     const today = [date.getFullYear(), date.getMonth() + 1, date.getDate()]

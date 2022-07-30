@@ -17,7 +17,7 @@ class XML {
   up?: XML;
 
   get root(): XML {
-    if (!this.up) return this;
+    if (!this.up) {return this;}
     let ref: XML = this.up;
     while (ref.up) {
       ref = ref.up;
@@ -26,7 +26,7 @@ class XML {
   }
 
   constructor(readonly tagName: string, attrs?: XMLAttrs, ...children: XMLChildren[]) {
-    this.attrs = attrs || {};
+    this.attrs = attrs ?? {};
     this.children = children.flat();
   }
 
@@ -59,9 +59,9 @@ class XML {
       return `${space}<${escapeXML(this.tagName)}${attrs}>\n${children.join(
         '\n'
       )}\n${space}</${escapeXML(this.tagName)}>`;
-    } else {
+    } 
       return `${space}<${escapeXML(this.tagName)}${attrs} />`;
-    }
+    
   }
 }
 

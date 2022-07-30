@@ -14,24 +14,50 @@ const defaultPaths = {
   comps: 'comps',
   render: win ? 'C:\\Render' : '/render',
   audio: '{id}.wav',
-  temp: process.env.TEMP || process.env.TMPDIR || (win ? 'C:\\Temp' : '/tmp'),
+  temp: process.env.TEMP ?? process.env.TMPDIR ?? (win ? 'C:\\Temp' : '/tmp'),
 
-  execFusion: win ? 'TODO' : '/opt/BlackmagicDesign/Fusion9/Fusion',
+  execFusion: [
+    'Fusion',
+    'fusion',
+    ...win ? [
+      'C:\\Program Files\\Blackmagic Design\\Fusion 17\\Fusion.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion 9\\Fusion.exe',
+    ] : [
+      '/opt/BlackmagicDesign/Fusion17/Fusion',
+      '/opt/BlackmagicDesign/Fusion9/Fusion',
+    ]
+  ],
   execFFmpeg: 'ffmpeg',
   execFFprobe: 'ffprobe',
 };
-export type Paths = typeof defaultPaths;
+export type Paths = Record<keyof typeof defaultPaths, string>;
 
-function resolveExec(pathname: string, root = process.cwd()): string {
+function resolveExec(pathname: string | string[], root = process.cwd()): string {
+  if (Array.isArray(pathname)) {
+    for (const item of pathname) {
+      const resolve = resolveExec(item, root);
+      if (resolve) {
+        return resolve;
+      }
+    }
+    return null!;
+  }
+
+  if (pathname.endsWith('.exe')) {
+    pathname = pathname.replace(/\.exe$/, '');
+  }
+
   if (pathname.startsWith('/')) {
     return pathname;
   }
+
   if (pathname.startsWith('.')) {
     return path.resolve(pathname, root);
   }
+
   const binPaths = process.env.PATH!.split(path.delimiter);
   for (const binPath of binPaths) {
-    const execPath = path.join(binPath, pathname);
+    const execPath = path.join(binPath, pathname) + (win ? '.exe' : '');
     if (existsSync(execPath)) {
       return execPath;
     }

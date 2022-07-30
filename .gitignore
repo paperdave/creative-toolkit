@@ -2,3 +2,5 @@ node_modules
 *local*/
 result
 result-*
+pnpm-lock.yaml
+dist

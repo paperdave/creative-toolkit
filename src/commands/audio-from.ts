@@ -1,9 +1,10 @@
 import path from 'path';
-import { createPrompt } from 'bun-promptx';
 import { exec } from 'bun-utilities';
 import { ArrangeCommand } from './a';
 import { Command } from '../cmd';
 import { exists } from '../util/fs';
+import prompt from 'prompts';
+import { error, info } from '@paperdave/logger';
 
 export const AudioFromFileCommand = new Command({
   usage: 'ct audio-from <file>',
@@ -11,18 +12,24 @@ export const AudioFromFileCommand = new Command({
   async run({ project, args }) {
     const file = args._[0];
     if (!file) {
-      console.error('usage: ct audio-from [file]');
+      error('usage: ct audio-from [file]');
       return;
     }
     if (!(await exists(file))) {
-      console.error(`file ${file} does not exist`);
+      error(`file ${file} does not exist`);
       return;
     }
 
     if (await exists(project.paths.audio)) {
-      const { value } = createPrompt('overwrite existing audio? [yN] ', {
-        charLimit: 1,
-        required: false,
+      // const { value } = prompt('overwrite existing audio? [yN] ', {
+      //   charLimit: 1,
+      //   required: false,
+      // });
+      const { value } = await prompt({
+        type: 'confirm',
+        message: 'overwrite existing audio?',
+        name: 'value',
+        initial: false,
       });
       if (value?.toLowerCase() !== 'y') {
         return;
@@ -41,16 +48,14 @@ export const AudioFromFileCommand = new Command({
       project.paths.audio,
     ]);
     if (!result.isExecuted) {
-      console.error('failed to execute');
+      error('failed to execute');
       return;
     }
 
     project.hasAudio = true;
 
-    console.log(
-      `Project audio set from ${file}, (${path.relative(project.root, project.paths.audio)})`
-    );
-    console.log();
+    info(`Project audio set from ${file}, (${path.relative(project.root, project.paths.audio)})`);
+    info();
     await ArrangeCommand.run({ project });
   },
 });

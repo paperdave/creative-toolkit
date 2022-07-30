@@ -3,7 +3,7 @@
 // this file is a mini library that lets you do stuff with fusion files without wanting to kill yourself.
 
 import type AST from 'luaparse';
-import type { Class } from '@davecode/types';
+import type { Class } from '@paperdave/utils';
 import { parse } from 'luaparse';
 
 interface NodeWithDirty {

@@ -1,5 +1,5 @@
 import path from 'path';
-import { range } from '@davecode/utils';
+import { range } from '@paperdave/utils';
 import { exec } from 'bun-utilities';
 import { readFileSync } from 'fs';
 import { mkdir, readdir, unlink } from 'fs/promises';
@@ -7,6 +7,8 @@ import { Composition } from '../bmfusion/composition';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists, readJSON, writeJSON } from '../util/fs';
+import { createHash } from 'crypto';
+import { error, info } from '@paperdave/logger';
 
 export const RenderCompCommand = new Command({
   usage: 'ct r <comp>',
@@ -17,7 +19,7 @@ export const RenderCompCommand = new Command({
     const search = args._[0];
     const force = args.force || args.f;
     if (!search) {
-      console.error('usage: ct r [comp]');
+      error('usage: ct r [comp]');
       return;
     }
 
@@ -31,17 +33,17 @@ export const RenderCompCommand = new Command({
     );
 
     if (!selectedName) {
-      console.error(`Could not find comp named ${search}`);
+      error(`Could not find comp named ${search}`);
       return;
     }
     if (otherNames.length > 0) {
-      console.error(
+      error(
         `Found multiple comps named ${search}: ${[selectedName, ...otherNames].join(', ')}`
       );
       return;
     }
 
-    console.log(`Rendering ${selectedName}`);
+    info(`Rendering ${selectedName}`);
 
     const compPath = path.join(project.paths.comps, selectedName);
     const prefix = selectedName.replace(/^[0-9]+-[0-9]+_/, '').replace(/.comp$/, '');
@@ -49,12 +51,13 @@ export const RenderCompCommand = new Command({
 
     const comp = new Composition(readFileSync(compPath, 'utf-8'));
 
-    const hashed = Bun.SHA1.hash(await Bun.file(compPath).arrayBuffer());
-    const hex = [...hashed].map(x => x.toString(16).padStart(2, '0')).join('');
+    // const hashed = Bun.SHA1.hash(await Bun.file(compPath).arrayBuffer());
+    // const hex = [...hashed].map(x => x.toString(16).padStart(2, '0')).join('');
+    const hex = createHash('sha1').update(readFileSync(compPath)).digest('hex');
 
     await mkdir(renderPath, { recursive: true });
 
-    let toRender = range(comp.RenderRange[0], comp.RenderRange[1] + 1);
+    let toRender = [...range(comp.RenderRange[0], comp.RenderRange[1] + 1)];
 
     const renderJSONFile = path.resolve(renderPath, '.render.json');
     if (await exists(renderJSONFile)) {
@@ -69,7 +72,7 @@ export const RenderCompCommand = new Command({
           }
         }
         if (toRender.length === 0) {
-          console.log('Up to Date.');
+          info('Up to Date.');
           return;
         }
       } else {

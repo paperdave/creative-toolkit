@@ -4,6 +4,7 @@ import { RenderCompCommand } from './r';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists } from '../util/fs';
+import { copyfile } from 'bun-utilities';
 
 export const ThumbnailRenderCommand = new Command({
   usage: 'ct tr',
@@ -18,6 +19,6 @@ export const ThumbnailRenderCommand = new Command({
     }
 
     const src = path.join(project.getRenderFullPath(RenderProgram.Fusion, 'thumbnail'), '0000.png');
-    Bun.write(Bun.file(thumb), Bun.file(src));
+    copyfile(src, thumb);
   },
 });

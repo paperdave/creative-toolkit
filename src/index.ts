@@ -1,9 +1,6 @@
-#!/usr/bin/env bun
-/* eslint-disable @typescript-eslint/promise-function-async */
-import 'bun-utilities';
 import minimist from 'minimist';
 import path from 'path';
-import { tryOrFallback } from '@davecode/utils';
+import { tryOrFallback } from '@paperdave/utils';
 import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
@@ -16,6 +13,7 @@ import { ThumbnailRenderCommand } from './commands/tr';
 import { WebmRenderCommand } from './commands/webm';
 import type { Paths } from './project';
 import { resolveProject } from './project';
+import { error, writeLine } from '@paperdave/logger';
 
 enum ArgParserState {
   Program,
@@ -59,23 +57,23 @@ const commands: Record<string, Command> = {
 const programArgs = minimist(programArgList);
 
 if (programArgs.help || programArgs.h || !cmdName) {
-  console.log('Creative Toolkit');
-  console.log('');
+  writeLine('Creative Toolkit');
+  writeLine('');
   for (const { usage, desc, flags } of Object.values(commands)) {
-    console.log(`${usage}${' '.repeat(30 - usage.length)}${desc}`);
+    writeLine(`${usage}${' '.repeat(30 - usage.length)}${desc}`);
     if (flags) {
       for (const flag of flags) {
-        console.log(`  ${flag.name}${' '.repeat(28 - flag.name.length)}${flag.desc}`);
+        writeLine(`  ${flag.name}${' '.repeat(28 - flag.name.length)}${flag.desc}`);
       }
     }
   }
-  console.log('');
-  console.log('global flags:');
-  console.log('  --project -p        set project folder');
-  console.log('  --render-root       set render root');
-  console.log();
+  writeLine('');
+  writeLine('global flags:');
+  writeLine('  --project -p        set project folder');
+  writeLine('  --render-root       set render root');
+  writeLine('');
   // console.log('$RENDER_ROOT      set render root');
-  console.log('');
+  writeLine('');
   process.exit(0);
 }
 
@@ -85,10 +83,13 @@ const projectPath = path
 const paths: Partial<Paths> = {
   render: programArgs['render-root'],
 };
-const project = await tryOrFallback(() => resolveProject(projectPath, paths), null);
+const project = await resolveProject(projectPath, paths).catch((err) => {
+  error(err);
+  process.exit(1);
+})
 
 if (!project && cmdName !== 'init') {
-  console.error('Could not find a creative toolkit project. Run `ct init`.');
+  error('Could not find a creative toolkit project. Run `ct init`.');
   process.exit(1);
 }
 
@@ -103,6 +104,6 @@ if (commands[cmdName]) {
     args: commandArgList,
   });
 } else if (cmdName) {
-  console.error(`Unknown command: ${cmdName}`);
+  error(`Unknown command: ${cmdName}`);
   process.exit(1);
 }

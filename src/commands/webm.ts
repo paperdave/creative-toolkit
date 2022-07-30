@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 import path from 'path/win32';
-import { createPrompt } from 'bun-promptx';
+import { prompt } from 'prompts';
 import { exec, rmdir } from 'bun-utilities';
 import { readdirSync, unlinkSync } from 'fs';
 import { mkdir, readdir, symlink } from 'fs/promises';

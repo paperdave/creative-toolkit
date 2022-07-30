@@ -1,4 +1,4 @@
-import { Class } from '@davecode/types';
+import { Class } from '@paperdave/utils';
 import { LuaTable } from './lua-table';
 
 export class Input<T = any> extends LuaTable {
