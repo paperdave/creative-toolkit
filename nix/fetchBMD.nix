@@ -1,26 +1,33 @@
-# Part of this file is based on
+# Fetches a Blackmagic Design software package. Part of this file is based on
 # https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/video/davinci-resolve/default.nix
-{ pkgs ? import <nixpkgs> { }, ... }:
-{ platform ? "Linux"
-, product
-, id
-, sha256
+# but it's also based on my own findings from when I wrote fusion9free.nix
+with builtins;
+{ pkgs ? import <nixpkgs> { }
+, ...
 }:
-pkgs.runCommandLocal "${product}-src.tar"
+{
+  # Platform you are downloading for. Note that IDs are different per platform.
+  platform ? "Linux"
+  # "Fusion" or "DaVinci Resolve"
+, product
+  # Download ID, as seen in the following file:
+  # https://www.blackmagicdesign.com/api/support/us/downloads.json
+, id
+  # Hash of the downloaded file
+, hash
+  # Filename extension, if needed to be overridden. Defaults to zip unless a Fusion download.
+, ext ? (if product == "Fusion" then "tar" else "zip")
+}:
+pkgs.runCommandLocal "${product}-src.${ext}"
 rec {
-  outputHash = sha256;
-  outputHashAlgo = "sha256";
+  outputHash = hash;
   outputHashMode = "flat";
 
   impureEnvVars = pkgs.lib.fetchers.proxyImpureEnvVars;
-
   nativeBuildInputs = [ pkgs.curl ];
 
-  # ENV VARS
   SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-
   SITEURL = "https://www.blackmagicdesign.com/api/register/us/download/${id}";
-
   USERAGENT = builtins.concatStringsSep " " [
     "User-Agent: Mozilla/5.0 (X11; Linux ${pkgs.targetPlatform.linuxArch})"
     "AppleWebKit/537.36 (KHTML, like Gecko)"
@@ -40,7 +47,6 @@ rec {
     city = "Utrecht";
     product = product;
   };
-
 } ''
   DOWNLOAD_URL=$(curl \
     -s \
@@ -53,10 +59,11 @@ rec {
     -H 'Accept-Encoding: gzip, deflate, br' \
     -H 'Accept-Language: en-US,en;q=0.9' \
     -H 'Authority: www.blackmagicdesign.com' \
-    -H 'Cookie: _ga=GA1.2.1849503966.1518103294; _gid=GA1.2.953840595.1518103294' \
     --data-ascii "$REQJSON" \
     --compressed \
     "$SITEURL")
+
+  echo Aquiring BMD Distribution from $DOWNLOAD_URL
 
   curl \
     --retry 3 --retry-delay 3 \

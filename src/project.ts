@@ -18,6 +18,7 @@ const execFusion = [
     'C:\\Program Files\\Blackmagic Design\\Fusion 17\\Fusion.exe',
     'C:\\Program Files\\Blackmagic Design\\Fusion 9\\Fusion.exe',
   ] : [
+    '/opt/BlackmagicDesign/Fusion18/Fusion',
     '/opt/BlackmagicDesign/Fusion17/Fusion',
     '/opt/BlackmagicDesign/Fusion9/Fusion',
   ]
@@ -32,13 +33,16 @@ const defaultPaths = {
 
   execFusion,
   execFusionRender: [
-    'FusionConsoleNode',
+    'FusionRenderNode',
+    'fusion-render',
     ...win ? [
-      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 18\\FusionConsoleNode.exe',
-      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 17\\FusionConsoleNode.exe',
-      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 9\\FusionConsoleNode.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 18\\FusionRenderNode.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 17\\FusionRenderNode.exe',
+      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 9\\FusionRenderNode.exe',
     ] : [
-      // TODO:
+      '/opt/BlackmagicDesign/Fusion18/FusionRenderNode',
+      '/opt/BlackmagicDesign/Fusion17/FusionRenderNode',
+      '/opt/BlackmagicDesign/Fusion9/FusionRenderNode',
     ],
     ...execFusion,
   ],

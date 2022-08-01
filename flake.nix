@@ -11,7 +11,7 @@
         version = "0.1.5";
         src = pkgs.fetchurl {
           url = "https://github.com/Jarred-Sumner/bun-releases-for-updater/releases/download/bun-v${version}/bun-linux-x64.zip";
-          hash = "sha256-uA8dv2m4deD7pgu6Qg63wVHuoe/ehffew684XXwvvuY=";
+          hash = "sha256-UkotflHd2keGeZVSrhwYq45hc7sw8VjybK6Jmn508i8=";
         };
       }));
     in

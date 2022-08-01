@@ -1,6 +1,6 @@
+import 'bun-utilities';
 import minimist from 'minimist';
 import path from 'path';
-import { tryOrFallback } from '@paperdave/utils';
 import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
