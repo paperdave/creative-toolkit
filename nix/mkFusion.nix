@@ -3,9 +3,9 @@ with builtins;
 , fetchBMD ? import ./fetchBMD.nix pkgs
 , ...
 }:
-{ id ? "c723102afaec4a1d98f36e79fe6b4e77"
-, tarHash ? "sha256-KluBKNfRdzlwZ1BuqFMjRxNV9GI02g4ZOUuDMhRL7po="
-, version ? "18.0.1"
+{ id
+, version
+, tarHash
 , studio ? true
 ,
 }:
