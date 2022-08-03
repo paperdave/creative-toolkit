@@ -146,6 +146,8 @@ export function astToString(t: AST.Node): string {
     }
     case 'TableValue':
       return astToString(t.value);
+    case 'MemberExpression':
+      return `${astToString(t.base)}${t.indexer}${astToString(t.identifier)}`;
     default:
       throw new Error(`unhandled type ${t.type}`);
   }

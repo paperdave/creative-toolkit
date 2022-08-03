@@ -5,8 +5,10 @@ import { Composition } from '../bmfusion/composition';
 import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { Project } from '../project';
-import { error, info, writeLine } from '@paperdave/logger';
+import { error, info } from '@paperdave/logger';
 import prompt from 'prompts';
+import { existsSync, writeFileSync } from 'fs';
+import path from 'path';
 
 export const InitCommand = new Command({
   usage: 'ct init',
@@ -92,6 +94,10 @@ export const InitCommand = new Command({
     thumbnailComp.writeAndMoveFile('./comps/thumbnail.comp');
 
     firstComp.writeAndMoveFile('./comps/first.comp');
+
+    if(!existsSync(path.join(root, '.bitwig-project'))) {
+      writeFileSync(path.join(root, '.bitwig-project'), '');
+    }
 
     await ArrangeCommand.run({
       project,

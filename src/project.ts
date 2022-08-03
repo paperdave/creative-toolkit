@@ -149,7 +149,9 @@ export async function resolveProject(startPath: string, paths: Partial<Paths>): 
   const root = await walkUpDirectoryTree(startPath, dir => exists(dir, 'project.json'));
 
   if (!root) {
-    throw new Error('Could not find a creative toolkit project. Run `ct init`.');
+    const e = new Error('Could not find a creative toolkit project. Run `ct init`.');
+    (e as any).code = 'ENOENT';
+    throw e;
   }
 
   const json = (await readJSON(path.join(root, 'project.json'))) as ProjectJSONAnyVersion;

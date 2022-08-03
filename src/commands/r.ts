@@ -11,15 +11,15 @@ import { createHash } from 'crypto';
 import { error, info } from '@paperdave/logger';
 
 export const RenderCompCommand = new Command({
-  usage: 'ct r <comp>',
-  desc: 'render comp by label',
+  usage: 'ct r <...comps>',
+  desc: 'render comp(s) by label',
   flags: [{ name: '--force -f', desc: 'clears cache' }],
   arrangeFirst: true,
   async run({ project, args }) {
     const search = args._[0];
     const force = args.force || args.f;
     if (!search) {
-      error('usage: ct r [comp]');
+      error('usage: ct r <...comps>');
       return;
     }
 

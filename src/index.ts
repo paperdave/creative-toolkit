@@ -13,7 +13,7 @@ import { ThumbnailRenderCommand } from './commands/tr';
 import { WebmRenderCommand } from './commands/webm';
 import type { Paths } from './project';
 import { resolveProject } from './project';
-import { error, writeLine } from '@paperdave/logger';
+import { error, info, writeLine } from '@paperdave/logger';
 
 enum ArgParserState {
   Program,
@@ -84,8 +84,11 @@ const paths: Partial<Paths> = {
   render: programArgs['render-root'],
 };
 const project = await resolveProject(projectPath, paths).catch((err) => {
-  error(err);
-  process.exit(1);
+  if (err.code !== 'ENOENT') {
+    error(err);
+    process.exit(1);
+  }
+  return null;
 })
 
 if (!project && cmdName !== 'init') {
