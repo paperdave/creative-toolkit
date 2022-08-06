@@ -13,7 +13,8 @@ import { ThumbnailRenderCommand } from './commands/tr';
 import { WebmRenderCommand } from './commands/webm';
 import type { Paths } from './project';
 import { resolveProject } from './project';
-import { error, info, writeLine } from '@paperdave/logger';
+import { error, writeLine } from '@paperdave/logger';
+import { GUICommand } from './commands/gui';
 
 enum ArgParserState {
   Program,
@@ -45,6 +46,7 @@ for (let i = 2; i < process.argv.length; i++) {
 const commands: Record<string, Command> = {
   init: InitCommand,
   a: ArrangeCommand,
+  gui: GUICommand,
   'audio-from': AudioFromFileCommand,
   f: FusionCommand,
   path: PathCommand,

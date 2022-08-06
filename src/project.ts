@@ -30,6 +30,7 @@ const defaultPaths = {
   render: win ? 'C:\\Render' : '/render',
   audio: '{id}.wav',
   temp: process.env.TEMP ?? process.env.TMPDIR ?? (win ? 'C:\\Temp' : '/tmp'),
+  film: 'film',
 
   execFusion,
   execFusionRender: [
