@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import type { Project } from '../project';
 import bodyParser from 'body-parser';
 import path from 'path';
-import { existsSync, readdirSync } from 'fs';
+import { readdirSync } from 'fs';
 import { exists, readJSON, writeJSON } from '../util/fs';
 
 export function startServer(project: Project) {
@@ -115,6 +115,10 @@ export function startServer(project: Project) {
       ...metadata
     });
   });
+
+  app.use((req, res) => {
+    res.send('404');
+  })
 
   app.listen(3000, () => {
     info('Server listening on port 3000');

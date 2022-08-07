@@ -1,5 +1,5 @@
 import path from 'path';
-import { exec } from 'bun-utilities';
+import { exec } from 'bun-utilities/spawn';
 import { readdir } from 'fs/promises';
 import { Command } from '../cmd';
 

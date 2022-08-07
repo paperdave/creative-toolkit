@@ -8,10 +8,10 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       bun = (pkgs.bun.overrideAttrs (old: rec {
-        version = "0.1.5";
+        version = "0.1.7";
         src = pkgs.fetchurl {
           url = "https://github.com/Jarred-Sumner/bun-releases-for-updater/releases/download/bun-v${version}/bun-linux-x64.zip";
-          hash = "sha256-UkotflHd2keGeZVSrhwYq45hc7sw8VjybK6Jmn508i8=";
+          hash = "sha256-7MiVnWXC+SDxO6ELMU1QjYKgFNwPLrr8cOhNKf3B3gM=";
         };
       }));
     in
@@ -47,8 +47,16 @@
               PS1="''${PS1} \[\e[97m\]$\[\e[0m\] "
             }
 
+            ctb() {
+              bun $REPO/src/index.ts "$@"
+            }
+
             ct() {
-              bun $REPO/src/index.ts -- "$@"
+              d="$PWD"
+              cd $REPO
+              bun run rollup
+              cd $d
+              node $REPO/dist/cli.js "$@"
             }
 
             PROMPT_COMMAND="__prompt_fn"

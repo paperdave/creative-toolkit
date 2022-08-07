@@ -1,6 +1,6 @@
 import path from 'path';
 import { range } from '@paperdave/utils';
-import { exec } from 'bun-utilities';
+import { exec } from 'bun-utilities/spawn';
 import { readFileSync } from 'fs';
 import { mkdir, readdir, unlink } from 'fs/promises';
 import { Composition } from '../bmfusion/composition';

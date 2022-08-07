@@ -6,7 +6,6 @@ import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { Project } from '../project';
 import { error, info } from '@paperdave/logger';
-import prompt from 'prompts';
 import { existsSync, writeFileSync } from 'fs';
 import path from 'path';
 
@@ -25,6 +24,7 @@ export const InitCommand = new Command({
     info("if this isn't ok press Ctrl+C");
     info('');
 
+    const prompt = (await import('prompts')).default;
     const { name } = await prompt({
       message: 'name:',
       type: 'text',

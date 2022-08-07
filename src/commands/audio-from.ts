@@ -1,9 +1,8 @@
 import path from 'path';
-import { exec } from 'bun-utilities';
+import { exec } from 'bun-utilities/spawn';
 import { ArrangeCommand } from './a';
 import { Command } from '../cmd';
 import { exists } from '../util/fs';
-import prompt from 'prompts';
 import { error, info } from '@paperdave/logger';
 
 export const AudioFromFileCommand = new Command({
@@ -21,6 +20,7 @@ export const AudioFromFileCommand = new Command({
     }
 
     if (await exists(project.paths.audio)) {
+      const prompt = (await import('prompts')).default;
       const { value } = await prompt({
         type: 'confirm',
         message: 'overwrite existing audio?',
