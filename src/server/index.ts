@@ -7,22 +7,34 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { readdirSync } from 'fs';
 import { exists, readJSON, writeJSON } from '../util/fs';
+import { CT_SOURCE_ROOT } from '../paths';
 
-export function startServer(project: Project) {
+export async function startServer(project: Project) {
+  const Vite = await import('vite');
+
   const app = express();
+  const viteServer = await Vite.createServer({
+    root: path.join(CT_SOURCE_ROOT, 'web'),
+    configFile: path.join(CT_SOURCE_ROOT, 'web/vite.config.ts'),
+    server: {
+      middlewareMode: true,
+    }
+  });
 
-  app.use(express.static(fileURLToPath(new URL('../src/web', import.meta.url))));
-
-  app.get('/project.json', (req, res) => {
+  app.get('/api/project.json', (req, res) => {
     res.send(project.json);
   });
 
-  app.get('/audio.wav', async (req, res) => {
-    res.setHeader('Content-Type', 'audio/wav');
-    res.send(await readFile(project.paths.audio));
+  app.get('/api/audio.wav', async (req, res) => {
+    if (await exists(project.paths.audio)) {
+      res.setHeader('Content-Type', 'audio/wav');
+      res.send(await readFile(project.paths.audio));
+    } else {
+      res.status(404).send('No audio found');
+    }
   });
 
-  app.post('/take', bodyParser.raw({ type: 'video/webm', limit: Infinity }), async (req, res) => {
+  app.post('/api/take', bodyParser.raw({ type: 'video/webm', limit: Infinity }), async (req, res) => {
     const startTimeFrame = req.query.startFrame;
     const endTimeFrame = req.query.endFrame;
     const groupId = req.query.groupId;
@@ -70,7 +82,7 @@ export function startServer(project: Project) {
     res.status(200).send({ path: saveTo });
   });
 
-  app.get('/takes', async (req, res) => {
+  app.get('/api/takes', async (req, res) => {
     const takes = await readdir(project.paths.film);
     res.send(takes.map(take => {
       const [start, end, id] = /^(\d+)-(\d+)_(.*)$/.exec(take)?.slice(1) ?? [];
@@ -84,7 +96,7 @@ export function startServer(project: Project) {
     }));
   });
 
-  app.get('/takes/:groupId', async(req, res) => {
+  app.get('/api/takes/:groupId', async(req, res) => {
     const takes = await readdir(project.paths.film);
 
     const match = takes.find(take => {
@@ -116,11 +128,9 @@ export function startServer(project: Project) {
     });
   });
 
-  app.use((req, res) => {
-    res.send('404');
-  })
+  app.use(viteServer.middlewares);
 
-  app.listen(3000, () => {
-    info('Server listening on port 3000');
+  app.listen(18325, () => {
+    info('Server listening on port 18325');
   });
 }
