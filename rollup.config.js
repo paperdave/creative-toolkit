@@ -22,30 +22,33 @@ const version = process.argv.includes('--watch')
   : pkg.version;
 
 /** @type {import('rollup').RollupOptions} */
-const config = {
-  input: {
-    cli: 'src/index.ts',
+const config = [
+  {
+    input: {
+      cli: 'src/index.ts',
+      electron: 'src/electron.ts',
+    },
+    output: {
+      dir: 'dist',
+      format: 'esm',
+      chunkFileNames: '[name].js',
+    },
+    external: id => id.startsWith('node:') || external.some(x => id.startsWith(x)),
+    plugins: [
+      replace({
+        preventAssignment: true,
+        values: {
+          __VERSION__: version,
+          v__VERSION__: 'v' + version,
+        },
+      }),
+      resolve({
+        extensions: ['.mjs', '.js', '.ts', '.json'],
+      }),
+      esbuild(),
+      shebang(),
+    ],
   },
-  output: {
-    dir: 'dist',
-    format: 'esm',
-    chunkFileNames: '[name].js',
-  },
-  external: id => id.startsWith('node:') || external.some(x => id.startsWith(x)),
-  plugins: [
-    replace({
-      preventAssignment: true,
-      values: {
-        __VERSION__: version,
-        v__VERSION__: 'v' + version,
-      },
-    }),
-    resolve({
-      extensions: ['.mjs', '.js', '.ts', '.json'],
-    }),
-    esbuild(),
-    shebang(),
-  ],
-};
+];
 
 export default config;

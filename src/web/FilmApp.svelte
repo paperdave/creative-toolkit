@@ -128,14 +128,7 @@
   async function doOneTake() {
     const oneBeat = (60 / project.audioTiming.bpm);
 
-    const url = new URL(`${location.origin}/api/take`);
-    url.searchParams.set('startFrame', Math.max(0, Math.floor((audioRange[0] - oneBeat * 4) * 30)).toString());
-    url.searchParams.set('endFrame', Math.floor((audioRange[1] + oneBeat * 4) * 30).toString());
-    url.searchParams.set('groupId', groupId);
-
     createAudioSource();
-
-    let buffer: Uint8ClampedArray[] = [];
 
     playClickSound(clickStrongBuffer, 0);
     playClickSound(clickWeakBuffer, oneBeat);
@@ -147,10 +140,16 @@
 
     let timer: Timer;
     function startRecordLoop() {
+      CTFilm.initCapture({
+        startFrame: Math.max(0, Math.floor((audioRange[0] - oneBeat * 4) * 30)),
+        endFrame: Math.floor((audioRange[1] + oneBeat * 4) * 30),
+        groupId
+      });
+      
       timer = setInterval(() => {
         const ctx = videoCanvas.getContext('2d')!;
         ctx.drawImage(videoPreview, 0, 0, videoCanvas.width, videoCanvas.height);
-        buffer.push(ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data);
+        CTFilm.pushFrame(ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data);
       }, 1000 / 30);
     }
 
@@ -169,7 +168,12 @@
     audioSource!.stop();
     audioSource.disconnect();
     audioSource = null!;
+    
     await delay(oneBeat * 4000);
+
+    clearInterval(timer);
+
+    CTFilm.finishCapture();
   }
 
   function stop() {
