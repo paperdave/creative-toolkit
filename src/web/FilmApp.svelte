@@ -3,13 +3,12 @@
   import { onDestroy, onMount } from "svelte";
   import type { ProjectJSON } from '../project-json';
   import { delay } from '@paperdave/utils';
+  import type { Timer } from '@paperdave/logger/dist/util';
 
   export let project: ProjectJSON;
   export let audioData: ArrayBuffer;
   export let resClickWeak: ArrayBuffer;
   export let resClickStrong: ArrayBuffer;
-
-  let mounted = true;
 
   function roundSecondToNearestFrame(seconds: number) {
     return Math.floor(seconds * 30) / 30;
@@ -42,6 +41,9 @@
   let audioBuffer: AudioBuffer = null!;
   let clickWeakBuffer: AudioBuffer = null!;
   let clickStrongBuffer: AudioBuffer = null!;
+
+  let buffered = 0;
+
   async function setupAudioContext() {
     if (audioContext) {
       return;
@@ -124,40 +126,16 @@
   }
 
   async function doOneTake() {
-    const recorder = new MediaRecorder(stream!, {
-      mimeType: 'video/webm;codecs=vp9',
-      videoBitsPerSecond: 10_000_000,
-    });
-
     const oneBeat = (60 / project.audioTiming.bpm);
 
-    const chunks: Blob[] = [];
-    recorder.addEventListener('dataavailable', (event) => {
-      chunks.push(event.data);
-    });
-
-    recorder.addEventListener('stop', async () => {
-      audioSource?.stop();
-
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      
-      const url = new URL('/api/take', location.href);
-      url.searchParams.set('startFrame', Math.max(0, Math.floor((audioRange[0] - oneBeat * 4) * 30)).toString());
-      url.searchParams.set('endFrame', Math.floor((audioRange[1] + oneBeat * 4) * 30).toString());
-      url.searchParams.set('groupId', groupId);
-
-      const r = await fetch(url, {
-        method: 'POST',
-        body: blob,
-        headers: {
-          'Content-Type': 'video/webm',
-        },
-      }).then(r => r.json());
-
-      alert('it worked if it says so: ' + JSON.stringify(r));
-    });
+    const url = new URL(`${location.origin}/api/take`);
+    url.searchParams.set('startFrame', Math.max(0, Math.floor((audioRange[0] - oneBeat * 4) * 30)).toString());
+    url.searchParams.set('endFrame', Math.floor((audioRange[1] + oneBeat * 4) * 30).toString());
+    url.searchParams.set('groupId', groupId);
 
     createAudioSource();
+
+    let buffer: Uint8ClampedArray[] = [];
 
     playClickSound(clickStrongBuffer, 0);
     playClickSound(clickWeakBuffer, oneBeat);
@@ -167,13 +145,22 @@
     
     const startTime = roundSecondToNearestFrame(audioRange[0]) - (oneBeat * 4);
 
+    let timer: Timer;
+    function startRecordLoop() {
+      timer = setInterval(() => {
+        const ctx = videoCanvas.getContext('2d')!;
+        ctx.drawImage(videoPreview, 0, 0, videoCanvas.width, videoCanvas.height);
+        buffer.push(ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data);
+      }, 1000 / 30);
+    }
+
     if (startTime > 0) {
       audioSource.start(0, audioContext.currentTime + startTime);
-      recorder.start(0);
+      startRecordLoop();
     } else {
       audioSource.start(audioContext.currentTime - startTime);
       setTimeout(() => {
-        recorder.start(0);
+        startRecordLoop();
       }, -startTime * 1000);
     }
 
@@ -183,7 +170,6 @@
     audioSource.disconnect();
     audioSource = null!;
     await delay(oneBeat * 4000);
-    recorder.stop();
   }
 
   function stop() {
@@ -202,33 +188,15 @@
     }
   }
 
-  // function raf() {
-  //   if (!mounted) {
-  //     return;
-  //   }
-  //   requestAnimationFrame(raf);
-
-  //   if (!stream) {
-  //     return;
-  //   }
-
-  //   const ctx = videoCanvas.getContext('2d')!;
-  //   ctx.drawImage(videoPreview, 0, 0, videoCanvas.width, videoCanvas.height);
-  //   const imageData = ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
-  //   console.log(imageData);
-  // }
-
   onMount(() => {
     mediaDevices.then(devices => {
       deviceId = devices[0].deviceId;
       init();
     });
-    // requestAnimationFrame(raf);
   });
 
   onDestroy(() => {
     stopStream();
-    mounted = false;
   });
 
   $: settings = stream && stream.getVideoTracks()[0].getSettings();
@@ -248,6 +216,7 @@
     {/await}
   </select>
   <button on:click={start}>engage boosters</button>
+  <button>mystery button</button>
 </div>
 <div class="row">
   time:
@@ -273,6 +242,9 @@
   {:else}
     &nbsp;
   {/if}
+</p>
+<p>
+  buffer size = {buffered / (1024 * 1024)} MB
 </p>
 <div class="row">
   <video bind:this={videoPreview} autoplay muted></video>
