@@ -1,9 +1,17 @@
+<script context="module" lang="ts">
+  declare const CTFilm: any;
+</script>
+
 <script lang='ts'>
   import { uniqueNamesGenerator, adjectives, animals } from 'unique-names-generator';
   import { onDestroy, onMount } from "svelte";
   import type { ProjectJSON } from '../project-json';
   import { delay } from '@paperdave/utils';
   import type { Timer } from '@paperdave/logger/dist/util';
+
+  // @ts-expect-error OffscreenCanvas not defined lol.
+  const videoCanvas = new OffscreenCanvas(1920, 1080);
+  const ctx = videoCanvas.getContext('2d')!;
 
   export let project: ProjectJSON;
   export let audioData: ArrayBuffer;
@@ -33,7 +41,6 @@
   }
 
   let videoPreview: HTMLVideoElement;
-  let videoCanvas: HTMLCanvasElement;
   let stream: MediaStream | null = null;
 
   let audioContext: AudioContext = null!;
@@ -41,8 +48,6 @@
   let audioBuffer: AudioBuffer = null!;
   let clickWeakBuffer: AudioBuffer = null!;
   let clickStrongBuffer: AudioBuffer = null!;
-
-  let buffered = 0;
 
   async function setupAudioContext() {
     if (audioContext) {
@@ -72,22 +77,26 @@
       return;
     }
 
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        deviceId: deviceId ?? undefined,
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-        frameRate: {
-          min: 30,
-          max: 30,
-          exact: 30,
-          ideal: 30
-        }
-      },
-      audio: false,
-    });
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          deviceId: deviceId ?? undefined,
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: {
+            min: 30,
+            max: 30,
+            exact: 30,
+            ideal: 30
+          }
+        },
+        audio: false,
+      });
 
-    videoPreview.srcObject = stream;
+      videoPreview.srcObject = stream;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function stopStream() {
@@ -141,13 +150,12 @@
     let timer: Timer;
     function startRecordLoop() {
       CTFilm.initCapture({
-        startFrame: Math.max(0, Math.floor((audioRange[0] - oneBeat * 4) * 30)),
-        endFrame: Math.floor((audioRange[1] + oneBeat * 4) * 30),
+        startFrame: Math.max(0, Math.floor((audioRange[0] - oneBeat * 2) * 30)),
+        endFrame: Math.floor((audioRange[1] + oneBeat * 2) * 30),
         groupId
       });
-      
+
       timer = setInterval(() => {
-        const ctx = videoCanvas.getContext('2d')!;
         ctx.drawImage(videoPreview, 0, 0, videoCanvas.width, videoCanvas.height);
         CTFilm.pushFrame(ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data);
       }, 1000 / 30);
@@ -169,11 +177,12 @@
     audioSource.disconnect();
     audioSource = null!;
     
-    await delay(oneBeat * 4000);
+    await delay(oneBeat * 2000);
 
-    clearInterval(timer);
-
+    clearInterval(timer!);
     CTFilm.finishCapture();
+
+    await delay(oneBeat * 2000);
   }
 
   function stop() {
@@ -242,17 +251,13 @@
   {:else if audioRange[0] < 0}
     error: start time is before 0
   {:else if audioRange[0] < ((60/project.audioTiming.bpm) * 4)}
-    note: {((60/project.audioTiming.bpm) * 4 - audioRange[0]).toFixed(2)} seconds of prep time will be cut off.
+    note: {((60/project.audioTiming.bpm) * 2 - audioRange[0]).toFixed(2)} seconds of prep time will be cut off.
   {:else}
     &nbsp;
   {/if}
 </p>
-<p>
-  buffer size = {buffered / (1024 * 1024)} MB
-</p>
 <div class="row">
   <video bind:this={videoPreview} autoplay muted></video>
-  <canvas bind:this={videoCanvas} width='1920' height="1080" ></canvas>
 </div>
 {#if settings}
   <ul>
@@ -264,10 +269,6 @@
 
 <style>
   video {
-    width: 500px;
-    height: calc(500px * (9 / 16));
-  }
-  canvas {
     width: 500px;
     height: calc(500px * (9 / 16));
   }
