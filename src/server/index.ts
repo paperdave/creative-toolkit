@@ -21,7 +21,7 @@ export async function startServer(project: Project) {
   });
 
   app.use(express.static(path.join(CT_SOURCE_ROOT, 'res')));
-
+  
   app.get('/api/project.json', (req, res) => {
     res.send(project.json);
   });

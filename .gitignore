@@ -4,3 +4,5 @@ result
 result-*
 pnpm-lock.yaml
 dist
+cert.pem
+key.pem
