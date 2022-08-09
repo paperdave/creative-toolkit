@@ -1,7 +1,7 @@
 import path from 'path';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
-import type { ProjectJSON, ProjectJSONAnyVersion } from './project-json';
+import type { AudioTiming, ProjectJSON, ProjectJSONAnyVersion } from './project-json';
 import { exists, readJSON, walkUpDirectoryTree, writeJSON } from './util/fs';
 
 export enum RenderProgram {
@@ -91,6 +91,7 @@ export class Project {
   name: string;
   dates: Array<[dateString: string, label: string]>;
   paths: Paths;
+  audioTiming: AudioTiming;
   overridePaths: Partial<Paths> = {};
   hasAudio: boolean;
 
@@ -100,6 +101,7 @@ export class Project {
     this.id = json.id;
     this.name = json.name;
     this.dates = json.dates;
+    this.audioTiming = json.audioTiming;
 
     this.paths = {} as Paths;
 
@@ -128,6 +130,7 @@ export class Project {
       name: this.name,
       dates: this.dates,
       paths: Object.keys(this.overridePaths).length > 0 ? this.overridePaths : undefined,
+      audioTiming: this.audioTiming,
       format: 1,
     };
   }

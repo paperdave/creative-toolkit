@@ -1,7 +1,6 @@
 import { info } from '@paperdave/logger';
 import express from 'express';
 import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
-import { fileURLToPath } from 'url';
 import type { Project } from '../project';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -20,6 +19,8 @@ export async function startServer(project: Project) {
       middlewareMode: true,
     }
   });
+
+  app.use(express.static(path.join(CT_SOURCE_ROOT, 'res')));
 
   app.get('/api/project.json', (req, res) => {
     res.send(project.json);
