@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 import path from 'path/win32';
+import { error } from '@paperdave/logger';
 import { rmdir } from 'bun-utilities/fs';
 import { exec } from 'bun-utilities/spawn';
 import { readdirSync, unlinkSync } from 'fs';
@@ -15,7 +16,7 @@ export const WebmRenderCommand = new Command({
   arrangeFirst: true,
   async run({ project, ...etc }) {
     if (!project.hasAudio) {
-      console.error('no audio');
+      error('no audio');
       return;
     }
 

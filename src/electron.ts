@@ -1,6 +1,7 @@
 import path from 'path';
 import { info } from '@paperdave/logger';
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import type { ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn } from 'child_process';
 import { mkdir, readdir, rm } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { resolveProject } from './project';
@@ -98,7 +99,7 @@ Electron.ipcMain.on('finishCapture', async () => {
   await writeJSON(path.join(dir, 'metadata.json'), metadata);
 });
 
-Electron.ipcMain.on('cancelCapture', async ev => {
+Electron.ipcMain.on('cancelCapture', async () => {
   ffmpeg.kill();
 
   await rm(path.join(dir, `take${n}.mp4`));

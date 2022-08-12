@@ -27,7 +27,7 @@ export function astToJSON(t: AST.Node): any {
       return x;
     }
     case 'TableConstructorExpression': {
-      const x: any = t.fields.some(x => x.type === 'TableValue') ? [] : {};
+      const x: any = t.fields.some(y => y.type === 'TableValue') ? [] : {};
       t.fields.forEach((field, i) => {
         x['key' in field ? (astToJSON(field.key) as string) : i] = astToJSON(field.value);
       });
@@ -84,9 +84,9 @@ export function jsonToAST(x: any): AST.Expression {
   } else if (Array.isArray(x)) {
     return {
       type: 'TableConstructorExpression',
-      fields: x.map(x => ({
+      fields: x.map(y => ({
         type: 'TableValue',
-        value: jsonToAST(x),
+        value: jsonToAST(y),
       })),
     };
   } else if (typeof x === 'object') {

@@ -37,7 +37,7 @@ export class Command<T = any> {
 
   async run(options: CommandRunOptions): Promise<T> {
     const argList = Array.isArray(options.args) ? options.args : options.args?.split(' ') ?? [];
-    return await this.#handler({
+    return this.#handler({
       project: options.project,
       args: minimist(argList),
       argList,
