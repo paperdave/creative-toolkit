@@ -1,10 +1,12 @@
 import 'bun-utilities';
 import minimist from 'minimist';
 import path from 'path';
+import { error, writeLine } from '@paperdave/logger';
 import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
 import { FusionCommand } from './commands/f';
+import { GUICommand } from './commands/gui';
 import { InitCommand } from './commands/init';
 import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
@@ -13,8 +15,6 @@ import { ThumbnailRenderCommand } from './commands/tr';
 import { WebmRenderCommand } from './commands/webm';
 import type { Paths } from './project';
 import { resolveProject } from './project';
-import { error, writeLine } from '@paperdave/logger';
-import { GUICommand } from './commands/gui';
 
 enum ArgParserState {
   Program,
@@ -85,13 +85,13 @@ const projectPath = path
 const paths: Partial<Paths> = {
   render: programArgs['render-root'],
 };
-const project = await resolveProject(projectPath, paths).catch((err) => {
+const project = await resolveProject(projectPath, paths).catch(err => {
   if (err.code !== 'ENOENT') {
     error(err);
     process.exit(1);
   }
   return null;
-})
+});
 
 if (!project && cmdName !== 'init') {
   error('Could not find a creative toolkit project. Run `ct init`.');

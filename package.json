@@ -3,15 +3,15 @@
   "version": "2022.08.12",
   "private": true,
   "type": "module",
+  "main": "./dist/cli.js",
   "bin": {
     "ct": "./src/index.ts"
   },
-  "main": "./dist/cli.js",
   "scripts": {
     "build": "bun run rollup && tsc",
-    "rollup": "rollup -c ./rollup.config.js",
+    "ct": "rollup -c ./rollup.config.js && node ./dist/cli.js",
     "dev": "rollup -c ./rollup.config.js -w",
-    "ct": "rollup -c ./rollup.config.js && node ./dist/cli.js"
+    "rollup": "rollup -c ./rollup.config.js"
   },
   "dependencies": {
     "@paperdave/logger": "^2.0.4",

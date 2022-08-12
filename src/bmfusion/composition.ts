@@ -134,7 +134,7 @@ export class Composition extends LuaTable {
   get Tools() {
     return new TableOf(Tool, this.get('Tools'));
   }
-  
+
   get CustomData() {
     if (!this.get('CustomData')) {
       this.set('CustomData', new LuaTable(), true);

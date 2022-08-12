@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 import path from 'path/win32';
-import { exec } from 'bun-utilities/spawn';
 import { rmdir } from 'bun-utilities/fs';
+import { exec } from 'bun-utilities/spawn';
 import { readdirSync, unlinkSync } from 'fs';
 import { mkdir, readdir, symlink } from 'fs/promises';
 import { RenderCompCommand } from './r';

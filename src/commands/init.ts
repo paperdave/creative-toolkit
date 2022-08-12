@@ -1,13 +1,13 @@
+import path from 'path';
+import { error, info } from '@paperdave/logger';
 import { paramCase } from 'change-case';
+import { existsSync, writeFileSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import { ArrangeCommand } from './a';
 import { Composition } from '../bmfusion/composition';
 import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { Project } from '../project';
-import { error, info } from '@paperdave/logger';
-import { existsSync, writeFileSync } from 'fs';
-import path from 'path';
 
 export const InitCommand = new Command({
   usage: 'ct init',
@@ -30,9 +30,11 @@ export const InitCommand = new Command({
       type: 'text',
       name: 'name',
     });
-    if (!name) {return;}
+    if (!name) {
+      return;
+    }
     const autoGenId = paramCase(name);
-    const {id} = await prompt({
+    const { id } = await prompt({
       message: 'id:',
       type: 'text',
       name: 'id',
@@ -98,7 +100,7 @@ export const InitCommand = new Command({
 
     firstComp.writeAndMoveFile('./comps/first.comp');
 
-    if(!existsSync(path.join(root, '.bitwig-project'))) {
+    if (!existsSync(path.join(root, '.bitwig-project'))) {
       writeFileSync(path.join(root, '.bitwig-project'), '');
     }
 

@@ -1,14 +1,14 @@
 import path from 'path';
+import { error, info } from '@paperdave/logger';
 import { range } from '@paperdave/utils';
 import { exec } from 'bun-utilities/spawn';
+import { createHash } from 'crypto';
 import { readFileSync } from 'fs';
 import { mkdir, readdir, unlink } from 'fs/promises';
 import { Composition } from '../bmfusion/composition';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists, readJSON, writeJSON } from '../util/fs';
-import { createHash } from 'crypto';
-import { error, info } from '@paperdave/logger';
 
 export const RenderCompCommand = new Command({
   usage: 'ct r <...comps>',
@@ -37,9 +37,7 @@ export const RenderCompCommand = new Command({
       return;
     }
     if (otherNames.length > 0) {
-      error(
-        `Found multiple comps named ${search}: ${[selectedName, ...otherNames].join(', ')}`
-      );
+      error(`Found multiple comps named ${search}: ${[selectedName, ...otherNames].join(', ')}`);
       return;
     }
 

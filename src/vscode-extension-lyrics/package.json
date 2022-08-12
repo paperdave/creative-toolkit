@@ -1,25 +1,34 @@
 {
   "name": "lyrics",
   "displayName": "Lyrics",
-  "description": "Lyrics",
   "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.70.0"
-  },
+  "description": "Lyrics",
   "categories": [
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "lyrics",
-      "aliases": ["Lyrics", "lyrics"],
-      "extensions": [".lyrics"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "lyrics",
-      "scopeName": "source.lyrics",
-      "path": "./syntaxes/lyrics.tmLanguage.json"
-    }]
+    "grammars": [
+      {
+        "language": "lyrics",
+        "scopeName": "source.lyrics",
+        "path": "./syntaxes/lyrics.tmLanguage.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "lyrics",
+        "aliases": [
+          "Lyrics",
+          "lyrics"
+        ],
+        "extensions": [
+          ".lyrics"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "engines": {
+    "vscode": "^1.70.0"
   }
 }

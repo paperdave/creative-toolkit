@@ -1,7 +1,6 @@
 # creative toolkit
 
-Set of tools for building paperdave songs and videos. Most of it is automated tooling operated through a CLI application. The goal is to get everything: automated workflows, rendering pipelines,
-years of custom application configuration, work logging, song sketching and pre-production utilities, and tools to download and inspect my old completed projects.
+Set of tools for building paperdave songs and videos. Most of it is automated tooling operated through a CLI application. The goal is to get everything: automated workflows, rendering pipelines, years of custom application configuration, work logging, song sketching and pre-production utilities, and tools to download and inspect my old completed projects.
 
 Not intended to be used by others; no contributions accepted. Feel free to explore and try it out though. This readme will document some of it but definetly not all of it.
 
@@ -45,6 +44,7 @@ impossible at the moment. use the `main` branch.
 ## `ct` cli help
 
 <!-- MARKER:CT CLI HELP -->
+
 ```
 ct init                       setup project structure.
 ct a                          arrange
@@ -62,6 +62,7 @@ global flags:
   --project -p        set project folder
   --render-root       set render root
 ```
+
 <!-- END:CT CLI HELP -->
 
 ## nix/nixos contents
@@ -124,9 +125,10 @@ takes are encoded using ffmpeg and nvenc
 currently bun is not stable enough to be used, though I wish i could be using it. commands like `ct a` can be run in bun, but something like `ct init` will not.
 
 what's holding bun back:
-  - running on windows. I still use a windows machine as of 2022.
-  - we use electron for gui. this will be hard to replace as an IPC replacement needs to support high bandwidth data transfer (raw video stream, ~250mb/s); Websockets in chrome and firefox cannot handle this, but electron's IPC can
-  - `child_process` (we use bun-utilities when we can so this is not a huge issue)
-  - `process.stdin` / `prompts`
-  - `express` (gui only)
-  - `vite` (gui dev only)
+
+- running on windows. I still use a windows machine as of 2022.
+- we use electron for gui. this will be hard to replace as an IPC replacement needs to support high bandwidth data transfer (raw video stream, ~250mb/s); Websockets in chrome and firefox cannot handle this, but electron's IPC can
+- `child_process` (we use bun-utilities when we can so this is not a huge issue)
+- `process.stdin` / `prompts`
+- `express` (gui only)
+- `vite` (gui dev only)

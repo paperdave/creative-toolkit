@@ -13,15 +13,17 @@ const win = process.platform === 'win32';
 const execFusion = [
   'Fusion',
   'fusion',
-  ...win ? [
-    'C:\\Program Files\\Blackmagic Design\\Fusion 18\\Fusion.exe',
-    'C:\\Program Files\\Blackmagic Design\\Fusion 17\\Fusion.exe',
-    'C:\\Program Files\\Blackmagic Design\\Fusion 9\\Fusion.exe',
-  ] : [
-    '/opt/BlackmagicDesign/Fusion18/Fusion',
-    '/opt/BlackmagicDesign/Fusion17/Fusion',
-    '/opt/BlackmagicDesign/Fusion9/Fusion',
-  ]
+  ...(win
+    ? [
+        'C:\\Program Files\\Blackmagic Design\\Fusion 18\\Fusion.exe',
+        'C:\\Program Files\\Blackmagic Design\\Fusion 17\\Fusion.exe',
+        'C:\\Program Files\\Blackmagic Design\\Fusion 9\\Fusion.exe',
+      ]
+    : [
+        '/opt/BlackmagicDesign/Fusion18/Fusion',
+        '/opt/BlackmagicDesign/Fusion17/Fusion',
+        '/opt/BlackmagicDesign/Fusion9/Fusion',
+      ]),
 ];
 
 const defaultPaths = {
@@ -36,15 +38,17 @@ const defaultPaths = {
   execFusionRender: [
     'FusionRenderNode',
     'fusion-render',
-    ...win ? [
-      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 18\\FusionRenderNode.exe',
-      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 17\\FusionRenderNode.exe',
-      'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 9\\FusionRenderNode.exe',
-    ] : [
-      '/opt/BlackmagicDesign/Fusion18/FusionRenderNode',
-      '/opt/BlackmagicDesign/Fusion17/FusionRenderNode',
-      '/opt/BlackmagicDesign/Fusion9/FusionRenderNode',
-    ],
+    ...(win
+      ? [
+          'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 18\\FusionRenderNode.exe',
+          'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 17\\FusionRenderNode.exe',
+          'C:\\Program Files\\Blackmagic Design\\Fusion Render Node 9\\FusionRenderNode.exe',
+        ]
+      : [
+          '/opt/BlackmagicDesign/Fusion18/FusionRenderNode',
+          '/opt/BlackmagicDesign/Fusion17/FusionRenderNode',
+          '/opt/BlackmagicDesign/Fusion9/FusionRenderNode',
+        ]),
     ...execFusion,
   ],
   execFFmpeg: 'ffmpeg',

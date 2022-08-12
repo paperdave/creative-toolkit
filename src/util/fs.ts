@@ -48,7 +48,10 @@ export async function writeJSON(
   //   Bun.file(filepath),
   //   textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces))
   // );
-  await fs.writeFile(filepath, textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces)));
+  await fs.writeFile(
+    filepath,
+    textEncoder.encode(JSON.stringify(data, options?.replacer ?? null!, options?.spaces))
+  );
 }
 
 export async function readJSON(filepath: string): Promise<unknown> {

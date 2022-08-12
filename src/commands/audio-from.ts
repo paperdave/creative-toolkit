@@ -1,9 +1,9 @@
 import path from 'path';
+import { error, info } from '@paperdave/logger';
 import { exec } from 'bun-utilities/spawn';
 import { ArrangeCommand } from './a';
 import { Command } from '../cmd';
 import { exists } from '../util/fs';
-import { error, info } from '@paperdave/logger';
 
 export const AudioFromFileCommand = new Command({
   usage: 'ct audio-from <file>',

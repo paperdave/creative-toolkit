@@ -1,10 +1,10 @@
 import path from 'path';
+import { copyfile } from 'bun-utilities/fs';
 import { unlink } from 'fs/promises';
 import { RenderCompCommand } from './r';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists } from '../util/fs';
-import { copyfile } from 'bun-utilities/fs';
 
 export const ThumbnailRenderCommand = new Command({
   usage: 'ct tr',

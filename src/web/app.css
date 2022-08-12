@@ -1,4 +1,6 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 body {
   background-color: #eee;
   font-family: sans-serif;
@@ -8,7 +10,8 @@ body {
   display: flex;
   flex-direction: row;
 }
-.left, .right {
+.left,
+.right {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,6 +28,6 @@ video {
   white-space: pre-wrap;
 }
 
-input[type=number] {
+input[type='number'] {
   width: 70px;
 }

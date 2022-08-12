@@ -12,5 +12,5 @@ electron.contextBridge.exposeInMainWorld('CTFilm', {
   },
   cancelCapture() {
     electron.ipcRenderer.send('cancelCapture');
-  }
+  },
 });
