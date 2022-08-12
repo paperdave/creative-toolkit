@@ -1,6 +1,6 @@
 {
   "name": "creative-toolkit",
-  "version": "2022.08.07",
+  "version": "2022.08.12",
   "private": true,
   "type": "module",
   "bin": {
@@ -10,7 +10,8 @@
   "scripts": {
     "build": "bun run rollup && tsc",
     "rollup": "rollup -c ./rollup.config.js",
-    "dev": "rollup -c ./rollup.config.js -w"
+    "dev": "rollup -c ./rollup.config.js -w",
+    "ct": "rollup -c ./rollup.config.js && node ./dist/cli.js"
   },
   "dependencies": {
     "@paperdave/logger": "^2.0.4",

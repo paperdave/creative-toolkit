@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Lyrics",
+  "patterns": [{ "include": "#tag" }, { "include": "#bracket" }],
+  "repository": {
+    "tag": {
+      "begin": "^\\[",
+      "end": "\\]",
+      "name": "keyword.control"
+    },
+    "bracket": {
+      "begin": "\\{",
+      "end": "\\}",
+      "name": "entity.name.function"
+    }
+  },
+  "scopeName": "source.lyrics"
+}

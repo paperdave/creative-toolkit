@@ -136,7 +136,13 @@
 
   async function doOneTake() {
     const oneBeat = (60 / project.audioTiming.bpm);
-
+    
+    await CTFilm.initCapture({
+      startFrame: Math.max(0, Math.floor((audioRange[0] - oneBeat * 2) * 30)),
+      endFrame: Math.floor((audioRange[1] + oneBeat * 2) * 30),
+      groupId
+    });
+    
     createAudioSource();
 
     playClickSound(clickStrongBuffer, 0);
@@ -149,12 +155,6 @@
 
     let timer: Timer;
     function startRecordLoop() {
-      CTFilm.initCapture({
-        startFrame: Math.max(0, Math.floor((audioRange[0] - oneBeat * 2) * 30)),
-        endFrame: Math.floor((audioRange[1] + oneBeat * 2) * 30),
-        groupId
-      });
-
       timer = setInterval(() => {
         ctx.drawImage(videoPreview, 0, 0, videoCanvas.width, videoCanvas.height);
         CTFilm.pushFrame(ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data);
