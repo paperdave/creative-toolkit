@@ -1,11 +1,10 @@
 import { info } from '@paperdave/logger';
 import express from 'express';
-import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
+import { readdir, readFile } from 'fs/promises';
 import type { Project } from '../project';
-import bodyParser from 'body-parser';
 import path from 'path';
 import { readdirSync } from 'fs';
-import { exists, readJSON, writeJSON } from '../util/fs';
+import { exists, readJSON } from '../util/fs';
 import { CT_SOURCE_ROOT } from '../paths';
 
 export async function startServer(project: Project) {
@@ -33,54 +32,6 @@ export async function startServer(project: Project) {
     } else {
       res.status(404).send('No audio found');
     }
-  });
-
-  app.post('/api/take', bodyParser.raw({ type: 'video/webm', limit: Infinity }), async (req, res) => {
-    const startTimeFrame = req.query.startFrame;
-    const endTimeFrame = req.query.endFrame;
-    const groupId = req.query.groupId;
-
-    info(`Saving Take: ${startTimeFrame} - ${endTimeFrame}`);
-
-    // Read video file uploaded
-    if (req.headers['content-type'] !== 'video/webm') {
-      res.status(400).send('Invalid content type');
-      return;
-    }
-
-    const dir = path.join(project.paths.film, `${startTimeFrame}-${endTimeFrame}_${groupId}`);
-
-    if (!await exists(dir)) {
-      await mkdir(dir, { recursive: true });
-    }
-
-    const list = await readdir(dir);
-
-    let n = 1;
-    while (list.includes(`take${n}.webm`)) {
-      n++;
-    }
-    
-    const saveTo = path.join(dir, `take${n}.webm`);
-    await writeFile(saveTo, req.body);
-
-    if (!await exists(path.join(dir, 'metadata.json'))) {
-      await writeJSON(path.join(dir, 'metadata.json'), {
-        id: groupId,
-        date: new Date().toISOString(),
-        takes: [],
-      });
-    }
-
-    const metadata = await readJSON(path.join(dir, 'metadata.json')) as any;
-    metadata.takes.push({
-      id: n,
-      date: new Date().toISOString(),
-      export: null
-    });
-    await writeJSON(path.join(dir, 'metadata.json'), metadata);
-
-    res.status(200).send({ path: saveTo });
   });
 
   app.get('/api/takes', async (req, res) => {

@@ -14,7 +14,7 @@ export interface ProjectJSON {
 
 export interface AudioTiming {
   bpm: number;
-  start: number;
+  start?: number;
 }
 
 export type ProjectJSONAnyVersion = ProjectJSON;

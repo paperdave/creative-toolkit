@@ -50,6 +50,9 @@ export const InitCommand = new Command({
       {
         id,
         name,
+        audioTiming: {
+          bpm: 120,
+        },
         dates: [[today, 'Project Start']],
         format: 1,
       },
