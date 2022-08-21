@@ -8,10 +8,10 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       bun = (pkgs.bun.overrideAttrs (old: rec {
-        version = "0.1.7";
+        version = "0.1.10";
         src = pkgs.fetchurl {
           url = "https://github.com/Jarred-Sumner/bun-releases-for-updater/releases/download/bun-v${version}/bun-linux-x64.zip";
-          hash = "sha256-7MiVnWXC+SDxO6ELMU1QjYKgFNwPLrr8cOhNKf3B3gM=";
+          hash = "sha256-bfgXZRmZW8nLILrwbFO8XQ+U7Z2WY8zyEbXD9Csq9HY=";
         };
       }));
     in
