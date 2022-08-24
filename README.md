@@ -122,12 +122,12 @@ takes are encoded using ffmpeg and nvenc
 
 ## bun support
 
-currently bun is not stable enough to be used, though I wish i could be using it. commands like `ct a` can be run in bun, but something like `ct init` will not.
+currently bun is not stable enough to be used. since 2022-08-24 i removed all support of running with it, and will go back to using it when it's stable enough.
 
 what's holding bun back:
 
 - running on windows. I still use a windows machine as of 2022.
-- we use electron for gui. this will be hard to replace as an IPC replacement needs to support high bandwidth data transfer (raw video stream, ~250mb/s); Websockets in chrome and firefox cannot handle this, but electron's IPC can
+- we use electron for gui. this will be hard to replace as an IPC replacement needs to support high bandwidth data transfer (raw video stream, ~250mb/s); Websockets in chrome and firefox cannot handle this, but electron's IPC can. this is going to the be hardest challenge.
 - `child_process` (we use bun-utilities when we can so this is not a huge issue)
 - `process.stdin` / `prompts`
 - `express` (gui only)

@@ -10,13 +10,6 @@ import { builtinModules } from 'module';
 fs.rmSync('dist', { recursive: true, force: true });
 fs.mkdirSync('dist');
 
-/** @type {string[]} */
-const external = [].concat(
-  Object.keys(pkg.dependencies ?? {}),
-  Object.keys(pkg.peerDependencies ?? {}),
-  builtinModules
-);
-
 const version = process.argv.includes('--watch')
   ? pkg.version.replace(/-.*$/, '-dev')
   : pkg.version;
@@ -33,7 +26,6 @@ const config = [
       format: 'esm',
       chunkFileNames: '[name].js',
     },
-    external: id => id.startsWith('node:') || external.some(x => id.startsWith(x)),
     plugins: [
       replace({
         preventAssignment: true,
@@ -44,9 +36,34 @@ const config = [
       }),
       resolve({
         extensions: ['.mjs', '.js', '.ts', '.json'],
+        preferBuiltins: true,
       }),
       esbuild(),
       shebang(),
+      {
+        name: 'external-node-modules-pre',
+        resolveId: {
+          order: 'pre',
+          handler(source) {
+            if (builtinModules.includes(source)) {
+              return { id: 'node:' + source, external: true };
+            }
+            return null;
+          },
+        },
+      },
+      {
+        name: 'external-node-modules-post',
+        resolveId: {
+          order: 'post',
+          handler(source) {
+            if (source.split('/').includes('node_modules')) {
+              return { id: source, external: true };
+            }
+            return null;
+          },
+        },
+      },
     ],
   },
 ];

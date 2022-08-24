@@ -8,9 +8,16 @@ export const GUICommand = new Command({
   usage: 'ct gui',
   desc: 'we use electron',
   async run() {
-    const electron = (await import('electron')).default;
-    const electronBoot = path.join(CT_SOURCE_ROOT, '../electron-boot.cjs');
+    // Use imported install, or fallback to globally installed electron (nixos)
+    let electron = 'electron';
+    try {
+      electron = (await import('electron')).default as any;
+    } catch {}
 
+    // TODO: fix upstream so this usage works.
+    // const electron = tryOrFallback(import('electron'), { default: 'electron' }).default;
+
+    const electronBoot = path.join(CT_SOURCE_ROOT, '../electron-boot.cjs');
     if (typeof electron === 'string') {
       spawnSync(electron, [electronBoot], {
         stdio: 'inherit',

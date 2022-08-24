@@ -1,8 +1,16 @@
 with builtins;
 { pkgs ? import <nixpkgs> { }
 , mkFusion ? import ./mkFusion.nix pkgs
+, mkBun ? import ./mkBun.nix pkgs
 , ...
 }: rec {
+  # bun
+  bun = mkBun {
+    version = "0.1.10";
+    asset = "bun-linux-x64";
+    hash = "sha256-bfgXZRmZW8nLILrwbFO8XQ+U7Z2WY8zyEbXD9Csq9HY=";
+  };
+
   # Latest Fusion Studio
   fusion-studio = fusion-studio-18;
   # Latest Fusion Free
