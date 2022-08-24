@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/promise-function-async */
-import path from 'path/win32';
-import { error } from '@paperdave/logger';
-import { rmdir } from 'bun-utilities/fs';
+import path from 'path';
+import { Logger } from '@paperdave/logger';
 import { exec } from 'bun-utilities/spawn';
-import { readdirSync, unlinkSync } from 'fs';
+import { readdirSync, rmdirSync, unlinkSync } from 'fs';
 import { mkdir, readdir, symlink } from 'fs/promises';
 import { RenderCompCommand } from './r';
 import { Composition } from '../bmfusion/composition';
@@ -14,10 +12,10 @@ export const WebmRenderCommand = new Command({
   usage: 'ct webm',
   desc: 'webm render',
   arrangeFirst: true,
-  async run({ project, ...etc }) {
+  async run({ project }) {
     if (!project.hasAudio) {
-      error('no audio');
-      return;
+      Logger.warn('no audio');
+      // return;
     }
 
     const comps = (await readdir(project.paths.comps))
@@ -46,16 +44,16 @@ export const WebmRenderCommand = new Command({
     let failedRenderRangeCheck: false | 'warn' | 'error' = false;
     for (const comp of comps) {
       if (comp.RenderRangeStart < lastFrame) {
-        console.error(`overlap found:`);
-        console.error(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
-        console.error(`  ${comp.ctLabel} starts at ${comp.RenderRangeStart}`);
-        console.error(`  (${comp.RenderRangeStart - lastFrame} frames overlap)`);
+        Logger.error(`overlap found:`);
+        Logger.error(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
+        Logger.error(`  ${comp.ctLabel} starts at ${comp.RenderRangeStart}`);
+        Logger.error(`  (${comp.RenderRangeStart - lastFrame} frames overlap)`);
         failedRenderRangeCheck = 'error';
       } else if (comp.RenderRangeStart > lastFrame) {
-        console.error(`gap found:`);
-        console.error(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
-        console.error(`  ${comp.ctLabel} starts at ${comp.RenderRangeStart}`);
-        console.error(`  (${comp.RenderRangeStart - lastFrame} frames gap)`);
+        Logger.error(`gap found:`);
+        Logger.error(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
+        Logger.error(`  ${comp.ctLabel} starts at ${comp.RenderRangeStart}`);
+        Logger.error(`  (${comp.RenderRangeStart - lastFrame} frames gap)`);
         failedRenderRangeCheck = 'error';
       }
       lastFrame = comp.RenderRangeEnd + 1;
@@ -63,35 +61,35 @@ export const WebmRenderCommand = new Command({
     }
 
     if (lastComp.RenderRangeEnd < frameCount) {
-      console.warn(`video doesn't reach end of audio:`);
-      console.warn(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
-      console.warn(`  project ends at ${frameCount}`);
-      console.warn(`  (${frameCount - lastComp.RenderRangeEnd} frames)`);
+      Logger.warn(`video doesn't reach end of audio:`);
+      Logger.warn(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
+      Logger.warn(`  project ends at ${frameCount}`);
+      Logger.warn(`  (${frameCount - lastComp.RenderRangeEnd} frames)`);
       failedRenderRangeCheck = 'warn';
     } else if (lastComp.RenderRangeEnd > frameCount) {
-      console.warn(`video extends past end of audio:`);
-      console.warn(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
-      console.warn(`  project ends at ${frameCount}`);
-      console.warn(`  (${frameCount - lastComp.RenderRangeEnd} frames)`);
+      Logger.warn(`video extends past end of audio:`);
+      Logger.warn(`  ${lastComp.ctLabel} ends at ${lastFrame}`);
+      Logger.warn(`  project ends at ${frameCount}`);
+      Logger.warn(`  (${frameCount - lastComp.RenderRangeEnd} frames)`);
       failedRenderRangeCheck = 'warn';
     }
 
     if (failedRenderRangeCheck === 'error') {
       return;
     }
-    if (
-      failedRenderRangeCheck === 'warn' &&
-      (
-        createPrompt('Continue with warnings? [yN] ', {
-          charLimit: 1,
-          required: false,
-        }).value ?? 'n'
-      ).toLowerCase() !== 'y'
-    ) {
-      return;
-    }
+    // if (
+    //   failedRenderRangeCheck === 'warn' &&
+    //   (
+    //     createPrompt('Continue with warnings? [yN] ', {
+    //       charLimit: 1,
+    //       required: false,
+    //     }).value ?? 'n'
+    //   ).toLowerCase() !== 'y'
+    // ) {
+    //   return;
+    // }
 
-    console.log(`Starting render of ${project.name}`);
+    Logger.info(`Starting render of ${project.name}`);
 
     for (const comp of comps) {
       await RenderCompCommand.run({
@@ -117,7 +115,7 @@ export const WebmRenderCommand = new Command({
     await mkdir(tmpDir);
 
     await Promise.all(files.map((file, i) => symlink(file, path.join(tmpDir, `${i}.png`))));
-    console.log(`Created ${files.length} symlinks in ${tmpDir}`);
+    Logger.info(`Created ${files.length} symlinks in ${tmpDir}`);
 
     const input = path.join(tmpDir, `%d.png`);
     const output = path.join(project.root, `${project.id}.webm`);
@@ -134,7 +132,7 @@ export const WebmRenderCommand = new Command({
       project.paths.execFFmpeg,
       ['-framerate', '30'],
       ['-i', input],
-      ['-i', project.paths.audio],
+      project.paths.audio && ['-i', project.paths.audio],
       ['-b:v', `${targetBitrate}k`],
       ['-minrate', `${targetBitrate * 0.5}k`],
       ['-maxrate', `${targetBitrate * 1.45}k`],
@@ -144,17 +142,19 @@ export const WebmRenderCommand = new Command({
       ['-quality', 'good'],
       ['-crf', `${targetQuality}`],
       ['-c:v', 'libvpx-vp9'],
-      ['-c:a', 'libopus'],
+      project.paths.audio && ['-c:a', 'libopus'],
       ['-pass', '1'],
       ['-speed', '4'],
       '-y',
       output,
-    ].flat();
+    ]
+      .flat()
+      .filter(Boolean);
     const pass2Args = [
       project.paths.execFFmpeg,
       ['-framerate', '30'],
       ['-i', input],
-      ['-i', project.paths.audio],
+      project.paths.audio && ['-i', project.paths.audio],
       ['-b:v', `${targetBitrate}k`],
       ['-minrate', `${targetBitrate * 0.5}k`],
       ['-maxrate', `${targetBitrate * 1.45}k`],
@@ -164,30 +164,32 @@ export const WebmRenderCommand = new Command({
       ['-quality', 'good'],
       ['-crf', `${targetQuality}`],
       ['-c:v', 'libvpx-vp9'],
-      ['-c:a', 'libopus'],
+      project.paths.audio && ['-c:a', 'libopus'],
       ['-pass', '2'],
       ['-speed', `${speedValue}`],
       '-y',
       output,
-    ].flat();
+    ]
+      .flat()
+      .filter(Boolean);
 
-    console.log('FFmpeg Pass 1');
+    Logger.info('FFmpeg Pass 1');
     const pass1 = exec(pass1Args);
     if (pass1.exitCode) {
-      console.error(`pass1 failed: ${pass1.stderr}`);
+      Logger.error(`pass1 failed: ${pass1.stderr}`);
       return;
     }
 
-    console.log('FFmpeg Pass 2');
+    Logger.info('FFmpeg Pass 2');
     const pass2 = exec(pass2Args);
     if (pass2.exitCode) {
-      console.error(`pass2 failed: ${pass1.stderr}`);
+      Logger.error(`pass2 failed: ${pass1.stderr}`);
       return;
     }
 
-    rmdir(tmpDir, { recursive: true });
+    rmdirSync(tmpDir, { recursive: true });
     unlinkSync(path.join(project.root, `ffmpeg2pass-0.log`));
 
-    console.log('Done');
+    Logger.success('Rendered ' + output);
   },
 });

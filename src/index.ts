@@ -1,4 +1,3 @@
-import 'bun-utilities';
 import minimist from 'minimist';
 import path from 'path';
 import { error, writeLine } from '@paperdave/logger';

@@ -17,12 +17,14 @@ function fish_prompt
     printf (set_color magenta)"/$branch"
   end
   printf (set_color grey)" "
-  if string match "$REPO/*" "$PWD" -q
-    printf "."(string sub -s (math (string length $REPO) + 1) "$PWD")
+  if test "$REPO" = "$PWD"
+    :
+  else if string match "$REPO/*" "$PWD" -q
+    printf "."(string sub -s (math (string length $REPO) + 1) "$PWD")" "
   else if string match "$HOME/*" "$PWD" -q
-    printf "~"(string sub -s (math (string length $HOME) + 1) "$PWD")
+    printf "~"(string sub -s (math (string length $HOME) + 1) "$PWD")" "
   else
-    printf "$PWD"
+    printf "$PWD "
   end
-  printf (set_color brwhite)" \$ \n"
+  printf (set_color brwhite)"\$ \n"
 end

@@ -1,7 +1,7 @@
 import path from 'path';
-import { error, info } from '@paperdave/logger';
+import { error, info, success } from '@paperdave/logger';
 import { range } from '@paperdave/utils';
-import { exec } from 'bun-utilities/spawn';
+import { spawnSync } from 'child_process';
 import { createHash } from 'crypto';
 import { readFileSync } from 'fs';
 import { mkdir, readdir, unlink } from 'fs/promises';
@@ -104,19 +104,17 @@ export const RenderCompCommand = new Command({
       .map(({ start, end }) => (start === end ? start : `${start}..${end}`))
       .join(',');
 
-    const renderArgs = [
-      project.paths.execFusionRender,
+    const out = spawnSync(project.paths.execFusionRender, [
       '-render',
       compPath,
       '-frames',
       frameset,
       '-quit',
-    ];
-
-    const out = exec(renderArgs);
-    if (!out.isExecuted) {
-      error('Failed to render comp');
-      process.exit(1);
+    ]);
+    if (out.status !== 0) {
+      error(out.stderr.toString());
+    } else {
+      success(`Rendered ${selectedName}`);
     }
   },
 });

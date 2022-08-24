@@ -1,6 +1,6 @@
 import path from 'path';
 import { error, info } from '@paperdave/logger';
-import { exec } from 'bun-utilities/spawn';
+import { spawnSync } from 'child_process';
 import { ArrangeCommand } from './a';
 import { Command } from '../cmd';
 import { exists } from '../util/fs';
@@ -32,8 +32,7 @@ export const AudioFromFileCommand = new Command({
       }
     }
 
-    const result = exec([
-      project.paths.execFFmpeg,
+    const result = spawnSync(project.paths.execFFmpeg, [
       '-i',
       file,
       '-vn',
@@ -43,8 +42,8 @@ export const AudioFromFileCommand = new Command({
       '44100',
       project.paths.audio,
     ]);
-    if (!result.isExecuted) {
-      error('failed to execute');
+    if (result.status !== 0) {
+      error(result.stderr.toString());
       return;
     }
 

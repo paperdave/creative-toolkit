@@ -71,12 +71,11 @@ function resolveExec(pathname: string | string[], root = process.cwd()): string 
     pathname = pathname.replace(/\.exe$/, '');
   }
 
-  if (pathname.startsWith('/')) {
-    return pathname;
-  }
-
   if (pathname.startsWith('.')) {
-    return path.resolve(pathname, root);
+    pathname = path.resolve(pathname, root);
+  }
+  if (existsSync(pathname)) {
+    return pathname;
   }
 
   const binPaths = process.env.PATH!.split(path.delimiter);

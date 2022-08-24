@@ -1,5 +1,5 @@
 import path from 'path';
-import { copyfile } from 'bun-utilities/fs';
+import { copyFileSync } from 'fs';
 import { unlink } from 'fs/promises';
 import { RenderCompCommand } from './r';
 import { Command } from '../cmd';
@@ -19,6 +19,6 @@ export const ThumbnailRenderCommand = new Command({
     }
 
     const src = path.join(project.getRenderFullPath(RenderProgram.Fusion, 'thumbnail'), '0000.png');
-    copyfile(src, thumb);
+    copyFileSync(src, thumb);
   },
 });

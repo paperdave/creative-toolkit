@@ -1,3 +1,4 @@
+import { Logger } from '@paperdave/logger';
 import { Command } from '../cmd';
 
 export const PathCommand = new Command({
@@ -5,11 +6,11 @@ export const PathCommand = new Command({
   desc: 'inspect/edit paths',
   async run({ project, args }) {
     if (args._.length === 0) {
-      console.log('Current Project Paths');
-      console.log('');
+      Logger.info('Current Project Paths');
+      Logger.writeLine('');
 
       for (const path of Object.keys(project.paths)) {
-        console.log(`${path}:${' '.repeat(20 - path.length)} ${(project.paths as any)[path]}`);
+        Logger.writeLine(`${path}:${' '.repeat(20 - path.length)} ${(project.paths as any)[path]}`);
       }
     }
   },

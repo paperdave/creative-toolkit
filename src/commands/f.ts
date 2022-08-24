@@ -1,5 +1,5 @@
 import path from 'path';
-import { exec } from 'bun-utilities/spawn';
+import { spawnSync } from 'child_process';
 import { readdir } from 'fs/promises';
 import { Command } from '../cmd';
 
@@ -16,8 +16,9 @@ export const FusionCommand = new Command({
         ])
     );
 
-    const mappedArgs = argList.map(arg => compAliases[arg] ?? arg);
-
-    exec([project.paths.execFusion, ...mappedArgs]);
+    spawnSync(
+      project.paths.execFusion,
+      argList.map(arg => compAliases[arg] ?? arg)
+    );
   },
 });
