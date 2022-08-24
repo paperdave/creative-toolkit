@@ -1,5 +1,5 @@
 {
-  description = "";
+  description = "Creative Toolkit";
   inputs = {
     nixpkgs.url = github:NixOS/nixpkgs;
   };
@@ -14,6 +14,10 @@
       flake = rec {
         devShells.${system} = import ./nix/devShell.nix arg;
         packages.${system} = import ./nix/packages.nix arg;
+        apps.${system}.default = {
+          type = "app";
+          program = "${packages.${system}.default}/bin/ct";
+        };
       };
     in
     flake;
