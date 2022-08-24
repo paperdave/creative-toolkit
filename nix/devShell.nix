@@ -5,52 +5,47 @@ with builtins;
 }:
 let
   repoName = "ct";
+
+  mkDevShell = { light }: pkgs.mkShell {
+    buildInputs = concatLists [
+      [
+        pkgs.nixpkgs-fmt
+        pkgs.electron
+        pkgs.ffmpeg
+        pkgs.fish
+        ctPackages.bun
+      ]
+      (if light then [ ] else [
+        ctPackages.fusion-studio
+      ])
+    ];
+
+    shellHook = ''
+      set -e
+      printf "Preparing development environment... "
+      bun i &> /dev/null
+      bun run dev &>/dev/null &
+      DEV_PID=$!
+      printf "\33[2K\r\33[1;32m✔ Development Environment Setup:\33[0m\n"
+      printf "\33[32mNode $(node --version)\33[37m | "
+      printf "\33[33mBun v$(bun --version)\33[0m "
+      ${if light then "" else ''printf "| \33[36mFusion v${ctPackages.fusion-studio.version}\33[0m "''}
+      printf "\n"
+      printf "  CLI is available as \33[32mct\33[0m\n"
+      printf "  Try bun with \33[36mctb\33[0m [experimental]\n\n"
+      set +e
+
+      __exit() {
+        kill -9 $DEV_PID
+      }
+      trap __exit EXIT
+
+      fish -C 'source config.fish'
+      exit
+    '';
+  };
 in
-pkgs.mkShell {
-  buildInputs = [
-    pkgs.nixpkgs-fmt
-    pkgs.electron
-    pkgs.ffmpeg
-    ctPackages.bun
-    ctPackages.fusion-studio
-  ];
-
-  shellHook = ''
-    bun i > /dev/null
-    bun run dev &>/dev/null &
-    DEV_PID=$!
-
-    __exit() {
-      kill -9 $DEV_PID
-    }
-    trap __exit EXIT
-
-    REPO="$PWD"
-          
-    __prompt_fn() {
-      PS1="\[\e[95m\]${repoName}\[\e[97m\]"
-              
-     if [[ "$PWD" == "$REPO" ]]; then
-        :
-      elif [[ "$PWD" == "$REPO"* ]]; then
-        PS1="''${PS1} \[\e[90m\].''${PWD/#$REPO/}"
-      elif [[ "$PWD" == "$HOME"* ]]; then
-        PS1="''${PS1} \[\e[90m\]~''${PWD/#$HOME/}"
-      else
-        PS1="''${PS1} \[\e[90m\]$PWD"
-      fi
-
-      PS1="''${PS1} \[\e[97m\]$\[\e[0m\] "
-    }
-
-    ctb() {
-      bun $REPO/src/index.ts "$@"
-    }
-
-    ct() {
-      node $REPO/dist/cli.js "$@"
-    }
-
-    PROMPT_COMMAND="__prompt_fn"
-  '';
+{
+  default = mkDevShell { light = false; };
+  light = mkDevShell { light = true; };
 }

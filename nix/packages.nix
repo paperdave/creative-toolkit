@@ -3,7 +3,11 @@ with builtins;
 , mkFusion ? import ./mkFusion.nix pkgs
 , mkBun ? import ./mkBun.nix pkgs
 , ...
-}: rec {
+}:
+let ctPackages = rec {
+  default = import ./creativeToolkit.nix { inherit pkgs ctPackages; };
+  creative-toolkit = default;
+
   # bun
   bun = mkBun {
     version = "0.1.10";
@@ -30,4 +34,6 @@ with builtins;
     tarHash = "13ba6nzb899xlhv9cqpj4cylwypzd2f4hwl5gwzgd229mf39jp3p";
     studio = false;
   };
-}
+};
+in
+ctPackages

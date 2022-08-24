@@ -8,10 +8,10 @@ Not intended to be used by others; no contributions accepted. Feel free to explo
 <summary><sub>table of contents</sub></summary>
 
 - [creative toolkit](#creative-toolkit)
-  - [required software](#required-software)
-  - [installing](#installing)
+  - [requirements](#requirements)
+  - [dev environment](#dev-environment)
   - [`ct` cli help](#ct-cli-help)
-  - [nix/nixos contents](#nixnixos-contents)
+  - [nix packages](#nix-packages)
   - [project structure](#project-structure)
   - [render store](#render-store)
   - [my fusion/bitwig plugins](#my-fusionbitwig-plugins)
@@ -22,24 +22,18 @@ Not intended to be used by others; no contributions accepted. Feel free to explo
 
 </details>
 
-## required software
+## requirements
 
-- [ffmpeg](https://ffmpeg.org/)
-- [nodejs](https://nodejs.org/en/) v18
-  - Ubuntu repos provides outdated packages, [follow this to install](https://github.com/nodesource/distributions#installation-instructions).
-- [blackmagic fusion](https://www.blackmagicdesign.com/products/fusion)
-  - Studio version ($300) is required for headless/unattended rendering.
-  - Free version should work too, but you're stuck on version 9.0.2, which is from 2017. BMD doesn't provide free versions of newer versions since DaVinci Resolve includes Fusion now.
-    - [windows download](https://www.blackmagicdesign.com/support/download/54fc7e36d6fe466d95bc2e583c359582/Windows)
-    - [linux download](https://www.blackmagicdesign.com/support/download/54fc7e36d6fe466d95bc2e583c359582/Linux)
-  - Nix derivations are available for automated installs, see below.
-- A NVIDIA GPU with NVENC support (for video encoding, code could be modified to fallback to other encoders).
+- [nix](https://nixos.org/). not required, but the entire build and dev flow is with nix
+  - if you aren't using nix, you need the following: nodejs, bun, ffmpeg, fusion.
+- [blackmagic fusion studio](https://www.blackmagicdesign.com/products/fusion) ($300 one time)
+- NVIDIA GPU. Drivers not included in nix derivations
   - My laptop has the GTX 1650 (mobile)
   - My desktop has the RTX 3090
 
-## installing
+## dev environment
 
-impossible at the moment. use the `main` branch.
+Using `nix develop` will open a fish shell with all dependencies installed. May take a while first time as it includes a copy of Fusion studio.
 
 ## `ct` cli help
 
@@ -65,7 +59,7 @@ global flags:
 
 <!-- END:CT CLI HELP -->
 
-## nix/nixos contents
+## nix packages
 
 this repo is a flake that contains derivations for the toolkit binaries, but also software I depend on:
 

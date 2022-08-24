@@ -6,10 +6,13 @@
   outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import "${nixpkgs}" {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      };
       arg = pkgs // { inherit flake; };
       flake = rec {
-        devShells.${system}.default = import ./nix/devShell.nix arg;
+        devShells.${system} = import ./nix/devShell.nix arg;
         packages.${system} = import ./nix/packages.nix arg;
       };
     in
