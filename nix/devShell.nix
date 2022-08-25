@@ -9,6 +9,7 @@ let
   mkDevShell = { light }: pkgs.mkShell {
     buildInputs = concatLists [
       [
+        pkgs.tree
         pkgs.nixpkgs-fmt
         pkgs.electron
         pkgs.ffmpeg

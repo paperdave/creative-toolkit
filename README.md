@@ -10,14 +10,24 @@ Not intended to be used by others; no contributions accepted. Feel free to explo
 - [creative toolkit](#creative-toolkit)
   - [requirements](#requirements)
   - [dev environment](#dev-environment)
-  - [`ct` cli help](#ct-cli-help)
   - [nix packages](#nix-packages)
   - [project structure](#project-structure)
   - [render store](#render-store)
   - [my fusion/bitwig plugins](#my-fusionbitwig-plugins)
   - [js library for reading/writing fusion comps](#js-library-for-readingwriting-fusion-comps)
-  - [ct a](#ct-a)
-  - [filming workflow](#filming-workflow)
+  - [`ct` cli help](#ct-cli-help)
+    - [`ct init`](#ct-init)
+    - [`ct a`](#ct-a)
+    - [`ct gui`](#ct-gui)
+    - [filming workflow](#filming-workflow)
+    - [dreaming workflow](#dreaming-workflow)
+    - [`ct audio-from`](#ct-audio-from)
+    - [`ct f`](#ct-f)
+    - [`ct path`](#ct-path)
+    - [`ct r`](#ct-r)
+    - [`ct split`](#ct-split)
+    - [`ct tr`](#ct-tr)
+    - [`ct final`](#ct-final)
   - [bun support](#bun-support)
 
 </details>
@@ -35,41 +45,16 @@ Not intended to be used by others; no contributions accepted. Feel free to explo
 
 Using `nix develop` will open a fish shell with all dependencies installed. May take a while first time as it includes a copy of Fusion studio.
 
-## `ct` cli help
-
-<!-- MARKER:CT CLI HELP -->
-
-```
-ct init                       setup project structure.
-ct a                          arrange
-ct gui                        we use electron
-ct audio-from <file>          sets project audio using file
-ct f [...args]                runs fusion, will resolve compname for you
-ct path [<key> <p>]           inspect/edit paths
-ct r <...comps>               render comp(s) by label
-  --force -f                  clears cache
-ct split <id> <at> [to]       split a fusion comp
-ct tr                         thumbnail render
-ct webm                       webm render
-
-global flags:
-  --project -p        set project folder
-  --render-root       set render root
-```
-
-<!-- END:CT CLI HELP -->
-
 ## nix packages
 
 this repo is a flake that contains derivations for the toolkit binaries, but also software I depend on:
 
+- Creative toolkit itself.
 - Blackmagic Fusion Studio 18
   - Does not currently support Fusion 9 (free), meaning you need to buy a license to use this.
   - Currently does not export the Render node
 - Bun
   - Overrides the nixpkg version to be more updated, since upstream updates slowly especailly during the beta.
-
-You can use `nix develop` to get a shell with node, and the `ct` cli all prepared for use.
 
 ## project structure
 
@@ -104,19 +89,83 @@ comp.CurrentTime = comp.RenderRangeStart + 10;
 comp.writeAndMoveFile();
 ```
 
-## ct a
+## `ct` cli help
+
+<!-- MARKER:CT CLI HELP -->
+
+```
+ct init                       setup project structure.
+ct a                          arrange
+ct gui                        we use electron
+ct audio-from <file>          sets project audio using file
+ct f [...args]                runs fusion, will resolve compname for you
+ct path [<key> <p>]           inspect/edit paths
+ct r <...comps>               render comp(s) by label
+  --force -f                  clears cache
+ct split <id> <at> [to]       split a fusion comp
+ct tr                         thumbnail render
+ct final [format]             webm render
+
+global flags:
+  --project -p        set project folder
+  --render-root       set render root
+```
+
+<!-- END:CT CLI HELP -->
+
+### `ct init`
+
+`ct init` will create a `project.json` file and other basic files. it prompts for display name and id.
+
+### `ct a`
 
 `a` stands for arrange. this handles renaming files, configuring fusion comp render settings, and much more. it gets run automatically on other commands like `ct webm`.
 
-## filming workflow
+### `ct gui`
+
+this is a highly experimental gui application, but in the future this might be the way the entire app is used. depends on electron.
+
+### filming workflow
 
 `ct gui` contains a filming utility. given a time range (in seconds), it will film (without recording audio) live action content through a webcam, and sort it into a named folder. later these can be pulled into fusion, automatically aligned to the correct frame. filming runs in a loop, meaning you can continue acting without computer interaction until you believe you performed the take correctly (each take is saved).
 
 takes are encoded using ffmpeg and nvenc
 
+### dreaming workflow
+
+**todo**: With the power of Stable Diffusion, we can generate images of any prompt in 5 seconds on a 3090. Creative Toolkit has a command to easily use SD, as easy as `ct di "snowstorm"`, saving the file in `./dream/image/snowstorm-0001.png`.
+
+### `ct audio-from`
+
+`ct audio-from` will set the project audio using the given file. If it is not a `.wav` file, it will be
+
+### `ct f`
+
+this is a simple wrapper around the `Fusion` executable. uses the project-specified fusion, which in 99.9% of cases is gonna be your system/nix-bundled default. it also resolves comp ids to full paths, such as `first` might match to `./comps/0000-1000_first.comp`.
+
+### `ct path`
+
+prints out path data. useful to debug
+
+### `ct r`
+
+this renders one composition by name
+
+### `ct split`
+
+this splits a composition into two compositions, at the given time. the first comp is the original, the second is the split, and is named with the original name plus `_split`.
+
+### `ct tr`
+
+automation to render thumbnail.comp and get just a single png file
+
+### `ct final`
+
+this will render the final video. it will use the project audio, and will use the project's render root as the output path.
+
 ## bun support
 
-currently bun is not stable enough to be used. since 2022-08-24 i removed all support of running with it, and will go back to using it when it's stable enough.
+currently bun is not stable enough to be used as the runtime, but it is used to manage packages. since 2022-08-24 i removed all support of running with it, and will go back to using it when it's stable enough.
 
 what's holding bun back:
 
@@ -126,3 +175,5 @@ what's holding bun back:
 - `process.stdin` / `prompts`
 - `express` (gui only)
 - `vite` (gui dev only)
+
+in a dev environment, you can use `ctb` to try bun as the runtime. as of 2022-08-24, it currently errors missing `readline`
