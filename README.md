@@ -1,13 +1,13 @@
-# creative toolkit
+# Dave Caruso's Creative Toolkit
 
-Set of tools for building paperdave songs and videos. Most of it is automated tooling operated through a CLI application. The goal is to get everything: automated workflows, rendering pipelines, years of custom application configuration, work logging, song sketching and pre-production utilities, and tools to download and inspect my old completed projects.
+This repository _\[will be\]_ the full collection of tools, resources, configuration, templates, and presets that I use to create songs and music videos for [paperdave](https://paperdave.net). It is delivered as a git repository with a nix derivation, meaning any linux computer should be able to use all of my tools without complicated installs: `nix develop` to get a preconfigured shell.
 
-Not intended to be used by others; no contributions accepted. Feel free to explore and try it out though. This readme will document some of it but definetly not all of it.
+Not intended to be used by others. Feel free to explore and try it out though, this file will attempt to document it.
 
 <details>
 <summary><sub>table of contents</sub></summary>
 
-- [creative toolkit](#creative-toolkit)
+- [Dave Caruso's Creative Toolkit](#dave-carusos-creative-toolkit)
   - [requirements](#requirements)
   - [dev environment](#dev-environment)
   - [nix packages](#nix-packages)
@@ -37,7 +37,7 @@ Not intended to be used by others; no contributions accepted. Feel free to explo
 - [nix](https://nixos.org/). not required, but the entire build and dev flow is with nix
   - if you aren't using nix, you need the following: nodejs, bun, ffmpeg, fusion.
 - [blackmagic fusion studio](https://www.blackmagicdesign.com/products/fusion) ($300 one time)
-- NVIDIA GPU. Drivers not included in nix derivations
+- Nvidia GPU; drivers not included here.
   - My laptop has the GTX 1650 (mobile)
   - My desktop has the RTX 3090
 
