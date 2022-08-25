@@ -1,18 +1,27 @@
 import path from 'path';
 import { Logger } from '@paperdave/logger';
-import { exec } from 'bun-utilities/spawn';
-import { readdirSync, rmdirSync, unlinkSync } from 'fs';
+import { spawnSync } from 'child_process';
+import { readdirSync, rmSync, unlinkSync } from 'fs';
 import { mkdir, readdir, symlink } from 'fs/promises';
 import { RenderCompCommand } from './r';
 import { Composition } from '../bmfusion/composition';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
+import { runFFMpeg } from '../util/ffmpeg-progress';
 
-export const WebmRenderCommand = new Command({
-  usage: 'ct webm',
+export const FinalRenderCommand = new Command({
+  usage: 'ct final [format]',
   desc: 'webm render',
   arrangeFirst: true,
-  async run({ project }) {
+  async run({ project, args }) {
+    const format = args._[0];
+    const start = performance.now();
+
+    if (format !== 'webm' && format !== 'mp4') {
+      Logger.error('Invalid format: ' + format + ', must be webm or mp4');
+      return;
+    }
+
     if (!project.hasAudio) {
       Logger.warn('no audio');
       // return;
@@ -24,8 +33,7 @@ export const WebmRenderCommand = new Command({
       .sort((a, b) => a.RenderRangeStart - b.RenderRangeStart);
 
     const duration = parseFloat(
-      exec([
-        project.paths.execFFprobe,
+      spawnSync(project.paths.execFFprobe, [
         '-i',
         project.paths.audio,
         '-show_entries',
@@ -34,7 +42,7 @@ export const WebmRenderCommand = new Command({
         'quiet',
         '-of',
         'csv=p=0',
-      ]).stdout ?? '0'
+      ]).stdout.toString() ?? '0'
     );
 
     const frameCount = Math.ceil(duration * 30);
@@ -118,78 +126,94 @@ export const WebmRenderCommand = new Command({
     Logger.info(`Created ${files.length} symlinks in ${tmpDir}`);
 
     const input = path.join(tmpDir, `%d.png`);
-    const output = path.join(project.root, `${project.id}.webm`);
 
-    // Following is taken from https://developers.google.com/media/vp9/settings/vod/
-    // We are targetting 1080p30
-    const targetBitrate = 1800;
-    const tileColumns = 2;
-    const threads = 2 ** tileColumns * 2;
-    const targetQuality = 31;
-    const speedValue = 2;
+    const durationFrames = lastFrame;
 
-    const pass1Args = [
-      project.paths.execFFmpeg,
-      ['-framerate', '30'],
-      ['-i', input],
-      project.hasAudio && ['-i', project.paths.audio],
-      ['-b:v', `${targetBitrate}k`],
-      ['-minrate', `${targetBitrate * 0.5}k`],
-      ['-maxrate', `${targetBitrate * 1.45}k`],
-      ['-tile-columns', `${tileColumns}`],
-      ['-g', `240`],
-      ['-threads', `${threads}`],
-      ['-quality', 'good'],
-      ['-crf', `${targetQuality}`],
-      ['-c:v', 'libvpx-vp9'],
-      project.hasAudio && ['-c:a', 'libopus'],
-      ['-pass', '1'],
-      ['-speed', '4'],
-      '-y',
-      output,
-    ]
-      .flat()
-      .filter(Boolean);
-    const pass2Args = [
-      project.paths.execFFmpeg,
-      ['-framerate', '30'],
-      ['-i', input],
-      project.hasAudio && ['-i', project.paths.audio],
-      ['-b:v', `${targetBitrate}k`],
-      ['-minrate', `${targetBitrate * 0.5}k`],
-      ['-maxrate', `${targetBitrate * 1.45}k`],
-      ['-tile-columns', `${tileColumns}`],
-      ['-g', `240`],
-      ['-threads', `${threads}`],
-      ['-quality', 'good'],
-      ['-crf', `${targetQuality}`],
-      ['-c:v', 'libvpx-vp9'],
-      project.hasAudio && ['-c:a', 'libopus'],
-      ['-pass', '2'],
-      ['-speed', `${speedValue}`],
-      '-y',
-      output,
-    ]
-      .flat()
-      .filter(Boolean);
+    let output = path.join(project.root, project.id);
+    if (format === 'webm') {
+      output += '.webm';
 
-    Logger.info('FFmpeg Pass 1');
-    const pass1 = exec(pass1Args);
-    if (pass1.exitCode) {
-      Logger.error(`pass1 failed: ${pass1.stderr}`);
-      return;
+      // Following is taken from https://developers.google.com/media/vp9/settings/vod/
+      // We are targetting 1080p30
+      const targetBitrate = 1800;
+      const tileColumns = 2;
+      const threads = 2 ** tileColumns * 2;
+      const targetQuality = 31;
+      const speedValue = 2;
+
+      const pass1Args = [
+        ['-framerate', '30'],
+        ['-i', input],
+        project.hasAudio && ['-i', project.paths.audio],
+        ['-b:v', `${targetBitrate}k`],
+        ['-minrate', `${targetBitrate * 0.5}k`],
+        ['-maxrate', `${targetBitrate * 1.45}k`],
+        ['-tile-columns', `${tileColumns}`],
+        ['-g', `240`],
+        ['-threads', `${threads}`],
+        ['-quality', 'good'],
+        ['-crf', `${targetQuality}`],
+        ['-c:v', 'libvpx-vp9'],
+        project.hasAudio && ['-c:a', 'libopus'],
+        ['-pass', '1'],
+        ['-speed', '4'],
+        '-y',
+        output,
+      ]
+        .flat()
+        .filter(Boolean) as string[];
+      const pass2Args = [
+        ['-framerate', '30'],
+        ['-i', input],
+        project.hasAudio && ['-i', project.paths.audio],
+        ['-b:v', `${targetBitrate}k`],
+        ['-minrate', `${targetBitrate * 0.5}k`],
+        ['-maxrate', `${targetBitrate * 1.45}k`],
+        ['-tile-columns', `${tileColumns}`],
+        ['-g', `240`],
+        ['-threads', `${threads}`],
+        ['-quality', 'good'],
+        ['-crf', `${targetQuality}`],
+        ['-c:v', 'libvpx-vp9'],
+        project.hasAudio && ['-c:a', 'libopus'],
+        ['-pass', '2'],
+        ['-speed', `${speedValue}`],
+        '-y',
+        output,
+      ]
+        .flat()
+        .filter(Boolean) as string[];
+
+      await runFFMpeg(project, pass1Args, { text: 'WEBM Pass 1', durationFrames });
+      await runFFMpeg(project, pass2Args, { text: 'WEBM Pass 2', durationFrames });
+
+      unlinkSync(path.join(project.root, `ffmpeg2pass-0.log`));
+    } else if (format === 'mp4') {
+      output += '.mp4';
+
+      // H264 nvenc
+      const ffmpegArgs = [
+        ['-framerate', '30'],
+        ['-i', input],
+        project.hasAudio && ['-i', project.paths.audio],
+        ['-preset', 'slow'],
+        ['-crf', '18'],
+        ['-c:v', 'h264_nvenc'],
+        ['-c:a', 'aac'],
+        ['-pix_fmt', 'yuv420p'],
+        ['-movflags', '+faststart'],
+        ['-y', output],
+      ]
+        .flat()
+        .filter(Boolean) as string[];
+
+      await runFFMpeg(project, ffmpegArgs, { text: 'MP4 Render', durationFrames });
     }
 
-    Logger.info('FFmpeg Pass 2');
-    const pass2 = exec(pass2Args);
-    if (pass2.exitCode) {
-      Logger.error(`pass2 failed: ${pass1.stderr}`);
-      return;
-    }
+    rmSync(tmpDir, { recursive: true });
 
-    rmdirSync(tmpDir, { recursive: true });
-    unlinkSync(path.join(project.root, `ffmpeg2pass-0.log`));
-
-    Logger.success('Rendered ' + output);
+    Logger.success(
+      'Rendered ' + output + ' in ' + ((performance.now() - start) / 1000).toFixed(1) + 's'
+    );
   },
 });

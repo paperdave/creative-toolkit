@@ -5,13 +5,13 @@ import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
 import { FusionCommand } from './commands/f';
+import { FinalRenderCommand } from './commands/final';
 import { GUICommand } from './commands/gui';
 import { InitCommand } from './commands/init';
 import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
 import { SplitCommand } from './commands/split';
 import { ThumbnailRenderCommand } from './commands/tr';
-import { WebmRenderCommand } from './commands/webm';
 import type { Paths } from './project';
 import { resolveProject } from './project';
 
@@ -52,7 +52,7 @@ const commands: Record<string, Command> = {
   r: RenderCompCommand,
   split: SplitCommand,
   tr: ThumbnailRenderCommand,
-  webm: WebmRenderCommand,
+  final: FinalRenderCommand,
 };
 
 const programArgs = minimist(programArgList);
