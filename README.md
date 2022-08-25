@@ -36,7 +36,7 @@ Not intended to be used by others. Feel free to explore and try it out though, t
 
 - [nix](https://nixos.org/). not required, but the entire build and dev flow is with nix
   - if you aren't using nix, you need the following: nodejs, bun, ffmpeg, fusion.
-- [blackmagic fusion studio](https://www.blackmagicdesign.com/products/fusion) ($300 one time)
+- [blackmagic fusion studio](https://www.blackmagicdesign.com/products/fusion) ($300 physical usb activation key)
 - Nvidia GPU; drivers not included here.
   - My laptop has the GTX 1650 (mobile)
   - My desktop has the RTX 3090
