@@ -1,3 +1,4 @@
+import path from 'path';
 import w from 'wavefile';
 import { Logger, Progress } from '@paperdave/logger';
 import type { Dict } from '@paperdave/utils';
@@ -6,6 +7,7 @@ import { createCanvas } from 'canvas';
 import { spawn } from 'child_process';
 import { mkdir, readFile } from 'fs/promises';
 import { Command } from '../cmd';
+import { RenderProgram } from '../project';
 
 const minMaxValues: Dict<[number, number]> = {
   '8': [0, 255],
@@ -37,10 +39,6 @@ function subarray(array: Float64Array, start: number, length: number) {
   return array.subarray(start, start + length);
 }
 
-function rmsSubArray(array: Float64Array, start: number, length: number) {
-  return rootMeanSquare(subarray(array, start, length) as number[]);
-}
-
 export const AudioWaveformCommand = new Command({
   usage: 'ct waveform',
   desc: 'waveform',
@@ -49,6 +47,8 @@ export const AudioWaveformCommand = new Command({
       Logger.error('No audio found in project');
       return;
     }
+
+    const root = project.getRenderFullPath(RenderProgram.CTWaveform);
 
     const WIDTH = 1920;
     const WAVEFORM_DETAIL = 4;
@@ -106,14 +106,14 @@ export const AudioWaveformCommand = new Command({
         ['-vcodec', 'png'],
         ['-r', `${FPS}`],
         ['-q:v', '1'],
-        'waveform/%d.png',
+        path.join(root, '%d.png'),
       ].flat(),
       {
         stdio: ['pipe', 'ignore', 'ignore'],
       }
     );
 
-    await mkdir('waveform', { recursive: true });
+    await mkdir(root, { recursive: true });
 
     const [left, right] = channels.map(channel => {
       for (let i = 0; i < channel.length; i++) {
@@ -122,7 +122,9 @@ export const AudioWaveformCommand = new Command({
       const chunks = new Float64Array(Math.ceil(channel.length / SAMPLES_PER_COLUMN));
       for (let i = 0; i < chunks.length; i++) {
         chunks[i] =
-          rmsSubArray(channel, i * SAMPLES_PER_COLUMN, SAMPLES_PER_COLUMN) * WAVEFORM_HEIGHT_PIXELS;
+          rootMeanSquare(
+            subarray(channel, i * SAMPLES_PER_COLUMN, SAMPLES_PER_COLUMN) as number[]
+          ) * WAVEFORM_HEIGHT_PIXELS;
       }
       return chunks;
     });

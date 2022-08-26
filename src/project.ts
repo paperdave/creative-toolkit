@@ -6,6 +6,7 @@ import { exists, readJSON, walkUpDirectoryTree, writeJSON } from './util/fs';
 
 export enum RenderProgram {
   Fusion = 'Fusion',
+  CTWaveform = 'CTWaveform',
 }
 
 const win = process.platform === 'win32';
@@ -142,11 +143,14 @@ export class Project {
     await writeJSON(this.paths.projectJSON, this.json, { spaces: 2 });
   }
 
-  getRenderId(program: string, shot: string) {
-    return [this.id, program, shot].map(x => pascalCase(x)).join('-');
+  getRenderId(program: string, shot?: string) {
+    return [this.id, program, shot]
+      .filter(Boolean)
+      .map(x => pascalCase(x!))
+      .join('-');
   }
 
-  getRenderFullPath(program: string, shot: string) {
+  getRenderFullPath(program: string, shot?: string) {
     return path.resolve(this.paths.render, this.getRenderId(program, shot));
   }
 }
