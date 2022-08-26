@@ -68,13 +68,10 @@ export const AudioWaveformCommand = new Command({
     const FRAMES = Math.ceil(channels[0].length / SAMPLES_PER_FRAME - 1);
     const FRAME_MAXLEN = Math.max(Math.log10(FRAMES)) + 1;
 
-    Logger.info('Audio is %d seconds', channels[0].length / sampleRate);
-    Logger.info('samplesPerFrame %d', SAMPLES_PER_FRAME);
-    Logger.info('frames %d', FRAMES);
-
     const COLOR_BACKGROUND = '#111f10';
     const COLOR_BACKGROUND_AUDIO = '#132513';
     const COLOR_BACKGROUND_ACTIVE = '#802013';
+    const COLOR_BACKGROUND_BEAT = '#2f96b5';
     const COLOR_TEXT = '#ffffff';
     const COLOR_WAVE_L = '#59ff75';
     const COLOR_WAVE_R = '#57ffdf';
@@ -147,6 +144,34 @@ export const AudioWaveformCommand = new Command({
         WAVEFORM_HEIGHT_PIXELS * 2
       );
 
+      if (project.audioTiming && project.audioTiming.bpm) {
+        const { start = 0, bpm } = project.audioTiming;
+        ctx.font = `${UNIT * 2}px monospace`;
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
+
+        const BEAT_WIDTH = WIDTH / ((60 / (bpm / 4)) * SECONDS_VISIBLE_AT_ONCE);
+
+        let startX = (start / SECONDS_VISIBLE_AT_ONCE) * WIDTH + NOW_X - PIXELS_PER_FRAME * frame;
+        let startBeatNum = 0;
+        while (startX < 0) {
+          startX += BEAT_WIDTH;
+          startBeatNum++;
+        }
+
+        ctx.fillStyle = COLOR_BACKGROUND_BEAT;
+        for (let i = 0; i < WIDTH / BEAT_WIDTH; i++) {
+          const x = startX + i * BEAT_WIDTH;
+          ctx.fillRect(x, CENTER_Y - WAVEFORM_HEIGHT_PIXELS, 4, WAVEFORM_HEIGHT_PIXELS * 2);
+          ctx.fillText(
+            `${Math.floor(startBeatNum / 4) + 1}:${(startBeatNum % 4) + 1}`,
+            x + UNIT / 2,
+            CENTER_Y - WAVEFORM_HEIGHT_PIXELS
+          );
+          startBeatNum++;
+        }
+      }
+
       const startCol = frame * WAVEFORM_DETAIL;
       // Logger.info(startSample);
       for (let col = 0; col < COLUMNS; col++) {
@@ -183,9 +208,6 @@ export const AudioWaveformCommand = new Command({
         NOW_X,
         CENTER_Y - WAVEFORM_HEIGHT_PIXELS - UNIT
       );
-
-      if (project.audioTiming && project.audioTiming.bpm) {
-      }
 
       // This await ensures that we dont kill ourselves over memory
       await new Promise<void>(done => {
