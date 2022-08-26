@@ -3,11 +3,15 @@ set fish_greeting
 set REPO $PWD
 
 function ctb
-  bun $REPO/src/index.ts $argv
+  set startTime (date +%s%N | cut -b1-13)
+  bun $REPO/dist/cli.js $argv
+  echo "ct bun took "(math (date +%s%N | cut -b1-13) - $startTime)"ms"
 end
 
 function ct
+  set startTime (date +%s%N | cut -b1-13)
   node $REPO/dist/cli.js $argv
+  echo "ct took "(math (date +%s%N | cut -b1-13) - $startTime)"ms"
 end
 
 function fish_prompt
@@ -27,4 +31,8 @@ function fish_prompt
     printf "$PWD "
   end
   printf (set_color brwhite)"\$ \n"
+end
+
+function run
+  bun run $argv
 end

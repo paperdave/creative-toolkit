@@ -14,6 +14,14 @@ let
         pkgs.electron
         pkgs.ffmpeg
         pkgs.fish
+        # gyp builds
+        pkgs.pkg-config
+        pkgs.python3
+        pkgs.pixman
+        pkgs.cairo
+        pkgs.pango
+        pkgs.giflib
+
         ctPackages.bun
       ]
       (if light then [ ] else [
@@ -24,8 +32,8 @@ let
     shellHook = ''
       set -e
       printf "Preparing development environment... "
-      bun i &> /dev/null
-      bun run dev &>/dev/null &
+      pnpm i 2> /dev/null
+      bun rollup -cw &>/dev/null &
       DEV_PID=$!
       printf "\33[2K\r\33[1;32m✔ Development Environment Setup:\33[0m\n"
       printf "\33[32mNode $(node --version)\33[37m | "
@@ -35,6 +43,7 @@ let
       printf "  CLI is available as \33[32mct\33[0m\n"
       printf "  Try bun with \33[36mctb\33[0m [experimental]\n\n"
       set +e
+      export IS_DEV_SHELL=true
 
       __exit() {
         kill -9 $DEV_PID

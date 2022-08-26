@@ -12,6 +12,7 @@ import { PathCommand } from './commands/paths';
 import { RenderCompCommand } from './commands/r';
 import { SplitCommand } from './commands/split';
 import { ThumbnailRenderCommand } from './commands/tr';
+import { AudioWaveformCommand } from './commands/waveform';
 import type { Paths } from './project';
 import { resolveProject } from './project';
 
@@ -53,6 +54,7 @@ const commands: Record<string, Command> = {
   split: SplitCommand,
   tr: ThumbnailRenderCommand,
   final: FinalRenderCommand,
+  waveform: AudioWaveformCommand,
 };
 
 const programArgs = minimist(programArgList);
