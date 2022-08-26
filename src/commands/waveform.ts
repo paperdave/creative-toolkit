@@ -145,36 +145,36 @@ export const AudioWaveformCommand = new Command({
       );
 
       // THESE ARE WRONG
-      // if (project.audioTiming && project.audioTiming.bpm) {
-      //   const { start = 0, bpm } = project.audioTiming;
-      //   ctx.font = `${UNIT * 2}px monospace`;
-      //   ctx.textBaseline = 'top';
-      //   ctx.textAlign = 'left';
+      if (project.audioTiming && project.audioTiming.bpm) {
+        const { start = 0, bpm } = project.audioTiming;
+        ctx.font = `${UNIT * 2}px monospace`;
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
 
-      //   const BEAT_WIDTH = WIDTH / ((60 / (bpm / 4)) * SECONDS_VISIBLE_AT_ONCE);
+        const BEAT_SECONDS = 60 / bpm;
+        const BEAT_WIDTH = BEAT_SECONDS * PIXELS_PER_FRAME * FPS;
 
-      //   let startX = (start / SECONDS_VISIBLE_AT_ONCE) * WIDTH + NOW_X - PIXELS_PER_FRAME * frame;
-      //   let startBeatNum = 0;
-      //   while (startX < 0) {
-      //     startX += BEAT_WIDTH;
-      //     startBeatNum++;
-      //   }
+        let startX = (start / SECONDS_VISIBLE_AT_ONCE) * WIDTH + NOW_X - PIXELS_PER_FRAME * frame;
+        let startBeatNum = 0;
+        while (startX < 0) {
+          startX += BEAT_WIDTH;
+          startBeatNum++;
+        }
 
-      //   ctx.fillStyle = COLOR_BACKGROUND_BEAT;
-      //   for (let i = 0; i < WIDTH / BEAT_WIDTH; i++) {
-      //     const x = startX + i * BEAT_WIDTH;
-      //     ctx.fillRect(x, CENTER_Y - WAVEFORM_HEIGHT_PIXELS, 4, WAVEFORM_HEIGHT_PIXELS * 2);
-      //     ctx.fillText(
-      //       `${Math.floor(startBeatNum / 4) + 1}:${(startBeatNum % 4) + 1}`,
-      //       x + UNIT / 2,
-      //       CENTER_Y - WAVEFORM_HEIGHT_PIXELS
-      //     );
-      //     startBeatNum++;
-      //   }
-      // }
+        ctx.fillStyle = COLOR_BACKGROUND_BEAT;
+        for (let i = 0; i < WIDTH / BEAT_WIDTH; i++) {
+          const x = startX + i * BEAT_WIDTH;
+          ctx.fillRect(x, CENTER_Y - WAVEFORM_HEIGHT_PIXELS, 4, WAVEFORM_HEIGHT_PIXELS * 2);
+          ctx.fillText(
+            `${Math.floor(startBeatNum / 4) + 1}:${(startBeatNum % 4) + 1}`,
+            x + UNIT / 2,
+            CENTER_Y - WAVEFORM_HEIGHT_PIXELS
+          );
+          startBeatNum++;
+        }
+      }
 
-      const startCol = frame * WAVEFORM_DETAIL;
-      // Logger.info(startSample);
+      const startCol = frame * WAVEFORM_DETAIL - Math.floor(NOW_X / COLUMN_WIDTH);
       for (let col = 0; col < COLUMNS; col++) {
         const leftHeight = left[startCol + col];
         const rightHeight = right[startCol + col];
