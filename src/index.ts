@@ -1,6 +1,6 @@
 import minimist from 'minimist';
 import path from 'path';
-import { error, writeLine } from '@paperdave/logger';
+import { error, injectLogger, writeLine } from '@paperdave/logger';
 import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
@@ -15,6 +15,8 @@ import { ThumbnailRenderCommand } from './commands/tr';
 import { AudioWaveformCommand } from './commands/waveform';
 import type { Paths } from './project';
 import { resolveProject } from './project';
+
+injectLogger();
 
 enum ArgParserState {
   Program,
