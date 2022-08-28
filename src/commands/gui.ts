@@ -9,10 +9,16 @@ export const GUICommand = new Command({
   desc: 'we use electron',
   async run() {
     // Use imported install, or fallback to globally installed electron (nixos)
-    let electron = 'electron';
-    try {
-      electron = (await import('electron')).default as any;
-    } catch {}
+    const electron = 'electron';
+
+    // get rained on xdf
+    // i dont think this import is needed anyways
+    // it is commented out for now because on nixos the system electron MUST be used
+    // and on other systems it's just gonna use the nix-shell one
+
+    // try {
+    //   electron = (await import('electron')).default as any;
+    // } catch {}
 
     // TODO: fix upstream so this usage works.
     // const electron = tryOrFallback(import('electron'), { default: 'electron' }).default;

@@ -5,6 +5,7 @@ import type { Command } from './cmd';
 import { ArrangeCommand } from './commands/a';
 import { AudioFromFileCommand } from './commands/audio-from';
 import { FusionCommand } from './commands/f';
+import { FilmExtractCommand } from './commands/film-extract';
 import { FinalRenderCommand } from './commands/final';
 import { GUICommand } from './commands/gui';
 import { InitCommand } from './commands/init';
@@ -57,6 +58,7 @@ const commands: Record<string, Command> = {
   tr: ThumbnailRenderCommand,
   final: FinalRenderCommand,
   waveform: AudioWaveformCommand,
+  'film-extract': FilmExtractCommand,
 };
 
 const programArgs = minimist(programArgList);

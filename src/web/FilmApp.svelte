@@ -7,7 +7,7 @@
   import { onDestroy, onMount } from "svelte";
   import type { ProjectJSON } from '../project-json';
   import { delay } from '@paperdave/utils';
-  import type { Timer } from '@paperdave/logger/dist/util';
+  import type { Timer } from '@paperdave/utils';
 
   // @ts-expect-error OffscreenCanvas not defined lol.
   const videoCanvas = new OffscreenCanvas(1920, 1080);
@@ -26,7 +26,8 @@
     .then(x => x.filter(d => d.kind === 'videoinput'));  
 
   let deviceId: string | null = null;
-  let audioRange = [0, 5];
+  let audioRangeBeats = [0, 4];
+  $: audioRange = audioRangeBeats.map(x => x * (60 / project.audioTiming.bpm) + (project.audioTiming.start ?? 0));
   
   let initialName = 'demo';
   let groupId = initialName;
@@ -63,10 +64,10 @@
   function createAudioSource() {
     audioSource = audioContext.createBufferSource();
     audioSource.buffer = audioBuffer;
-    audioSource.loop = true;
-    audioSource.loopStart = roundSecondToNearestFrame(audioRange[0]);
-    audioSource.loopEnd = roundSecondToNearestFrame(audioRange[1]);
-    audioSource.connect(audioContext.destination);
+    const gain = audioContext.createGain();
+    gain.gain.value = 0.5;
+    audioSource.connect(gain);
+    gain.connect(audioContext.destination);
 
     return audioSource;
   }
@@ -136,10 +137,13 @@
 
   async function doOneTake() {
     const oneBeat = (60 / project.audioTiming.bpm);
-    
+
+    const latency = audioContext.baseLatency;
+
+    console.log('with latency', latency, 'ms');
     await CTFilm.initCapture({
-      startFrame: Math.max(0, Math.floor((audioRange[0] - oneBeat * 2) * 30)),
-      endFrame: Math.floor((audioRange[1] + oneBeat * 2) * 30),
+      startFrame: Math.max(0, Math.floor((audioRange[0] - latency - oneBeat * 2) * 30) - 1),
+      endFrame: Math.floor((audioRange[1] - latency + oneBeat * 2) * 30 - 1),
       groupId
     });
     
@@ -162,13 +166,16 @@
     }
 
     if (startTime > 0) {
-      audioSource.start(0, audioContext.currentTime + startTime);
-      startRecordLoop();
+      audioSource.start(audioContext.currentTime, startTime);
+      setTimeout(() => {
+        startRecordLoop();
+      }, oneBeat * 2 * 1000);
     } else {
+      // starttime is negative, insetad of using math.abs or anything, we simply subtract
       audioSource.start(audioContext.currentTime - startTime);
       setTimeout(() => {
         startRecordLoop();
-      }, -startTime * 1000);
+      }, -startTime * 1000 + oneBeat * 2 * 1000);
     }
 
     await delay(roundSecondToNearestFrame(audioRange[1]) * 1000 - roundSecondToNearestFrame(audioRange[0]) * 1000 + oneBeat * 4000);
@@ -193,6 +200,9 @@
     await setupAudioContext();
     if (!audioSource) {
       audioSource = createAudioSource();
+      audioSource.loop = true;
+      audioSource.loopStart = roundSecondToNearestFrame(audioRange[0]);
+      audioSource.loopEnd = roundSecondToNearestFrame(audioRange[1]);
       audioSource.start(0, roundSecondToNearestFrame(audioRange[0]));
     } else {
       audioSource.stop();
@@ -215,7 +225,7 @@
   $: settings = stream && stream.getVideoTracks()[0].getSettings();
 </script>
 
-<h1>shityy program to make record video</h1>
+<h1>ct film</h1>
 <p>
   filming for {project.name} ({project.id})
 </p>
@@ -233,7 +243,7 @@
 </div>
 <div class="row">
   time:
-  <input type="number" bind:value={audioRange[0]} on:change={resetDefGroupId}>-<input type="number" bind:value={audioRange[1]} on:change={resetDefGroupId}>
+  <input type="number" bind:value={audioRangeBeats[0]} on:change={resetDefGroupId}>-<input type="number" bind:value={audioRangeBeats[1]} on:change={resetDefGroupId}>
   <button on:click={previewAudio}>
     {#if audioSource}
       stop preview
@@ -244,6 +254,8 @@
 </div>
 <div class="row">
   capture id = <input type="text" bind:value={groupId}>
+</div><div class="row">
+  range seconds: {audioRange[0]} - {audioRange[1]}
 </div>
 <p>
   {#if audioRange[0] > audioRange[1]}
