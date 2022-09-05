@@ -107,6 +107,7 @@ export class Project {
     this.name = json.name;
     this.dates = json.dates;
     this.audioTiming = json.audioTiming;
+    this.overridePaths = json.paths ?? {};
 
     this.paths = {} as Paths;
 
