@@ -16,7 +16,7 @@ end
 
 function fish_prompt
   printf (set_color brmagenta)"ct"
-  set branch (string sub -s 3 (git branch | grep '*'))
+  set branch (string sub -s 3 (git --git-dir="$REPO/.git" branch | grep '*'))
   if test "$branch" != "main"
     printf (set_color red)"/$branch"
   end

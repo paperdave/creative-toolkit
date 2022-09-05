@@ -15,7 +15,7 @@ export const ArrangeCommand = new Command({
 
     const comps = (await readdir(project.paths.comps))
       .filter(filename => filename.endsWith('.comp'))
-      .map(filename => Composition.fromFile(path.join(project.paths.comps, filename)));
+      .map(filename => Composition.fromFileSync(path.join(project.paths.comps, filename)));
 
     const longestNum = comps
       .flatMap(comp => comp.RenderRange)

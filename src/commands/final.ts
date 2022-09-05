@@ -1,13 +1,10 @@
 import path from 'path';
 import { Logger } from '@paperdave/logger';
 import { spawnSync } from 'child_process';
-import { readdirSync, rmSync, unlinkSync } from 'fs';
-import { mkdir, readdir, symlink } from 'fs/promises';
-import { RenderCompCommand } from './r';
+import { readdir } from 'fs/promises';
 import { Composition } from '../bmfusion/composition';
 import { Command } from '../cmd';
-import { RenderProgram } from '../project';
-import { runFFMpeg } from '../util/ffmpeg-progress';
+import { createVideo } from '../render-video';
 
 export const FinalRenderCommand = new Command({
   usage: 'ct final [format]',
@@ -15,7 +12,6 @@ export const FinalRenderCommand = new Command({
   arrangeFirst: true,
   async run({ project, args }) {
     const format = args._[0];
-    const start = performance.now();
 
     if (format !== 'webm' && format !== 'mp4') {
       Logger.error('Invalid format: ' + format + ', must be webm or mp4');
@@ -23,13 +19,14 @@ export const FinalRenderCommand = new Command({
     }
 
     if (!project.hasAudio) {
+      // TODO: support no audio
       Logger.warn('no audio');
-      // return;
+      return;
     }
 
     const comps = (await readdir(project.paths.comps))
       .filter(x => x !== 'thumbnail.comp')
-      .map(x => Composition.fromFile(path.join(project.paths.comps, x)))
+      .map(x => Composition.fromFileSync(path.join(project.paths.comps, x)))
       .sort((a, b) => a.RenderRangeStart - b.RenderRangeStart);
 
     const duration = parseFloat(
@@ -99,121 +96,9 @@ export const FinalRenderCommand = new Command({
 
     Logger.info(`Starting render of ${project.name}`);
 
-    for (const comp of comps) {
-      await RenderCompCommand.run({
-        project,
-        args: [comp.ctLabel!],
-      });
-    }
-
-    const files = comps.flatMap(comp => {
-      const renderRoot = project.getRenderFullPath(RenderProgram.Fusion, comp.ctLabel!);
-
-      return readdirSync(renderRoot)
-        .filter(x => x.endsWith('.png'))
-        .sort((a, b) => {
-          const aNum = parseInt(a.split('.')[0], 10);
-          const bNum = parseInt(b.split('.')[0], 10);
-          return aNum - bNum;
-        })
-        .map(x => path.join(renderRoot, x));
+    await createVideo(project, path.join(project.root, `${project.id}.${format}`), {
+      start: 0,
+      end: frameCount,
     });
-
-    const tmpDir = path.join(project.paths.temp, 'ct_' + Date.now() + '_frames');
-    await mkdir(tmpDir);
-
-    await Promise.all(files.map((file, i) => symlink(file, path.join(tmpDir, `${i}.png`))));
-    Logger.info(`Created ${files.length} symlinks in ${tmpDir}`);
-
-    const input = path.join(tmpDir, `%d.png`);
-
-    const durationFrames = lastFrame;
-
-    let output = path.join(project.root, project.id);
-    if (format === 'webm') {
-      output += '.webm';
-
-      // Following is taken from https://developers.google.com/media/vp9/settings/vod/
-      // We are targetting 1080p30
-      const targetBitrate = 1800;
-      const tileColumns = 2;
-      const threads = 2 ** tileColumns * 2;
-      const targetQuality = 31;
-      const speedValue = 2;
-
-      const pass1Args = [
-        ['-framerate', '30'],
-        ['-i', input],
-        project.hasAudio && ['-i', project.paths.audio],
-        ['-b:v', `${targetBitrate}k`],
-        ['-minrate', `${targetBitrate * 0.5}k`],
-        ['-maxrate', `${targetBitrate * 1.45}k`],
-        ['-tile-columns', `${tileColumns}`],
-        ['-g', `240`],
-        ['-threads', `${threads}`],
-        ['-quality', 'good'],
-        ['-crf', `${targetQuality}`],
-        ['-c:v', 'libvpx-vp9'],
-        project.hasAudio && ['-c:a', 'libopus'],
-        ['-pass', '1'],
-        ['-speed', '4'],
-        '-y',
-        output,
-      ]
-        .flat()
-        .filter(Boolean) as string[];
-      const pass2Args = [
-        ['-framerate', '30'],
-        ['-i', input],
-        project.hasAudio && ['-i', project.paths.audio],
-        ['-b:v', `${targetBitrate}k`],
-        ['-minrate', `${targetBitrate * 0.5}k`],
-        ['-maxrate', `${targetBitrate * 1.45}k`],
-        ['-tile-columns', `${tileColumns}`],
-        ['-g', `240`],
-        ['-threads', `${threads}`],
-        ['-quality', 'good'],
-        ['-crf', `${targetQuality}`],
-        ['-c:v', 'libvpx-vp9'],
-        project.hasAudio && ['-c:a', 'libopus'],
-        ['-pass', '2'],
-        ['-speed', `${speedValue}`],
-        '-y',
-        output,
-      ]
-        .flat()
-        .filter(Boolean) as string[];
-
-      await runFFMpeg(project, pass1Args, { text: 'WEBM Pass 1', durationFrames });
-      await runFFMpeg(project, pass2Args, { text: 'WEBM Pass 2', durationFrames });
-
-      unlinkSync(path.join(project.root, `ffmpeg2pass-0.log`));
-    } else if (format === 'mp4') {
-      output += '.mp4';
-
-      // H264 nvenc
-      const ffmpegArgs = [
-        ['-framerate', '30'],
-        ['-i', input],
-        project.hasAudio && ['-i', project.paths.audio],
-        ['-preset', 'slow'],
-        ['-crf', '18'],
-        ['-c:v', 'h264_nvenc'],
-        ['-c:a', 'aac'],
-        ['-pix_fmt', 'yuv420p'],
-        ['-movflags', '+faststart'],
-        ['-y', output],
-      ]
-        .flat()
-        .filter(Boolean) as string[];
-
-      await runFFMpeg(project, ffmpegArgs, { text: 'MP4 Render', durationFrames });
-    }
-
-    rmSync(tmpDir, { recursive: true });
-
-    Logger.success(
-      'Rendered ' + output + ' in ' + ((performance.now() - start) / 1000).toFixed(1) + 's'
-    );
   },
 });

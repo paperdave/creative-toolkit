@@ -1,7 +1,6 @@
 import path from 'path';
 import { copyFileSync } from 'fs';
 import { unlink } from 'fs/promises';
-import { RenderCompCommand } from './r';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
 import { exists } from '../util/fs';
@@ -10,8 +9,7 @@ export const ThumbnailRenderCommand = new Command({
   usage: 'ct tr',
   desc: 'thumbnail render',
   async run({ project }) {
-    await RenderCompCommand.run({ project, args: 'thumbnail' });
-
+    // TODO FIX
     const thumb = path.join(project.root, `${project.id}.png`);
 
     if (await exists(thumb)) {

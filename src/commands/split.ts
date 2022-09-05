@@ -27,7 +27,7 @@ export const SplitCommand = new Command({
       return;
     }
 
-    const first = Composition.fromFile(path.join(project.paths.comps, foundId[1]));
+    const first = Composition.fromFileSync(path.join(project.paths.comps, foundId[1]));
     if (first.RenderRangeStart > at || first.RenderRangeEnd < at) {
       console.error(`${id} doesnt have the frame # ${at}, range is ${first.RenderRange.join('-')}`);
       return;

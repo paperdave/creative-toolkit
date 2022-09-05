@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { LuaTable, TableOf } from './lua-table';
 import { Tool } from './tool';
 
@@ -42,7 +43,7 @@ export class Composition extends LuaTable {
     this.RenderRange = [this.RenderRange[0], value];
   }
   get RenderRangeLength(): number {
-    return this.RenderRange[1] - this.RenderRange[0];
+    return this.RenderRange[1] - this.RenderRange[0] + 1;
   }
   get GlobalRange(): [number, number] {
     return this.get('GlobalRange').toArray();
@@ -146,8 +147,15 @@ export class Composition extends LuaTable {
     this.set('CustomData', value);
   }
 
-  static fromFile(filepath: string) {
+  static fromFileSync(filepath: string) {
     const comp = new Composition(fs.readFileSync(filepath, 'utf-8'));
+    comp.filepath = path.resolve(filepath);
+    comp.dirty = false;
+    return comp;
+  }
+
+  static async fromFile(filepath: string) {
+    const comp = new Composition(await readFile(filepath, 'utf-8'));
     comp.filepath = path.resolve(filepath);
     comp.dirty = false;
     return comp;

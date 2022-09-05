@@ -35,6 +35,7 @@ const defaultPaths = {
   audio: '{id}.wav',
   temp: process.env.TEMP ?? process.env.TMPDIR ?? (win ? 'C:\\Temp' : '/tmp'),
   film: 'film',
+  preview: 'preview',
 
   execFusion,
   execFusionRender: [

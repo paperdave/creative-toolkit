@@ -10,9 +10,9 @@ import { FinalRenderCommand } from './commands/final';
 import { GUICommand } from './commands/gui';
 import { InitCommand } from './commands/init';
 import { PathCommand } from './commands/paths';
-import { RenderCompCommand } from './commands/r';
 import { SplitCommand } from './commands/split';
 import { ThumbnailRenderCommand } from './commands/tr';
+import { PreviewMp4Command } from './commands/v';
 import { AudioWaveformCommand } from './commands/waveform';
 import type { Paths } from './project';
 import { resolveProject } from './project';
@@ -52,8 +52,8 @@ const commands: Record<string, Command> = {
   gui: GUICommand,
   'audio-from': AudioFromFileCommand,
   f: FusionCommand,
+  mp4: PreviewMp4Command,
   path: PathCommand,
-  r: RenderCompCommand,
   split: SplitCommand,
   tr: ThumbnailRenderCommand,
   final: FinalRenderCommand,
