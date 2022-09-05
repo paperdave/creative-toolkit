@@ -94,7 +94,6 @@ export class Project {
   root: string;
   id: string;
   name: string;
-  dates: Array<[dateString: string, label: string]>;
   paths: Paths;
   audioTiming: AudioTiming;
   overridePaths: Partial<Paths> = {};
@@ -105,7 +104,6 @@ export class Project {
 
     this.id = json.id;
     this.name = json.name;
-    this.dates = json.dates;
     this.audioTiming = json.audioTiming;
     this.overridePaths = json.paths ?? {};
 
@@ -134,7 +132,6 @@ export class Project {
     return {
       id: this.id,
       name: this.name,
-      dates: this.dates,
       paths: Object.keys(this.overridePaths).length > 0 ? this.overridePaths : undefined,
       audioTiming: this.audioTiming,
       format: 1,

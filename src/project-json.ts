@@ -6,7 +6,6 @@ export const PROJECT_FORMAT_VERSION = 1;
 export interface ProjectJSON {
   id: string;
   name: string;
-  dates: Array<[dateString: string, label: string]>;
   audioTiming: AudioTiming;
   paths?: Partial<Paths>;
   format: 1;
