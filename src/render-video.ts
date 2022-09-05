@@ -74,8 +74,16 @@ export async function createVideo(project: Project, output: string, range: Rende
       .flat(5)
       .filter(x => x != undefined) as string[];
 
-    await runFFMpeg(project, pass1Args, { text: 'WEBM Pass 1', durationFrames });
-    await runFFMpeg(project, pass2Args, { text: 'WEBM Pass 2', durationFrames });
+    await runFFMpeg(project, pass1Args, {
+      text: 'WEBM Pass 1',
+      durationFrames,
+      stream: queue.getPNGStream(range),
+    });
+    await runFFMpeg(project, pass2Args, {
+      text: 'WEBM Pass 2',
+      durationFrames,
+      stream: queue.getPNGStream(range),
+    });
 
     await rm(path.join(path.dirname(output), `ffmpeg2pass-0.log`));
   } else if (output.endsWith('.mp4')) {

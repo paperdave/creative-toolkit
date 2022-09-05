@@ -6,13 +6,13 @@ import type { Project } from '../project';
 interface RunFFMpegOptions
   extends Pick<FFMpegProgressOptions, 'cwd' | 'duration' | 'env' | 'maxMemory'> {
   text?: string;
-  durationFrames?: number;
+  durationFrames: number;
   stream?: NodeJS.ReadableStream;
 }
 
 const logFFmpeg = new Logger('ffmpeg', { debug: true });
 
-export async function runFFMpeg(project: Project, args: string[], opts: RunFFMpegOptions = {}) {
+export async function runFFMpeg(project: Project, args: string[], opts: RunFFMpegOptions) {
   Logger.debug(`ffmpeg ${args.join(' ')}`);
   return new Promise<void>((resolve, reject) => {
     let log = '';
@@ -30,11 +30,7 @@ export async function runFFMpeg(project: Project, args: string[], opts: RunFFMpe
       total: 1,
     });
     ffmpeg.on('progress', (data: IFFMpegProgressData) => {
-      if (data.progress) {
-        bar.update(data.progress);
-      } else if (data.frame && opts.durationFrames) {
-        bar.update(data.frame / opts.durationFrames);
-      }
+      bar.update(data.frame! / opts.durationFrames);
     });
     ffmpeg.process.stdout!.on('data', data => {
       log += data.toString();
@@ -50,10 +46,10 @@ export async function runFFMpeg(project: Project, args: string[], opts: RunFFMpe
     });
     ffmpeg.once('end', code => {
       if (code !== 0) {
-        bar.error(`${opts.text}: exited with code ${code}`);
+        bar.error(`${opts.text} exited with code ${code}`);
         reject();
       } else {
-        bar.success(`${opts.text}: completed`);
+        bar.success(`${opts.text} completed`);
         resolve();
       }
     });
