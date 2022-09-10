@@ -8,15 +8,15 @@ Not intended to be used by others. Feel free to explore and try it out though, t
 <summary><sub>table of contents</sub></summary>
 
 - [Dave Caruso's Creative Toolkit](#dave-carusos-creative-toolkit)
-  - [requirements](#requirements)
+  - [requirements and recommendations](#requirements-and-recommendations)
   - [dev environment](#dev-environment)
   - [nix packages](#nix-packages)
   - [project structure](#project-structure)
   - [render store](#render-store)
   - [my fusion/bitwig plugins](#my-fusionbitwig-plugins)
+  - [my media library (fonts, images, samples)](#my-media-library-fonts-images-samples)
   - [js library for reading/writing fusion comps](#js-library-for-readingwriting-fusion-comps)
   - [`ct` cli help](#ct-cli-help)
-    - [`ct init`](#ct-init)
     - [`ct a`](#ct-a)
     - [`ct gui`](#ct-gui)
     - [filming workflow](#filming-workflow)
@@ -32,14 +32,25 @@ Not intended to be used by others. Feel free to explore and try it out though, t
 
 </details>
 
-## requirements
+## requirements and recommendations
 
-- [nix](https://nixos.org/). not required, but the entire build and dev flow is with nix
-  - if you aren't using nix, you need the following: nodejs, bun, ffmpeg, fusion.
+- [nix](https://nixos.org/)
 - [blackmagic fusion studio](https://www.blackmagicdesign.com/products/fusion) ($300 physical usb activation key)
-- Nvidia GPU; drivers not included here.
-  - My laptop has the GTX 1650 (mobile)
-  - My desktop has the RTX 3090
+- Any x86-64 CPU
+- Nvidia GPU (drivers not included)
+  - AMD could work but I specifically use nvenc in some places, and might write/use CUDA/RTX-specific code in the future.
+
+Here is the hardware I run:
+
+- AMD Ryzen 9 5950X
+- NVIDIA GeForce RTX 3090
+- 128GB DDR4-3200 Memory
+- INLAND Performance Plus 4TB SSD
+
+Don't chase these specs; they are nearly the highest you can get in a standard desktop, and can get extremely pricey. Here are some of the notes I've learned when researching hardware and using the tools.
+
+- The performance difference between the high end 30 series GPUs is minimal (only a handful of %), and the 3090's main advantage is the 24GB of VRAM, which is honestly not needed for this.
+- Fusion loves RAM caches. 20GB is the absolute minimum, 48-64GB is a reasonable range. Double check what your Motherboard and CPU actually support before upgrading it. When I open most of my comps, the background rendering will immediatly start caching around 16GB of render data, and I've seen it rise to 80GB+. When you run out of RAM, Fusion spends extra working clearing out things it might not need, which will slow down previewing.
 
 ## dev environment
 
@@ -49,18 +60,18 @@ Using `nix develop` will open a fish shell with all dependencies installed. May 
 
 this repo is a flake that contains derivations for the toolkit binaries, but also software I depend on:
 
-- Creative toolkit itself.
-- Blackmagic Fusion Studio 18
-  - Does not currently support Fusion 9 (free), meaning you need to buy a license to use this.
-  - Currently does not export the Render node
-- Bun
-  - Overrides the nixpkg version to be more updated, since upstream updates slowly especailly during the beta.
+- `default`: Creative toolkit itself. Also available as `creative-toolkit`. Currently does not build.
+- Blackmagic Fusion:
+  - `fusion-studio`: Fusion Studio 18 (latest version)
+  - `fusion-free`: Fusion 9 Free (from 2017, currently does not build)
+  - We currently do not export the Render node, but plan to in the near future.
+- `bun`
 
 ## project structure
 
-a video project consists of an audio file from a DAW like Bitwig Studio (wav format), and then a folder of fusion compositions, where ever frame of the final video is covered by exactly one comp. files are named in a format like `000-000_label.comp`, where the numbers indicate frame ranges. The ranges in filenames are automatically written for you, so this is just a visual sorting thing.
+a video project consists of an audio file from a DAW like Bitwig Studio (wav format), and then a folder of project files, where ever frame of the final video is covered by exactly one file. files are named in a format like `000-000_label.comp`, where the numbers indicate frame ranges. The ranges in filenames are automatically written for you, so this is just a visual sorting thing. Currently project files can only be Fusion compositions, but I would like to support Blender files and maybe a custom renderer later on.
 
-run `ct init` to make the current folder a project, aka creates the `project.json` metadata file. a project has a display name and an id. the id is used for artifact files, such as `./in-the-summer.webm` as the final video output, as well as render store entry names.
+run `ct init` to make the current folder a project, aka creates the `project.json` metadata file. a project has a display name and an id. the id is used for artifact files, such as `./in-the-summer.webm` as the final video output, as well as in render store entry names.
 
 ## render store
 
@@ -76,7 +87,9 @@ In the future, it will be possible to download my render store entries, to skip 
 
 **todo**: add these in. there's alot of fusion plugins and configuration i've done over my 3 years on-and-off of using Fusion. there's a couple of bitwig instrument templates too. i need to check if im allowed to distribute all my fusion plugins as i didn't author them all.
 
-The only thing missing from this would be my sample packs and texture libraries, which I unfortunately can't distribute due to licensing.
+## my media library (fonts, images, samples)
+
+Unfortunatly, I can't distribute most of these files due to most of the licenses forbidding distrubition of the raw files. In the future, I will at least have things that I _can_ distribute (such as fonts I sourced off Google Fonts and my own photography) available in this repository.
 
 ## js library for reading/writing fusion comps
 
@@ -99,12 +112,13 @@ ct a                          arrange
 ct gui                        we use electron
 ct audio-from <file>          sets project audio using file
 ct f [...args]                runs fusion, will resolve compname for you
+ct mp4 <start> <end>          preview mp4
 ct path [<key> <p>]           inspect/edit paths
-ct r <...comps>               render comp(s) by label
-  --force -f                  clears cache
 ct split <id> <at> [to]       split a fusion comp
 ct tr                         thumbnail render
 ct final [format]             webm render
+ct waveform                   waveform
+ct film-extract [<id> <take>] extract filmed stuff
 
 global flags:
   --project -p        set project folder
@@ -112,10 +126,6 @@ global flags:
 ```
 
 <!-- END:CT CLI HELP -->
-
-### `ct init`
-
-`ct init` will create a `project.json` file and other basic files. it prompts for display name and id.
 
 ### `ct a`
 
@@ -154,6 +164,8 @@ this renders one composition by name
 ### `ct split`
 
 this splits a composition into two compositions, at the given time. the first comp is the original, the second is the split, and is named with the original name plus `_split`.
+
+**NOTE**: might be removed as I find it easier to control+shift+s within fusion.
 
 ### `ct tr`
 
