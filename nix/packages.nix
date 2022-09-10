@@ -10,9 +10,9 @@ let ctPackages = rec {
 
   # bun
   bun = mkBun {
-    version = "0.1.10";
+    version = "0.1.11";
     asset = "bun-linux-x64";
-    hash = "sha256-bfgXZRmZW8nLILrwbFO8XQ+U7Z2WY8zyEbXD9Csq9HY=";
+    hash = "sha256-N3hGPyp9wvb7jjpaFLJcdNIRyLvegjAe+MiV2aMS1nE=";
   };
 
   # Latest Fusion Studio
