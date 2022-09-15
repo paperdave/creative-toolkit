@@ -90,7 +90,8 @@ export async function createVideo(project: Project, output: string, range: Rende
     // H264 nvenc
     const ffmpegArgs = [
       ...baseArgs,
-      ['-c:v', 'h264_nvenc'], // TODO: detect if nvenc is available and fallback to software (super slow)
+      // TODO: detect if nvenc is available and fallback to software (super slow)
+      ['-c:v', 'h264_nvenc'],
       ['-preset:v', 'slow'],
       ['-tune:v', 'hq'],
       ['-rc:v', 'vbr'],

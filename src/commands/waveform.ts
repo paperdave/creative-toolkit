@@ -93,7 +93,7 @@ export const AudioWaveformCommand = new Command({
     const ffmpeg = spawn(
       'ffmpeg',
       [
-        '-y', // overwrite existing files
+        '-y',
         ['-f', 'rawvideo'],
         ['-vcodec', 'rawvideo'],
         ['-s', `${WIDTH}x${HEIGHT}`],
