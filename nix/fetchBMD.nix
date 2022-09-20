@@ -26,7 +26,6 @@ rec {
   impureEnvVars = pkgs.lib.fetchers.proxyImpureEnvVars;
   nativeBuildInputs = [ pkgs.curl ];
 
-  SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
   SITEURL = "https://www.blackmagicdesign.com/api/register/us/download/${id}";
   USERAGENT = builtins.concatStringsSep " " [
     "User-Agent: Mozilla/5.0 (X11; Linux ${pkgs.targetPlatform.linuxArch})"

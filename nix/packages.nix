@@ -21,6 +21,7 @@ let ctPackages = rec {
   fusion-free = fusion-free-9;
 
   # Individual major versions of each package. I only am adding the ones here that I can test.
+  # TODO: 18.0.2
   fusion-studio-18 = mkFusion {
     id = "c723102afaec4a1d98f36e79fe6b4e77";
     version = "18.0.1";
