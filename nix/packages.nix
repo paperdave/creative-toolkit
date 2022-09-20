@@ -8,6 +8,9 @@ let ctPackages = rec {
   default = import ./creativeToolkit.nix { inherit pkgs ctPackages; };
   creative-toolkit = default;
 
+  # sunshine
+  sunshine = import ./sunshine.nix { inherit pkgs ctPackages; };
+
   # bun
   bun = mkBun {
     version = "0.1.11";
@@ -17,8 +20,6 @@ let ctPackages = rec {
 
   # Latest Fusion Studio
   fusion-studio = fusion-studio-18;
-  # Latest Fusion Free
-  fusion-free = fusion-free-9;
 
   # Individual major versions of each package. I only am adding the ones here that I can test.
   # TODO: 18.0.2
@@ -29,7 +30,7 @@ let ctPackages = rec {
   };
 
   # Broken
-  fusion-free-9 = mkFusion {
+  fusion-free = mkFusion {
     id = "8e1149d13d6f4910b15f523f9f43ff48";
     version = "9.0.2";
     tarHash = "13ba6nzb899xlhv9cqpj4cylwypzd2f4hwl5gwzgd229mf39jp3p";
