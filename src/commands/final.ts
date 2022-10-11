@@ -42,7 +42,8 @@ export const FinalRenderCommand = new Command({
       ]).stdout.toString() ?? '0'
     );
 
-    const frameCount = Math.ceil(duration * 30);
+    // const frameCount = Math.ceil(duration * 30);
+    const frameCount = 6676;
 
     let lastFrame = 0;
     let lastComp: Composition = null!;

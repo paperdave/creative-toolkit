@@ -18,6 +18,10 @@
           type = "app";
           program = "${packages.${system}.default}/bin/ct";
         };
+        nixosConfigurations.paperdave = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./nix/nixos-configuration.nix ];
+        };
       };
     in
     flake;

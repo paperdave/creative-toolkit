@@ -249,6 +249,7 @@ export class LuaTable {
   constructor(data?: LuaTableResolvable) {
     if (typeof data === 'string') {
       const root = parse('__value__=' + data.replace(/\0$/, ''), {
+        // TODO: switch to none but then fix the .value === null by parsing the string ourselves
         encodingMode: 'x-user-defined',
       });
       this.root = (root.body[0] as AST.AssignmentStatement).init[0] as

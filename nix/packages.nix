@@ -2,6 +2,7 @@ with builtins;
 { pkgs ? import <nixpkgs> { }
 , mkFusion ? import ./mkFusion.nix pkgs
 , mkBun ? import ./mkBun.nix pkgs
+, mkBlender ? import ./mkBlender.nix pkgs
 , ...
 }:
 let ctPackages = rec {
@@ -29,13 +30,17 @@ let ctPackages = rec {
     tarHash = "sha256-KluBKNfRdzlwZ1BuqFMjRxNV9GI02g4ZOUuDMhRL7po=";
   };
 
-  # Broken
-  fusion-free = mkFusion {
-    id = "8e1149d13d6f4910b15f523f9f43ff48";
-    version = "9.0.2";
-    tarHash = "13ba6nzb899xlhv9cqpj4cylwypzd2f4hwl5gwzgd229mf39jp3p";
-    studio = false;
-  };
+  blender-alpha = pkgs.blender.overrideAttrs (old: {
+    cudaSupport = true;
+    buildInputs = old.buildInputs ++ [ pkgs.libepoxy ];
+    src = pkgs.fetchgit {
+      name = "blender";
+      url = "https://github.com/blender/blender";
+      rev = "9cd99684b02e83b60821497ed749258a6c03d922";
+      sha256 = "sha256-ITiI0i1xLP/bbR+Xy/CwmnbPIbFNSzvS9pIcER6Oz0A=";
+      deepClone = true;
+    };
+  });
 };
 in
 ctPackages
