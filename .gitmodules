@@ -1,0 +1,3 @@
+[submodule "packages/fusion-studio"]
+	path = packages/fusion-studio
+	url = ssh://aur@aur.archlinux.org/fusion-studio.git
