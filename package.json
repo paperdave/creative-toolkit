@@ -1,6 +1,6 @@
 {
   "name": "creative-toolkit",
-  "version": "2022.09.05",
+  "version": "2022.10.06",
   "private": true,
   "type": "module",
   "main": "./dist/cli.js",
