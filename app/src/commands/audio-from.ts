@@ -3,7 +3,7 @@ import { error, info } from '@paperdave/logger';
 import { spawnSync } from 'child_process';
 import { ArrangeCommand } from './a';
 import { Command } from '../cmd';
-import { exists } from '../util/fs';
+import { exists } from '../../../src/util/fs';
 
 export const AudioFromFileCommand = new Command({
   usage: 'ct audio-from <file>',

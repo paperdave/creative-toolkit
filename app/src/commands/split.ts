@@ -1,8 +1,8 @@
 import path from 'path';
 import { readdir } from 'fs/promises';
 import { ArrangeCommand } from './a';
-import { Composition } from '../bmfusion/composition';
 import { Command } from '../cmd';
+import { Composition } from '../../../src/fusion/Composition';
 
 export const SplitCommand = new Command({
   usage: 'ct split <id> <at> [to]',

@@ -2,7 +2,7 @@ import path from 'path';
 import { mkdir, rm } from 'fs/promises';
 import { RenderQueue, RenderRange } from './fusion-render-queue';
 import { Project } from './project';
-import { runFFMpeg } from './util/ffmpeg-progress';
+import { runFFMpeg } from '../../src/util/ffmpeg-progress';
 
 export async function createVideo(project: Project, output: string, range: RenderRange) {
   const queue = await RenderQueue.create(project);

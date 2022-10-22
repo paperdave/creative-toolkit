@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true,
+    "allowJs": true,
+    "types": ["bun-types"],
+    "paths": {
+      "@paperdave/fusion": ["./src/fusion"],
+      "$cmd-runner": ["./src/cmd-runner"],
+      "$project": ["./src/project"],
+      "$logger": ["./src/logger"],
+      "$constants": ["./src/constants"]
+    }
+  }
+}

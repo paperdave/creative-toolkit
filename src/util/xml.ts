@@ -4,11 +4,11 @@ type XMLAttrs = Record<string, string | number | boolean>;
 
 function escapeXML(str: string) {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 class XML {
@@ -27,7 +27,11 @@ class XML {
     return ref;
   }
 
-  constructor(readonly tagName: string, attrs?: XMLAttrs, ...children: XMLChildren[]) {
+  constructor(
+    readonly tagName: string,
+    attrs?: XMLAttrs,
+    ...children: XMLChildren[]
+  ) {
     this.attrs = attrs ?? {};
     this.children = children.flat();
   }
@@ -50,22 +54,28 @@ class XML {
   }
 
   stringify(depth = 0): string {
-    const children = this.children.map(x =>
+    const children = this.children.map((x) =>
       x instanceof XML ? x.stringify(depth + 1) : escapeXML(x.toString())
     );
     const attrs = Object.entries(this.attrs)
-      .map(([key, value]) => ` ${escapeXML(key)}="${escapeXML(value.toString())}"`)
-      .join('');
-    const space = '  '.repeat(depth);
+      .map(
+        ([key, value]) => ` ${escapeXML(key)}="${escapeXML(value.toString())}"`
+      )
+      .join("");
+    const space = "  ".repeat(depth);
     if (this.children.length > 0) {
       return `${space}<${escapeXML(this.tagName)}${attrs}>\n${children.join(
-        '\n'
+        "\n"
       )}\n${space}</${escapeXML(this.tagName)}>`;
     }
     return `${space}<${escapeXML(this.tagName)}${attrs} />`;
   }
 }
 
-export function xml(tagName: string, attrs?: XMLAttrs, ...children: XMLChildren[]) {
+export function xml(
+  tagName: string,
+  attrs?: XMLAttrs,
+  ...children: XMLChildren[]
+) {
   return new XML(tagName, attrs, ...children);
 }

@@ -2,9 +2,9 @@ import path from 'path';
 import { Logger } from '@paperdave/logger';
 import { spawnSync } from 'child_process';
 import { readdir } from 'fs/promises';
-import { Composition } from '../bmfusion/composition';
 import { Command } from '../cmd';
 import { createVideo } from '../render-video';
+import { Composition } from '../../../src/fusion/Composition';
 
 export const FinalRenderCommand = new Command({
   usage: 'ct final [format]',

@@ -4,10 +4,10 @@ import { paramCase } from 'change-case';
 import { existsSync, writeFileSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import { ArrangeCommand } from './a';
-import { Composition } from '../bmfusion/composition';
-import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { Project } from '../project';
+import { Composition } from '../../../src/fusion/Composition';
+import { SaverTool } from '../../../src/fusion/tools/Saver';
 
 export const InitCommand = new Command({
   usage: 'ct init',

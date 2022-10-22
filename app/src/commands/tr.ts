@@ -3,7 +3,7 @@ import { copyFileSync } from 'fs';
 import { unlink } from 'fs/promises';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
-import { exists } from '../util/fs';
+import { exists } from '../../../src/util/fs';
 
 export const ThumbnailRenderCommand = new Command({
   usage: 'ct tr',

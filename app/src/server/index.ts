@@ -5,7 +5,7 @@ import { readdirSync } from 'fs';
 import { readdir, readFile } from 'fs/promises';
 import { CT_SOURCE_ROOT } from '../paths';
 import type { Project } from '../project';
-import { exists, readJSON } from '../util/fs';
+import { exists, readJSON } from '../../../src/util/fs';
 
 export async function startServer(project: Project) {
   const Vite = await import('vite');

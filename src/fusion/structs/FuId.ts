@@ -1,5 +1,5 @@
-import { TableCallExpression, TableConstructorExpression } from 'luaparse';
-import { jsonToAST, LuaTable } from './lua-table';
+import { TableCallExpression, TableConstructorExpression } from "luaparse";
+import { jsonToAST, LuaTable } from "../LuaTable";
 
 export class FuId<T> extends LuaTable {
   static from<T>(value: T): FuId<T> {
@@ -13,7 +13,8 @@ export class FuId<T> extends LuaTable {
   }
   set value(id: T) {
     (this.table as any).dirty = true;
-    ((this.root as TableCallExpression).arguments as TableConstructorExpression).fields[0].value =
-      jsonToAST(id);
+    (
+      (this.root as TableCallExpression).arguments as TableConstructorExpression
+    ).fields[0].value = jsonToAST(id);
   }
 }

@@ -4,7 +4,7 @@ import { pathExists } from '@paperdave/utils';
 import { mkdir, readdir } from 'fs/promises';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
-import { runFFMpeg } from '../util/ffmpeg-progress';
+import { runFFMpeg } from '../../../src/util/ffmpeg-progress';
 
 export const FilmExtractCommand = new Command({
   usage: 'ct film-extract [<id> <take>]',

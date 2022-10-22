@@ -7,8 +7,8 @@ import { createHash } from 'crypto';
 import { createReadStream } from 'fs';
 import { readdir } from 'fs/promises';
 import { PassThrough } from 'stream';
-import { Composition } from './bmfusion/composition';
 import { Project, RenderProgram } from './project';
+import { Composition } from '../../src/fusion/Composition';
 
 const logFusion = new Logger('fusion');
 

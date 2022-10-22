@@ -6,7 +6,7 @@ import { mkdir, readdir, rm } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { resolveProject } from './project';
 import { startServer } from './server';
-import { exists, readJSON, writeJSON } from './util/fs';
+import { exists, readJSON, writeJSON } from '../../src/util/fs';
 
 const project = await resolveProject(process.cwd(), {});
 await startServer(project);

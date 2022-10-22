@@ -1,11 +1,11 @@
 import path from 'path';
 import { info, warn } from '@paperdave/logger';
 import { readdir } from 'fs/promises';
-import { Composition } from '../bmfusion/composition';
-import { BoolNum, FormatID } from '../bmfusion/enum';
-import { SaverTool } from '../bmfusion/tool/saver';
 import { Command } from '../cmd';
 import { RenderProgram } from '../project';
+import { Composition } from '../../../src/fusion/Composition';
+import { BoolNum, FormatID } from '../../../src/fusion/enums';
+import { SaverTool } from '../../../src/fusion/tools/Saver';
 
 export const ArrangeCommand = new Command({
   usage: 'ct a',

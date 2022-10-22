@@ -2,7 +2,7 @@ import path from 'path';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
 import type { AudioTiming, ProjectJSON, ProjectJSONAnyVersion } from './project-json';
-import { exists, readJSON, walkUpDirectoryTree, writeJSON } from './util/fs';
+import { exists, readJSON, walkUpDirectoryTree, writeJSON } from '../../src/util/fs';
 
 export enum RenderProgram {
   Fusion = 'Fusion',
