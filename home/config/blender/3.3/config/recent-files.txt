@@ -1,3 +1,6 @@
+/home/dave/dreammachine2.blend
+/home/dave/mrman.blend
+/home/dave/wild.blend
 /home/dave/project/Donut/video_editing.blend
 /home/dave/project/Donut/scene3.blend
 /home/dave/project/Donut/untitled2.blend
@@ -5,4 +8,3 @@
 /home/dave/project/Franco Visual Cover/models/tower.blend
 /home/dave/project/Mystery of Life/model/sidewalkcity.blend
 /home/dave/Desktop/funny.blend
-/home/dave/project/Mystery of Life/model/car.blend

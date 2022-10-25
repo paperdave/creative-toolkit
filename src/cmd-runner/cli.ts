@@ -3,11 +3,16 @@
 import path from "path";
 import { hint } from "$logger";
 import { Project, resolveProject } from "$project";
-import { Logger } from "@paperdave/logger";
+import { injectLogger, Logger } from "@paperdave/logger";
 import { pathExists } from "@paperdave/utils";
 import { CommandEvent } from "./types";
 
 const commandName = process.argv[2];
+
+if (!commandName) {
+  Logger.error("usage: ct <cmd> [...]");
+  process.exit(1);
+}
 
 if (commandName.match(/[^a-z0-9_-]/)) {
   Logger.error("invalid command: " + commandName);
@@ -30,7 +35,7 @@ if (commandName === "runner") {
   process.exit(1);
 }
 
-// injectLogger();
+injectLogger();
 try {
   const command = await import(`../cmd-${commandName}/index.ts`);
 

@@ -1,2 +1,2 @@
 // export-directory exclude:cli.ts
-export * from "./types";
+export * from './types';

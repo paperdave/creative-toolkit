@@ -3,15 +3,17 @@
 import * as path from "path";
 import chalk from "chalk";
 import { Logger } from "@paperdave/logger";
+import { readJSONSync, walk, writeJSONSync } from "@paperdave/utils";
 import {
-  asyncMap,
-  pathExists,
-  readJSONSync,
-  walk,
-  writeJSONSync,
-} from "@paperdave/utils";
-import { existsSync, statSync } from "fs";
-import { link, mkdir, rename, rm, symlink } from "fs/promises";
+  chmodSync,
+  existsSync,
+  linkSync,
+  lstatSync,
+  readlinkSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+} from "fs";
 
 interface Link {
   file: string;
@@ -54,6 +56,10 @@ for await (const file of walk(SRC, { directories: false })) {
     });
     existingLinks.add(rel);
   }
+
+  if (rel.startsWith("bin")) {
+    chmodSync(file, 0o755);
+  }
 }
 
 const links = [
@@ -68,17 +74,20 @@ interface LinkWithAction extends Link {
   action: "none" | "create" | "overwrite" | "backup" | "delete" | "restore";
 }
 
-const actions: LinkWithAction[] = await asyncMap(links, async (entry) => {
+const actions: LinkWithAction[] = links.map((entry) => {
   const srcPath = path.join(SRC, entry.file);
   const destPath = path.join(DEST, "." + entry.file);
 
   let action: LinkWithAction["action"] = "none";
-  if (!(await pathExists(destPath))) {
+  if (!existsSync(destPath)) {
     action = "create";
   } else {
-    const srcStat = statSync(srcPath);
-    const destStat = statSync(destPath);
-    if (srcStat.ino === destStat.ino) {
+    const destStat = lstatSync(destPath);
+    if (
+      destStat.isSymbolicLink()
+        ? readlinkSync(destPath) === srcPath
+        : destStat.ino === lstatSync(srcPath).ino
+    ) {
       action = "none";
     } else if (manifest[entry.file]) {
       action = "overwrite";
@@ -155,17 +164,13 @@ if (actionList.length === 0) {
   process.exit(0);
 }
 
-// first map out all the directories that need to be created
-const directoriesToCreate = new Set<string>();
-for (const { file } of actions) {
-  directoriesToCreate.add(path.join(DEST, "." + file, "../"));
-}
-await asyncMap([...directoriesToCreate], async (dir) =>
-  mkdir(dir, { recursive: true }).catch(() => {})
-);
+// // first map out all the directories that need to be created
+// for (const { file } of actions) {
+//   mkdirSync(path.join(DEST, "." + file, "../"), { recursive: true });
+// }
 
 // then create the links
-await asyncMap(actionList, async ({ file, directory, action }) => {
+for (const { file, directory, action } of actionList) {
   const srcPath = path.join(SRC, file);
   const destPath = path.join(DEST, "." + file);
 
@@ -175,18 +180,18 @@ await asyncMap(actionList, async ({ file, directory, action }) => {
     do {
       backupPath = path.join(DEST, "." + file + ".bak" + (n === 0 ? "" : n));
       n++;
-    } while (await pathExists(backupPath));
-    await rename(destPath, backupPath);
+    } while (existsSync(backupPath));
+    renameSync(destPath, backupPath);
     manifest[file] = {
       backup: path.relative(DEST, backupPath),
     };
   }
 
   if (["overwrite", "delete", "restore"].includes(action)) {
-    await rm(destPath, { recursive: true });
+    rmSync(destPath, { recursive: true });
     if (manifest[file]) {
       if (manifest[file].backup) {
-        await rename(destPath + ".bak", destPath);
+        renameSync(destPath + ".bak", destPath);
       }
     }
     delete manifest[file];
@@ -194,13 +199,14 @@ await asyncMap(actionList, async ({ file, directory, action }) => {
 
   if (["create", "overwrite", "backup"].includes(action)) {
     manifest[file] ??= {};
-    if (directory) {
-      await symlink(srcPath, destPath);
+    const stats = lstatSync(srcPath);
+    if (directory || stats.isSymbolicLink()) {
+      symlinkSync(srcPath, destPath);
     } else {
-      await link(srcPath, destPath);
+      linkSync(srcPath, destPath);
     }
   }
-});
+}
 
 writeJSONSync(path.join(DEST, ".linker.json"), manifest);
 
