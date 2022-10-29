@@ -1,0 +1,8 @@
+{
+  "name": "creative-toolkit-discord-rpc",
+  "type": "module",
+  "dependencies": {
+    "discord-rich-presence": "^0.0.8",
+    "dotenv": "^16.0.3"
+  }
+}
