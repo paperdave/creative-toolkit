@@ -33,7 +33,7 @@ async function fetchTT(url) {
 
 async function refresh() {
   const tracking = await fetchTT(
-    `https://app.trackingtime.co/api/v4/${process.env.TT_ACCOUNT_ID}/users/${process.env.TT_USER_ID}/tasks/tracking`
+    `https://app.trackingtime.co/api/v4/users/${process.env.TT_USER_ID}/tasks/tracking`
   );
 
   if (tracking.length === 0) {
