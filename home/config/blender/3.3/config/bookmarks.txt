@@ -1,7 +1,0 @@
-[Bookmarks]
-[Recent]
-!Home
-/home/dave/
-/render/Learning1_Blender_Seq/
-/usr/share/fonts/recursive/
-/usr/share/fonts/TTF/Recursive/
