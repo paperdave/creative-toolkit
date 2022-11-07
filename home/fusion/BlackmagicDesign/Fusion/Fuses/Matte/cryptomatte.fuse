@@ -1,0 +1,465 @@
+--[[
+Version    : 1.4.0
+Requires   : Fusion 9.0.2 - 17.1.1+
+Requires   : Resolve 15.1 - 17.1.1+
+Optional   : cjson
+Created by : Cédric Duriau         [duriau.cedric@live.be]
+             Kristof Indeherberge  [xmnr0x23@gmail.com]
+             Andrew Hazelden       [andrew@andrewhazelden.com]
+--]]
+
+-- ============================================================================
+-- modules
+-- ============================================================================
+local cryptoutils = self and require("cryptomatte_utilities") or nil
+
+-- ============================================================================
+-- constants
+-- ============================================================================
+FUSE_NAME = "Cryptomatte"
+FUSE_CATEGORY = "Matte"
+FUSE_COMPANY = "Psyop"
+FUSE_HELP = "https://www.steakunderwater.com/wesuckless/viewtopic.php?f=6&t=1027"
+FUSE_URL = "https://github.com/Psyop/Cryptomatte"
+FUSE_VERSION = 140
+
+SEPARATOR_INDEX = 0
+VIEW_MODE_EDGES = "Edges"
+VIEW_MODE_COLORS = "Colors"
+VIEW_MODE_BEAUTY = "Beauty"
+VIEW_MODE_MATTE = "Matte"
+VIEW_MODES = {VIEW_MODE_COLORS, VIEW_MODE_EDGES, VIEW_MODE_BEAUTY, VIEW_MODE_MATTE}
+SHOW_CALLBACKS = false
+
+
+-- ============================================================================
+-- utils
+-- ============================================================================
+function create_separator()
+    --[[
+    Creates a separator input control.
+
+    :rtype: Input
+    ]]
+    SEPARATOR_INDEX = SEPARATOR_INDEX + 1
+    local name = string.format("Separator%s", SEPARATOR_INDEX)
+    return self:AddInput(name, name, {
+        INPID_InputControl = "SeparatorControl",
+        IC_Visible = true,
+        INP_External = false,
+        INP_Passive = true
+    })
+end
+
+
+-- ============================================================================
+-- fuse
+-- ============================================================================
+FuRegisterClass(FUSE_NAME, CT_Tool, {
+    REGS_Name = FUSE_NAME,
+    REGS_Category = FUSE_CATEGORY,
+    REGS_Company = FUSE_COMPANY,
+    REGS_OpIconString = FUSE_NAME,
+    REGS_OpDescription = FUSE_NAME,
+    REGS_URL = FUSE_URL,
+    REGS_HelpTopic = FUSE_HELP,
+    REG_NoMotionBlurCtrls = true,
+    REG_NoBlendCtrls = true,
+    REG_OpNoMask = true,
+    REG_Version = FUSE_VERSION,
+    REG_SupportsDoD = true
+})
+
+function Create()
+    --[[ Creates the user interface. ]]
+    -- input
+    InImage = self:AddInput("Input", "Input", {
+        LINKID_DataType = "Image",
+        LINK_Main = 1
+    })
+
+    -- output
+    OutImage = self:AddOutput("Output", "Output", {
+        LINKID_DataType = "Image",
+        LINK_Main = 1
+    })
+
+    -- locator
+    LocatorMatte = self:AddInput("Matte Locator", "Locator", {
+        LINKID_DataType = "Point",
+        INPID_InputControl = "OffsetControl",
+        INPID_PreviewControl = "CrosshairControl",
+        INP_External = false,
+        INP_Passive = true
+    })
+
+    ButtonAdd = self:AddInput("Add", "Add", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 1 / 3
+    })
+
+    ButtonRemove = self:AddInput("Remove", "Remove", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 1 / 3
+    })
+
+    ButtonToggle = self:AddInput("Toggle", "Toggle", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 1 / 3
+    })
+
+    create_separator()
+
+    -- preview
+    ComboViewMode = self:AddInput("View Mode", "ViewMode", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ComboControl",
+        INP_Default = 0.0,
+        INP_Integer = true,
+        { CCS_AddString = VIEW_MODES[1] },
+        { CCS_AddString = VIEW_MODES[2] },
+        { CCS_AddString = VIEW_MODES[3] },
+        { CCS_AddString = VIEW_MODES[4] },
+        INP_External = true
+    })
+
+    create_separator()
+
+    -- matte list
+    TextMatteList = self:AddInput("Matte List", "MatteList", {
+        LINKS_Name = "Matte List",
+        LINKID_DataType = "Text",
+        INPID_InputControl = "TextEditControl",
+        TEC_Lines = 1,
+        TEC_Wrap = false,
+        TEC_DeferSetInputs = true,
+        INP_External = true
+    })
+
+    ButtonClear = self:AddInput("Clear", "Clear", {
+        LINKS_Name = "Clear",
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_Integer = true,
+        INP_DoNotifyChanged = true,
+        INP_External = false
+    })
+
+    create_separator()
+
+    -- layer selection
+    SliderCryptoLayer = self:AddInput("Layer Index", "LayerIndex", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        IC_Steps = 1,
+        INP_Integer = true,
+        INP_MinAllowed = 1,
+        INP_MaxAllowed = 100,
+        INP_External = true
+    })
+
+    TextCryptoLayer = self:AddInput("Layer Name", "LayerName", {
+        LINKID_DataType = "Text",
+        INPID_InputControl = "TextEditControl",
+        TEC_Lines = 1,
+        TEC_ReadOnly = true,
+        INP_External = false
+    })
+
+    -- advanced
+    SeparatorCallbacks = create_separator()
+    SeparatorCallbacks:SetAttrs({ICS_ControlPage = "Advanced"})
+
+    -- name checker
+    LocatorName = self:AddInput("Locator Name Checker", "LocatorName", {
+        LINKID_DataType = "Point",
+        INPID_InputControl = "OffsetControl",
+        INPID_PreviewControl = "CrosshairControl",
+        ICS_Name = "Name Checker Locator",
+        ICS_ControlPage = "Advanced",
+        PC_Visible = false,
+        INP_External = false
+    })
+
+    ButtonShow = self:AddInput("Show", "Show", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 0.5
+    })
+
+    ButtonHide = self:AddInput("Hide", "Hide", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 0.5
+    })
+
+    TextMatteName = self:AddInput("Matte Name", "MatteName", {
+        LINKS_Name = "Matte Name",
+        LINKID_DataType = "Text",
+        INPID_InputControl = "TextEditControl",
+        TEC_Lines = 1,
+        TEC_Wrap = false,
+        TEC_ReadOnly = true,
+        INP_External = false
+    })
+
+    separator = create_separator()
+
+    -- callbacks
+    separator:SetAttrs({IC_Visible = SHOW_CALLBACKS})
+    CheckboxAdd = self:AddInput("Add Callback", "AddCallback", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "CheckboxControl",
+        INP_Integer = true,
+        INP_Default = 0.0,
+        IC_Visible = SHOW_CALLBACKS,
+        INP_External = false
+    })
+
+    CheckboxRemove = self:AddInput("Remove Callback", "RemoveCallback", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "CheckboxControl",
+        INP_Integer = true,
+        INP_Default = 0.0,
+        IC_Visible = SHOW_CALLBACKS,
+        INP_External = false
+    })
+
+    CheckboxToggle = self:AddInput("Toggle Callback", "ToggleCallback", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "CheckboxControl",
+        INP_Integer = true,
+        INP_Default = 0.0,
+        IC_Visible = SHOW_CALLBACKS,
+        INP_External = false
+    })
+end
+
+function Process(req)
+    --[[
+    Processes all events for one render cycle.
+
+    :param req: render request object
+    :type req: Request
+    ]]
+    local t_start = os.clock()
+    cryptoutils.log_info("-- process started")
+
+    -- read current settings
+    local current_layer_count = SliderCryptoLayer:GetAttr("INP_MaxAllowed")
+    local current_layer_index = SliderCryptoLayer:GetSource(req.Time).Value
+    local current_layer_name = TextCryptoLayer:GetSource(req.Time).Value
+    local current_matte_names_str = TextMatteList:GetSource(req.Time).Value
+
+    -- get input image
+    local input_image = InImage:GetValue(req)
+
+    -- validate input image depth
+    module.validate_image_depth(input_image)
+
+    -- read metadata
+    cryptoutils.log_info("reading metadata ...")
+    local metadata = cryptoutils.get_cryptomatte_metadata(input_image.Metadata)
+    local layer_count = metadata["layer_count"]
+
+    -- read/check layer data from current index
+    local layer_index = current_layer_index
+    local layer_id = metadata["index_to_id"][tostring(current_layer_index)]
+    if layer_id == nil then
+        cryptoutils.log_error(string.format("layer '%s' (index %s) not present in metadata", current_layer_name, current_layer_index))
+    end
+    local layer_name = metadata["id_to_name"][layer_id]
+
+    -- apply GUI updates
+    if layer_count ~= current_layer_count then
+        SliderCryptoLayer:SetAttrs({INP_MinAllowed = 1,
+                                    INP_MaxAllowed = layer_count,
+                                    INP_MinScale = 1,
+                                    INP_MaxScale = layer_count})
+    end
+
+    if layer_name ~= current_layer_name then
+        cryptoutils.log_info(string.format("setting layer name: '%s'", layer_name))
+        TextCryptoLayer:SetSource(Text(layer_name), req.Time, 0)
+    end
+
+    -- read raw manifest from file
+    local manifest_file = metadata["layers"][layer_id]["manif_file"]
+    local raw_manifest = metadata["layers"][layer_id]["manifest"]
+    if manifest_file ~= nil then
+        cryptoutils.log_info(string.format("reading manifest file: '%s'", manifest_file))
+        raw_manifest = cryptoutils.read_manifest_file(metadata["path"], manifest_file)
+    end
+
+    -- decode manifest string to table
+    cryptoutils.log_info("decoding manifest ...")
+    local manifest = cryptoutils.decode_manifest(raw_manifest)
+
+    -- create layer images
+    cryptoutils.log_info("creating layer images ...")
+    local layer_images = cryptoutils.get_layer_images(input_image, metadata["path"], layer_name, 1)
+
+    -- get matte names
+    cryptoutils.log_info("reading matte names ...")
+    local matte_names = cryptoutils.get_matte_names(current_matte_names_str)
+    local matte_name_str = current_matte_names_str
+
+    -- apply callbacks
+    local callback_add = CheckboxAdd:GetSource(req.Time).Value
+    local callback_remove = CheckboxRemove:GetSource(req.Time).Value
+    local callback_toggle = CheckboxToggle:GetSource(req.Time).Value
+
+    if callback_add == 1 or callback_remove == 1 or callback_toggle == 1 then
+        cryptoutils.log_info("processing callbacks ...")
+        local screen_pos = LocatorMatte:GetSource(req.Time)
+        local matte_name = module.get_screen_matte_name(input_image, layer_images, screen_pos, manifest)
+        local update = false
+
+        if callback_add == 1 then
+            if matte_name ~= nil then
+                if matte_names[matte_name] == nil then
+                    cryptoutils.log_info(string.format("adding matte: '%s'", matte_name))
+                    matte_names[matte_name] = true
+                    update = true
+                end
+            end
+            CheckboxAdd:SetSource(Number(0), req.Time, 0)
+        end
+        if callback_remove == 1 then
+            if matte_name ~= nil then
+                if matte_names[matte_name] then
+                    cryptoutils.log_info(string.format("removing matte: '%s'", matte_name))
+                    matte_names[matte_name] = nil
+                    update = true
+                end
+            end
+            CheckboxRemove:SetSource(Number(0), req.Time, 0)
+        end
+        if callback_toggle == 1 then
+            if matte_name ~= nil then
+                if matte_names[matte_name] then
+                    cryptoutils.log_info(string.format("removing matte: '%s'", matte_name))
+                    matte_names[matte_name] = nil
+                    update = true
+                else
+                    cryptoutils.log_info(string.format("adding matte: '%s'", matte_name))
+                    matte_names[matte_name] = true
+                    update = true
+                end
+            end
+            CheckboxToggle:SetSource(Number(0), req.Time, 0)
+        end
+
+        if update then
+            name_array = {}
+            for name, presence in pairs(matte_names) do
+                if presence then
+                    table.insert(name_array, "\"" .. name .. "\"")
+                end
+            end
+            matte_name_str = table.concat(name_array, ", ")
+            TextMatteList:SetSource(Text(matte_name_str), req.Time, 0)
+        end
+    end
+
+    -- set name checker
+    local checker_locator_visible = LocatorName:GetAttr("PC_Visible")
+    if checker_locator_visible then
+        cryptoutils.log_info("updating name checker ...")
+        local checker_screen_pos = LocatorName:GetSource(req.Time)
+        local checker_matte_name = module.get_screen_matte_name(input_image, layer_images, checker_screen_pos, manifest)
+        local current_matte_name = TextMatteName:GetSource(req.Time).Value
+
+        if checker_matte_name == nil then
+            checker_matte_name = ""
+        else
+            checker_matte_name = "\"" .. checker_matte_name .. "\""
+        end
+
+        if checker_matte_name ~= current_matte_name then
+            TextMatteName:SetSource(Text(checker_matte_name), req.Time, 0)
+        end
+    end
+
+    -- create matte image
+    cryptoutils.log_info("creating matte image ...")
+    local matte_image = cryptoutils.create_matte_image(input_image, layer_images, manifest, matte_names)
+
+    -- get view mode
+    local view_mode_index = ComboViewMode:GetSource(req.Time).Value
+    local view_mode = VIEW_MODES[view_mode_index + 1]
+    if view_mode == nil then
+        cryptoutils.log_error(string.format("unknown view mode: '%s'", view_mode))
+    end
+
+    -- create preview image
+    cryptoutils.log_info(string.format("creating '%s' preview image ...", view_mode))
+    local output_image
+
+    if view_mode == VIEW_MODE_MATTE then
+        output_image = matte_image
+    else
+        if view_mode == VIEW_MODE_EDGES then
+            output_image = cryptoutils.create_preview_image_edges(input_image, layer_images)
+        elseif view_mode == VIEW_MODE_COLORS then
+            output_image = cryptoutils.create_preview_image_colors(input_image, layer_images)
+        elseif view_mode == VIEW_MODE_BEAUTY then
+            output_image = input_image:CopyOf()
+        end
+
+        -- apply matte image
+        output_image = output_image:ChannelOpOf("Add", matte_image, { R = "fg.A", G = "fg.A"})
+        output_image = output_image:ChannelOpOf("Copy", matte_image, { A = "fg.A"})
+    end
+
+    OutImage:Set(req, output_image)
+
+    local t_end = os.clock() - t_start
+    cryptoutils.log_info(string.format("elapsed time: %.3f", t_end))
+    cryptoutils.log_info("-- process ended")
+end
+
+function NotifyChanged(inp, param, time)
+    --[[
+    Handles all input control events.
+
+    :param inp: Input that triggered a signal.
+    :type inp: Input
+
+    :param param: Parameter object holding the (new) value.
+    :type param: Parameter
+
+    :param time: Current frame number.
+    :type time: number
+    ]]
+    -- trigger callbacks
+    if param and param.Value == 1 then
+        if inp == ButtonAdd then
+            CheckboxAdd:SetSource(Number(1), time, 0)
+        elseif inp == ButtonRemove then
+            CheckboxRemove:SetSource(Number(1), time, 0)
+        elseif inp == ButtonToggle then
+            CheckboxToggle:SetSource(Number(1), time, 0)
+        elseif inp == ButtonClear then
+            TextMatteList:SetSource(Text(""), time, 0)
+        elseif inp == ButtonShow then
+            LocatorName:SetAttrs({PC_Visible = true})
+        elseif inp == ButtonHide then
+            TextMatteName:SetSource(Text(""), time, 0)
+            LocatorName:SetAttrs({PC_Visible = false})
+        end
+    end
+end

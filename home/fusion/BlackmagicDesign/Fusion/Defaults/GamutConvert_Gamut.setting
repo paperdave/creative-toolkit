@@ -1,0 +1,15 @@
+{
+	Tools = ordered() {
+		Gamut1 = GamutConvert {
+			CtrlWZoom = false,
+			Inputs = {
+				OutputSpace = Input { Value = FuID { "sRGB" }, },
+				Input = Input {
+					SourceOp = "Loader1",
+					Source = "Output",
+				},
+			},
+			ViewInfo = OperatorInfo { Pos = { 0, 49.5 } },
+		}
+	}
+}

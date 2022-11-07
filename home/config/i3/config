@@ -3,7 +3,7 @@ set $mod Mod3
 floating_modifier $mod
 
 # Keyboard Shortcuts
-bindsym $mod+Shift+e exit
+bindsym $mod+control+Shift+alt+e exit
 bindsym $mod+q kill
 bindsym $mod+Shift+q kill
 bindsym $mod+Shift+c reload
@@ -100,7 +100,8 @@ assign [class="thunderbird"] 1
 
 # 2-3. Video Production
 assign [class="Blender"] 2
-assign [class="Fusion"] 3 # TODO
+assign [class="Fusion"] 3
+assign [class="Natron"] 3
 
 # 4. Music Production
 assign [title="^Bitwig Studio"] 4
