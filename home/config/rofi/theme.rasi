@@ -1,0 +1,54 @@
+/** based on the gruvbox theme */
+
+* {
+  background-color: transparent;
+}
+
+window {
+  background-color: #88888844;
+  margin: 0;
+  border-radius: 8;
+  border: 4;
+  padding: 2;
+}
+mainbox {
+  border: 0;
+  border-radius: 6;
+  padding: 8;
+  background-color: #10101077;
+}
+inputbar {
+  spacing: 0;
+  padding: 2px;
+  children: [ prompt, textbox-prompt-sep, entry, case-indicator ];
+}
+
+case-indicator,
+entry,
+prompt,
+button {
+  spacing: 0;
+  text-color: white;
+}
+prompt {
+  text-color: #72fc72;
+}
+textbox-prompt-sep {
+  expand: false;
+  str: ":";
+  text-color: white;
+  margin: 0 0.3em 0 0;
+}
+element-text, element-icon {
+  text-color: inherit;
+}
+element {
+  padding: 4;
+  text-color: white;
+  border: 0;
+  border-radius: 4;
+}
+element.selected {
+  background-color: #ffffff22;
+  text-color: #72fc72;
+}
