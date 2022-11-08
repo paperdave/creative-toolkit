@@ -1,5 +1,5 @@
 import { RunCommand } from "$cmd-runner";
 
-export const run: RunCommand = ({ project }) => {
+export const run: RunCommand = async ({ project }) => {
   console.log(project);
 };

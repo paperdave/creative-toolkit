@@ -6,6 +6,19 @@ export enum RenderProgram {
   Blender = "Blender",
   CTWaveform = "Waveform",
   CTFilm = "Film",
+  CTSequencer = "Sequencer",
+}
+
+export function extensionToRenderProgram(ext: string): RenderProgram {
+  if (ext.startsWith(".")) ext = ext.slice(1);
+  switch (ext) {
+    case "blend":
+      return RenderProgram.Blender;
+    case "comp":
+      return RenderProgram.Fusion;
+    default:
+      throw new Error(`Unknown extension: ${ext}`);
+  }
 }
 
 const win = process.platform === "win32";
@@ -27,7 +40,8 @@ const execFusion = [
 
 export const DEFAULT_PATHS = {
   projectJSON: "project.json",
-  sequence: "sequence",
+  step1: "step1",
+  step2: "step2",
   render: win ? "C:\\Render" : "/render",
   audio: "{id}.wav",
   temp: process.env.TEMP ?? process.env.TMPDIR ?? (win ? "C:\\Temp" : "/tmp"),

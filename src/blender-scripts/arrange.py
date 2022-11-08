@@ -1,0 +1,27 @@
+import bpy
+import sys
+
+# pretend this is in utils.py
+import json
+import sys
+
+def sendCTKData(data):
+  sys.stderr.write("\nCTK_DATA\n%s\n" % json.dumps(data))
+#
+
+argv = sys.argv[sys.argv.index("--") + 1:]
+bpy.context.scene.render.filepath = argv[0]
+bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
+bpy.context.scene.render.image_settings.color_mode = 'RGB'
+bpy.context.scene.render.image_settings.color_depth = '16'
+bpy.context.scene.render.image_settings.exr_codec = 'PXR24'
+bpy.context.scene.render.use_overwrite = False
+bpy.context.scene.render.use_placeholder = True
+bpy.context.scene.render.image_settings.use_preview = True
+bpy.context.scene.render.use_file_extension = True
+bpy.ops.wm.save_mainfile(exit=False)
+
+sendCTKData([
+  bpy.context.scene.frame_start,
+  bpy.context.scene.frame_end
+])

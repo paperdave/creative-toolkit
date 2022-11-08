@@ -1,5 +1,5 @@
 import path from "path";
-import { TOOLKIT_DATE, TOOLKIT_VERSION } from "$constants";
+import { TOOLKIT_FORMAT } from "$constants";
 import { CLIError } from "@paperdave/logger";
 import { pathExists, readJSON } from "@paperdave/utils";
 import { Paths } from "./paths";
@@ -30,11 +30,10 @@ export async function resolveProject(
     {}
   )) as ProjectJSON;
 
-  if (json.format !== TOOLKIT_VERSION) {
-    const current = json.format === 1 ? "2022-10-06" : json.format;
+  if (json.format !== TOOLKIT_FORMAT) {
     throw new CLIError(
       "Incorrect Creative Toolkit Version",
-      `This project was saved with toolkit ${current}. You are currently running toolkit ${TOOLKIT_DATE}.`
+      `This project was saved with format #${json.format}, expected #${TOOLKIT_FORMAT}.`
     );
   }
   return new Project(root, json, paths);

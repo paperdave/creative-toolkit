@@ -83,9 +83,13 @@ exec --no-startup-id sh -c 'feh --bg-scale $(cat .wallpaper)'
 font pango:Recursive 8
 title_align center
 hide_edge_borders smart
-default_border normal 2
+default_border pixel 0
 default_floating_border normal 2
+hide_edge_borders smart_no_gaps
 for_window [class=".*"] title_format "<b>%title</b>"
+gaps inner 20
+gaps outer -20
+smart_borders on
 
 # class                 border  backgr. text    indicator child_border
 client.focused          #007205 #00A32F #ffffff #2e9ef4   #007205

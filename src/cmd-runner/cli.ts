@@ -83,7 +83,6 @@ try {
 
   await command.run(event);
 } catch (error) {
-  console.log(error);
   Logger.error(error);
   process.exit(2);
 }

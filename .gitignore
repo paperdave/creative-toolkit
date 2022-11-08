@@ -1,5 +1,5 @@
 node_modules
-*local*/
+*local*
 dist
 .env
 __pycache__
