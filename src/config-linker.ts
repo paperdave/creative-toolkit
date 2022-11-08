@@ -9,6 +9,7 @@ import {
   existsSync,
   linkSync,
   lstatSync,
+  mkdirSync,
   readlinkSync,
   renameSync,
   rmSync,
@@ -165,9 +166,9 @@ if (actionList.length === 0) {
 }
 
 // // first map out all the directories that need to be created
-// for (const { file } of actions) {
-//   mkdirSync(path.join(DEST, "." + file, "../"), { recursive: true });
-// }
+for (const { file } of actions) {
+  mkdirSync(path.join(DEST, "." + file, "../"), { recursive: true });
+}
 
 // then create the links
 for (const { file, directory, action } of actionList) {
