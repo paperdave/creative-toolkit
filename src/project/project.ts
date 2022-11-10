@@ -1,18 +1,13 @@
-import path from "path";
-import { TOOLKIT_FORMAT } from "$constants";
-import { writeJSON } from "@paperdave/utils";
-import { pascalCase } from "change-case";
-import { existsSync, mkdirSync } from "fs";
-import { readdir } from "fs/promises";
-import { arrangeProject } from "./arrange";
-import { SequenceClip } from "./clip";
-import {
-  DEFAULT_PATHS,
-  extensionToRenderProgram,
-  Paths,
-  resolveExec,
-} from "./paths";
-import { AudioTiming, ProjectJSON } from "./project-json";
+import path from 'path';
+import { TOOLKIT_FORMAT } from '$constants';
+import { asyncMap, writeJSON } from '@paperdave/utils';
+import { pascalCase } from 'change-case';
+import { existsSync, mkdirSync } from 'fs';
+import { readdir } from 'fs/promises';
+import { arrangeProject } from './arrange';
+import { UnarrangedSequenceClip } from './clip';
+import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
+import { AudioTiming, ProjectJSON } from './project-json';
 
 export class Project {
   root: string;
@@ -40,12 +35,9 @@ export class Project {
     for (const pathObject of pathObjects) {
       for (const key in pathObject) {
         if (pathObject[key as keyof Paths]) {
-          this.paths[key as keyof Paths] = key.startsWith("exec")
+          this.paths[key as keyof Paths] = key.startsWith('exec')
             ? resolveExec(pathObject[key as keyof Paths], this.root)
-            : path.resolve(
-                this.root,
-                pathObject[key as keyof Paths].replaceAll("{id}", this.id)
-              );
+            : path.resolve(this.root, pathObject[key as keyof Paths].replaceAll('{id}', this.id));
         }
       }
     }
@@ -69,10 +61,7 @@ export class Project {
     return {
       id: this.id,
       name: this.name,
-      paths:
-        Object.keys(this.overridePaths).length > 0
-          ? this.overridePaths
-          : undefined,
+      paths: Object.keys(this.overridePaths).length > 0 ? this.overridePaths : undefined,
       audioTiming: this.audioTiming,
       format: TOOLKIT_FORMAT,
     };
@@ -88,65 +77,72 @@ export class Project {
   getRenderId(program: string, ...shot: string[]) {
     return [this.id, program, ...shot]
       .filter(Boolean)
-      .map((x) => pascalCase(x!))
-      .join("-");
+      .map(x => pascalCase(x!))
+      .join('-');
   }
 
   getRenderFullPath(program: string, ...shot: string[]) {
     return path.resolve(this.paths.render, this.getRenderId(program, ...shot));
   }
 
-  async getClips(step: "step1" | "step2"): Promise<SequenceClip[]> {
-    const contents = await readdir(this.paths[step]);
-    return contents.map((x) => {
-      let [start, end, label, ext] =
-        x.match(/^(\d+)-(\d+)_(.*)\.(.*)$/).slice(1) ?? [];
+  private cachedClips: UnarrangedSequenceClip[] | null = null;
+  async getClips(): Promise<UnarrangedSequenceClip[]> {
+    if (this.cachedClips) {
+      return this.cachedClips;
+    }
+    return (this.cachedClips = (
+      await asyncMap(['step1', 'step2'], async (step: keyof Paths) => {
+        const contents = await readdir(this.paths[step]);
+        return contents.map(x => {
+          // eslint-disable-next-line prefer-const -- bug found in eslint
+          let [start, end, label, ext] = /^(\d+)-(\d+)_(.*)\.(.*)$/.exec(x)?.slice(1) ?? [];
 
-      if (!start) {
-        ext = x.match(/\.(\w+)$/)?.[1];
-        label = x.replace(`.${ext}`, "");
-      }
+          if (!start) {
+            ext = /\.(\w+)$/.exec(x)![1];
+            label = x.replace(`.${ext}`, '');
+          }
 
-      return {
-        type: extensionToRenderProgram(ext),
-        start: start ? Number(start) : null,
-        end: end ? Number(end) : null,
-        label,
-        ext,
-        filename: path.join(this.paths[step], x),
-        step: step === "step1" ? 1 : 2,
-        length: end ? Number(end) - Number(start) + 1 : null,
-      };
-    });
+          return {
+            type: extensionToRenderProgram(ext),
+            start: start ? Number(start) : null,
+            end: end ? Number(end) : null,
+            label,
+            ext,
+            filename: path.join(this.paths[step], x),
+            step: step === 'step1' ? 1 : 2,
+            length: end ? Number(end) - Number(start) + 1 : null,
+          };
+        });
+      })
+    ).flat());
   }
 
   async runBlenderScript(blend: string, script: string, ...args: string[]) {
     const blender = Bun.spawn({
       cmd: [
         this.paths.execBlender,
-        "--background",
+        '--background',
         blend,
-        "--python",
-        path.join(import.meta.dir, "../", "blender-scripts", script),
-        "--",
+        '--python',
+        path.join(import.meta.dir, '../', 'blender-scripts', script),
+        '--',
         ...args,
       ],
       cwd: this.paths.temp,
-      stdio: ["inherit", "pipe", "pipe"],
+      stdio: ['inherit', 'pipe', 'pipe'],
     });
     await blender.exited;
     const text =
       (await new Response(blender.stdout as any).text()) +
       (await new Response(blender.stderr as any).text());
-    const match = text.match(/CTK_DATA\n(.*)\n/);
+    const match = /CTK_DATA\n(.*)\n/.exec(text);
     if (match) {
       return JSON.parse(match[1]);
-    } else {
-      throw new Error("Blender script failed: " + text);
     }
+    throw new Error('Blender script failed: ' + text);
   }
 
   async arrange() {
-    arrangeProject(this);
+    return arrangeProject(this);
   }
 }

@@ -1,0 +1,11 @@
+{
+  "extends": "dave",
+  "rules": {
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "no-type-imports"
+      }
+    ]
+  }
+}

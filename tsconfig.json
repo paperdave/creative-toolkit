@@ -14,7 +14,8 @@
       "$cmd-runner": ["./src/cmd-runner"],
       "$project": ["./src/project"],
       "$logger": ["./src/logger"],
-      "$constants": ["./src/constants"]
+      "$constants": ["./src/constants"],
+      "$util": ["./src/util"]
     }
   }
 }
