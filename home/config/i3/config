@@ -78,6 +78,8 @@ exec --no-startup-id polybar -r
 exec --no-startup-id picom
 exec --no-startup-id dunst
 exec --no-startup-id sh -c 'feh --bg-scale $(cat .wallpaper)'
+exec --no-startup-id xinput set-prop 'keyboard:HUION Huion Tablet_HS61' 'Device Enabled' 0
+exec --no-startup-id xinput set-prop 'keyboard:HUION Huion Tablet_HS61 Keyboard' 'Device Enabled' 0
 
 # Visual
 font pango:Recursive 8
