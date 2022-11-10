@@ -1,20 +1,18 @@
 import path from "path";
 import { TOOLKIT_FORMAT } from "$constants";
-import { Logger, Spinner } from "@paperdave/logger";
-import { asyncMap, writeJSON } from "@paperdave/utils";
+import { writeJSON } from "@paperdave/utils";
 import { pascalCase } from "change-case";
 import { existsSync, mkdirSync } from "fs";
-import { readdir, rename } from "fs/promises";
+import { readdir } from "fs/promises";
+import { arrangeProject } from "./arrange";
 import { SequenceClip } from "./clip";
 import {
   DEFAULT_PATHS,
   extensionToRenderProgram,
   Paths,
-  RenderProgram,
   resolveExec,
 } from "./paths";
 import { AudioTiming, ProjectJSON } from "./project-json";
-import { Composition } from "../fusion/structs/Composition";
 
 export class Project {
   root: string;
@@ -148,91 +146,7 @@ export class Project {
     }
   }
 
-  private async arrangeSingleClip(
-    clip: SequenceClip
-  ): Promise<[number, number]> {
-    const renderOutput = this.getRenderFullPath(
-      RenderProgram.CTSequencer,
-      "Step" + clip.step
-    );
-    const renderInput =
-      clip.step > 1
-        ? this.getRenderFullPath(
-            RenderProgram.CTSequencer,
-            "Step" + (clip.step - 1)
-          ) + ""
-        : null;
-
-    switch (clip.type) {
-      case RenderProgram.Blender: {
-        if (clip.step !== 1) {
-          throw new Error("Blender clips can only be in step 1");
-        }
-        return await this.runBlenderScript(
-          clip.filename,
-          "arrange.py",
-          renderOutput + "/"
-        );
-      }
-      case RenderProgram.Fusion: {
-        if (clip.step !== 2) {
-          throw new Error("Fusion clips can only be in step 2");
-        }
-        return (await Composition.fromFile(clip.filename)).RenderRange;
-      }
-      default:
-        throw new Error("Unknown render program " + clip.type);
-    }
-  }
-
   async arrange() {
-    const spinner = new Spinner("Arranging clips...");
-
-    const clips = [
-      ...(await this.getClips("step1")),
-      ...(await this.getClips("step2")),
-    ];
-
-    let maxPadding = 0;
-
-    await asyncMap(clips, async (clip) => {
-      const [start, end] = await this.arrangeSingleClip(clip);
-      clip.start = start;
-      clip.end = end;
-      clip.length = end - start + 1;
-      maxPadding = Math.max(
-        maxPadding,
-        Math.log10(clip.start) + 1,
-        Math.log10(clip.end) + 1
-      );
-    });
-
-    for (const clip of clips) {
-      const desiredFileName = path.join(
-        path.dirname(clip.filename),
-        [clip.start, clip.end]
-          .map((x) => x.toString().padStart(maxPadding, "0"))
-          .join("-") +
-          "_" +
-          clip.label +
-          "." +
-          clip.ext
-      );
-      if (clip.filename !== desiredFileName) {
-        Logger.info(
-          `${path.relative(this.root, clip.filename)} --> ${path.relative(
-            this.root,
-            desiredFileName
-          )}`
-        );
-        await rename(clip.filename, desiredFileName);
-        clip.filename = desiredFileName;
-      } else {
-        Logger.info(`${path.relative(this.root, clip.filename)} all good`);
-      }
-    }
-
-    this.isArranged = true;
-    spinner.success("Arranged clips");
+    arrangeProject(this);
   }
 }

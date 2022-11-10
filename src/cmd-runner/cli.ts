@@ -1,47 +1,53 @@
 #!/usr/bin/env bun
+import * as YAML from "yaml";
 import path from "path";
+import { TOOLKIT_DATE } from "$constants";
 import { hint } from "$logger";
 import { Project, resolveProject } from "$project";
 import { chalk, injectLogger, Logger } from "@paperdave/logger";
 import { pathExists } from "@paperdave/utils";
-import { CommandEvent } from "./types";
 import { readdirSync, readFileSync } from "fs";
-import * as YAML from 'yaml';
-import { TOOLKIT_DATE } from "$constants";
+import { CommandEvent } from "./types";
 
 const commandName = process.argv[2];
 
 if (!commandName) {
-  Logger.writeLine(chalk.greenBright(`dave caruso's creative toolkit, ${TOOLKIT_DATE}`));
+  Logger.writeLine(
+    chalk.greenBright(`dave caruso's creative toolkit, ${TOOLKIT_DATE}`)
+  );
   Logger.writeLine(chalk.grey("usage: ct <cmd> [...]"));
-  Logger.writeLine('')
+  Logger.writeLine("");
 
-  const cmds = readdirSync(path.join(import.meta.dir, '..'))
-    .filter(x => x.startsWith('cmd-') && x !== 'cmd-runner')
-    .map(name => {
+  const cmds = readdirSync(path.join(import.meta.dir, ".."))
+    .filter((x) => x.startsWith("cmd-") && x !== "cmd-runner")
+    .map((name) => {
       try {
-        const parsed = YAML.parse(readFileSync(path.join(import.meta.dir, '..', name, 'meta.yaml')).toString());
+        const parsed = YAML.parse(
+          readFileSync(
+            path.join(import.meta.dir, "..", name, "meta.yaml")
+          ).toString()
+        );
         return {
           sort: 0,
           ...parsed,
-          name: name.slice(4)
+          name: name.slice(4),
         };
       } catch (error) {
         Logger.warn(`could not find src/${name}/meta.yaml`);
         return {
           sort: 0,
           name: name.slice(4),
-          desc: ''
+          desc: "",
         };
       }
     })
     .sort((a, b) => b.sort - a.sort);
-  
-  const padding = Math.max(...cmds.map(x => x.name.length)) + 2;
+
+  const padding = Math.max(...cmds.map((x) => x.name.length)) + 2;
 
   for (const cmd of cmds) {
-    const space = ' '.repeat(padding - cmd.name.length);
-    Logger.writeLine(`- ${chalk.green('ct ' + cmd.name)}:${space}${cmd.desc}`)
+    const space = " ".repeat(padding - cmd.name.length);
+    Logger.writeLine(`- ${chalk.green("ct " + cmd.name)}:${space}${cmd.desc}`);
   }
   process.exit(1);
 }
@@ -68,21 +74,21 @@ if (commandName === "runner") {
 }
 
 injectLogger();
-try {
-  const command = await import(`../cmd-${commandName}/index.ts`);
-  const meta = YAML.parse(readFileSync(path.join(import.meta.dir, `../cmd-${commandName}/meta.yaml`)).toString());
 
-  let project!: Project;
-  if (command.project === undefined || command.project === true) {
-    project = await resolveProject();
-  }
+const command = await import(`../cmd-${commandName}/index.ts`);
+const meta = YAML.parse(
+  readFileSync(
+    path.join(import.meta.dir, `../cmd-${commandName}/meta.yaml`)
+  ).toString()
+);
 
-  const event: CommandEvent = {
-    project,
-  };
-
-  await command.run(event);
-} catch (error) {
-  Logger.error(error);
-  process.exit(2);
+let project!: Project;
+if (command.project === undefined || command.project === true) {
+  project = await resolveProject();
 }
+
+const event: CommandEvent = {
+  project,
+};
+
+await command.run(event);

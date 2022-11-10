@@ -1,7 +1,7 @@
-// import { BoolNum, FormatID } from "../enums";
-// import { Clip } from "../structs/Clip";
-// import { FuId } from "../structs/FuId";
-// import { Input } from "../structs/Input";
+import { BoolNum, FormatID } from "../enums";
+import { Clip } from "../structs/Clip";
+import { FuId } from "../structs/FuId";
+import { Input } from "../structs/Input";
 import { Tool } from "../structs/Tool";
 
 export class SaverTool extends Tool {

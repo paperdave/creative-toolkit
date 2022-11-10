@@ -41,15 +41,15 @@
 			ShowNavigator = 2,
 			AutoSnap = true,
 			PipesOnTop = true,
-			FullToolIndicator = true,
-			ForceModes = true,
+			Direction = 0,
+			PipeStyle = 1,
 			ShowHidden = true,
 			ConnectedSnap = true,
 			ShowThumbnails = true,
 			ShowGrid = true,
 			GridSnap = true,
-			PipeStyle = 1,
-			Direction = 0
+			ForceModes = true,
+			FullToolIndicator = true
 		},
 		LastFile = "/render/unknown/0001.exr",
 		Interactive = {
@@ -62,8 +62,8 @@
 			SelectiveUpdate = 1
 		},
 		Bins = {
-			SaverBin = "<none>",
-			LoaderBin = "<none>"
+			LoaderBin = "<none>",
+			SaverBin = "<none>"
 		},
 		FrameFormat = {
 			GuideRatio = 1.77777777777778,
@@ -73,21 +73,21 @@
 			DepthLock = true,
 			GuideY2 = 1,
 			DropFrame = 0,
-			AspectLoader = 0,
-			DepthLoader = 0,
-			DepthInteractive = 0,
+			GuideX1 = 0,
 			TimeCodeType = 0,
+			Name = "HD 1080",
+			PerFeet = 1,
 			DepthPreview = 0,
 			Rate = 60,
 			Width = 1920,
 			AspectX = 1,
 			Fields = false,
-			Name = "HD 1080",
-			Height = 1080,
-			GuideY1 = 0,
 			DepthFull = 0,
-			PerFeet = 1,
-			GuideX1 = 0
+			GuideY1 = 0,
+			Height = 1080,
+			DepthInteractive = 0,
+			DepthLoader = 0,
+			AspectLoader = 0
 		},
 		Splines = {
 			BSplineDegree = 3,
@@ -105,25 +105,22 @@
 			ExportMode = 16,
 			PolyLineEditMode = "InsertAndModify",
 			DefOnionSkinStep = 5,
-			DefOnionSkinRange = 3,
-			RotoAssistDistance = 8,
-			OnionSkinClickSetCT = false,
+			AutoSmoothPaths = false,
+			RotoAssistMultiplePts = false,
+			OnionSkinShowHull = true,
 			SelectPointsFromMultiPolies = true,
 			AutoSmoothBSplines = true,
-			OnionSkinShowHull = true,
-			RotoAssistMultiplePts = false,
-			AutoSmoothPaths = false,
+			OnionSkinClickSetCT = false,
+			RotoAssistDistance = 8,
+			DefOnionSkinRange = 3,
 			AutoSmoothMeshes = true,
 			AutoSmoothBSplinePolylines = true
 		},
-		Tweaks = {
-			CloneOverlayMethod = 0,
-			CloneOverlayBlend = 0.6,
-			GPU = {
-				Enable = 2,
-				Caching = 2
-			},
-			DisableFlowReordering = false
+		PolyKeyListDlg = {
+			Window = {
+				Left = -1,
+				Top = -1
+			}
 		},
 		SplineEditor = {
 			IndependentHandles = false,
@@ -137,22 +134,8 @@
 			ShowTips = true,
 			AutoScaleVal = 1
 		},
-		DiskCache = {
-			NetGroups = "all",
-			CacheLoaders = {
-				DiskCache = false,
-				MultiFrame = true,
-				LimitedSize = false,
-				Separator = "!",
-				Enable = true,
-				MaxSize = 200,
-				OnMissingOrig = 0,
-				NoLocal = true
-			}
-		},
-		Unsorted = {
-			GlobalEnd = 1000,
-			GlobalStart = 0
+		Transport = {
+			FrameStep = 1
 		},
 		Preview = {
 			Type = 1,
@@ -160,71 +143,61 @@
 			HiQ = true,
 			Width = 200,
 			KeepAspect = true,
-			SizeType = 1,
+			SkipFrames = false,
 			ActiveSavers = true,
-			ActiveLoaders = true,
+			OutputDevice = "Left.A",
 			Height = 160,
 			Depth = 0,
-			OutputDevice = "Left.A",
-			SkipFrames = false
+			ActiveLoaders = true,
+			SizeType = 1
+		},
+		Unsorted = {
+			GlobalStart = 0,
+			GlobalEnd = 1000
 		},
 		Audio = {
 			Playback = true
 		},
-		FreehandLUTPrecDlg = {
-			Window = {
-				Left = 756,
-				Top = 135
-			}
+		Info = {
+			CreateDate = "",
+			ModifyDate = "",
+			Comments = "",
+			Author = "",
+			Client = "",
+			Job = ""
 		},
 		ChildFrame = {
 			{
 				Mode = 3,
-				OpenOnNew = true,
-				UseWindowsDefaults = true
+				UseWindowsDefaults = true,
+				OpenOnNew = true
 			}
 		},
 		AVI = {
 			Saver = {
 				DataCheck = true,
 				Key = 15,
-				Quality = 75,
-				DataRate = 300,
+				Handler = 541215044,
 				KeyCheck = true,
-				Handler = 541215044
+				DataRate = 300,
+				Quality = 75
 			}
 		},
-		FreehandPrecDlg = {
-			Window = {
-				Left = 0,
-				Top = 88
+		Memory = {
+			Render = {
+				SimultaneousBranching = false
+			},
+			FramesAtOnce = 2,
+			Interactive = {
+				SimultaneousBranching = false,
+				ResponseTime = 0.5
 			}
 		},
 		FilterModeName = "<unknown>",
-		ActionStrip = {
-			ToolbarName = "Default"
-		},
-		UserInterface = {
-			SelectionSync = true
-		},
-		Import = {
-			EDL = {
-				FlowFormat = 0,
-				UseShotNames = 0
-			}
-		},
-		Timeline = {
-			AutoSnap = {
-				Keys = 2,
-				Guides = -1
-			},
-			ViewFilterMode = -1
-		},
 		Views = {
 			RightView = {
 				PrevCtrlInactiveColor = 4278255360,
 				PickW = 1,
-				PickH = 1,
 				SideB = {
 					PrevCtrlInactiveColor = 4278255360,
 					PickW = 1,
@@ -233,29 +206,29 @@
 					Viewer = {
 						EnableLUTs = false,
 						LUTPlugin = "FusionViewLUT",
-						NearZ = 0,
+						FitMarginY = 0,
 						FitMarginX = 0,
 						FitMarginType = 0,
 						FarZ = -1000,
-						FitMarginY = 0
+						NearZ = 0
 					}
 				},
+				PickH = 1,
+				PrevCtrlActiveColor = 4278190335,
 				Viewer = {
 					EnableLUTs = false,
 					LUTPlugin = "FusionViewLUT",
-					FitMarginY = 0,
+					NearZ = 0,
 					FitMarginX = 0,
 					FitMarginType = 0,
 					FarZ = -1000,
-					NearZ = 0
+					FitMarginY = 0
 				},
-				PrevCtrlActiveColor = 4278190335,
 				RulersShow = true
 			},
 			LeftView = {
 				PrevCtrlInactiveColor = 4278255360,
 				PickW = 1,
-				PickH = 1,
 				SideB = {
 					PrevCtrlInactiveColor = 4278255360,
 					PickW = 1,
@@ -264,30 +237,27 @@
 					Viewer = {
 						EnableLUTs = false,
 						LUTPlugin = "FusionViewLUT",
-						NearZ = 0,
+						FitMarginY = 0,
 						FitMarginX = 0,
 						FitMarginType = 0,
 						FarZ = -1000,
-						FitMarginY = 0
+						NearZ = 0
 					}
 				},
+				PickH = 1,
+				PrevCtrlActiveColor = 4278190335,
 				Viewer = {
 					EnableLUTs = false,
 					LUTPlugin = "FusionViewLUT",
-					FitMarginY = 0,
+					NearZ = 0,
 					FitMarginX = 0,
 					FitMarginType = 0,
 					FarZ = -1000,
-					NearZ = 0
+					FitMarginY = 0
 				},
-				PrevCtrlActiveColor = 4278190335,
 				RulersShow = true
 			},
 			View1 = {
-				PickW = 1,
-				PrevCtrlInactiveColor = 4278255360,
-				FullScreen = false,
-				AlwaysOnTop = true,
 				SideB = {
 					PrevCtrlInactiveColor = 4278255360,
 					PickW = 1,
@@ -296,24 +266,28 @@
 					Viewer = {
 						EnableLUTs = false,
 						LUTPlugin = "FusionViewLUT",
-						NearZ = 0,
+						FitMarginY = 0,
 						FitMarginX = 0,
 						FitMarginType = 0,
 						FarZ = -1000,
-						FitMarginY = 0
+						NearZ = 0
 					}
 				},
-				PrevCtrlActiveColor = 4278190335,
+				PrevCtrlInactiveColor = 4278255360,
+				FullScreen = false,
 				Viewer = {
 					EnableLUTs = false,
 					LUTPlugin = "FusionViewLUT",
-					FitMarginY = 0,
+					NearZ = 0,
 					FitMarginX = 0,
 					FitMarginType = 0,
 					FarZ = -1000,
-					NearZ = 0
+					FitMarginY = 0
 				},
-				PickH = 1
+				PickH = 1,
+				PrevCtrlActiveColor = 4278190335,
+				AlwaysOnTop = true,
+				PickW = 1
 			},
 			Defaults = {
 				MaterialViewer = {
@@ -321,8 +295,8 @@
 						LightPosition = 0,
 						SurfaceType = 0,
 						RendererType = "RendererOpenGL",
-						TextureDepth = "int8",
-						LightingEnabled = true
+						LightingEnabled = true,
+						TextureDepth = "int8"
 					},
 					Camera = {
 						Rotation = {
@@ -343,35 +317,35 @@
 					NearZ = 0,
 					ID = "GLImageViewer",
 					OverlayColor = 7,
-					FitMarginY = 0,
+					One2One = false,
 					Smooth = true,
 					SmoothThreshold = 1000000,
-					View360 = 0,
 					AlphaOverlay = false,
+					View360 = 0,
 					Region = {
 						Show = true,
-						Top = 1,
-						Auto = false,
 						Bottom = 0,
+						Auto = false,
+						Lock = false,
 						Enable = false,
 						Right = 1,
 						Left = 0,
-						Lock = false
+						Top = 1
 					},
 					ShowControls = true,
 					Layer = "",
 					ScaleMode = 0,
-					FitMarginX = 0,
+					ShowLabels = true,
+					OverlayOpacity = 100,
+					PixelGrid = false,
+					LUTPlugin = "FusionViewLUT",
+					Channel = -1,
 					DoD = {
 						Show = false
 					},
-					LUTPlugin = "FusionViewLUT",
-					PixelGrid = false,
-					Channel = -1,
-					OverlayOpacity = 100,
-					ShowLabels = true,
+					FitMarginX = 0,
 					FarZ = -1000,
-					One2One = false
+					FitMarginY = 0
 				},
 				BgColor = -1,
 				SubView = {
@@ -386,29 +360,29 @@
 					Show = false,
 					Center = true,
 					SafeTitle = true,
-					FrameAspect = "Default",
+					SafeImage = true,
 					Film = false,
-					SafeImage = true
+					FrameAspect = "Default"
 				},
+				Controls = {
+					Hiding = 0,
+					Autofade = false,
+					FadeSpeed = 1,
+					SnapPixel = false,
+					Opacity = 100,
+					FadeDelay = 2000,
+					SnapPixelMode = 0,
+					StippleHidden = true
+				},
+				QuadLayoutName = "4-Way",
+				AlwaysOnTop = true,
+				QuadView = false,
 				Waveform = {
 					OneLine = false,
 					SubSampling = 4,
 					Mode = 0,
 					LoopLines = true,
 					ColorSpace = 0
-				},
-				QuadLayoutName = "4-Way",
-				AlwaysOnTop = true,
-				QuadView = false,
-				Controls = {
-					Hiding = 0,
-					Autofade = false,
-					FadeSpeed = 1,
-					SnapPixelMode = 0,
-					FadeDelay = 2000,
-					Opacity = 100,
-					SnapPixel = false,
-					StippleHidden = true
 				},
 				Dither = false,
 				PickW = 1,
@@ -421,48 +395,34 @@
 					ColorSpace = 0
 				},
 				PickH = 1,
-				BufferLUT = {
-					Enable = false,
-					Selected = "",
-					Plugin = "FusionViewLUT"
-				},
+				VideoOut = false,
 				Toolbar = {
 					Style = 0,
 					Size = 0
 				},
-				["3DHistogram"] = {
-					Proxy = 4,
-					Log = false,
-					Transparent = true,
-					LoopLines = true,
-					DrawStyles = 0
+				Mirror = {
+					Enable = false,
+					StereoMethod = "Auto",
+					Device = ""
 				},
-				PrevCtrlActiveColor = 4278190335,
-				Histogram = {
-					DrawStyles = 0,
-					Transparent = false,
-					Scale = 0,
-					Channels = 7
-				},
-				ShowClipFrameNumbers = true,
 				View3D = {
 					Options = {
 						SelectionBoxStipple = 65520,
 						ShowTextureMemory = false,
-						SelectionBoxStippleHidden = 52416,
+						Shadows = false,
 						ShowLights = true,
 						Lighting = false,
 						ShowUVTangentVectors = false,
 						ShowPointClouds = true,
 						Grid = true,
-						ShowVertexNormals = false,
 						ShowFastLabel = false,
+						ShowVertexNormals = false,
 						ShowMatteObjects = false,
 						DefaultLight = true,
 						Culling = false,
 						ShowCameras = true,
 						Wireframe = false,
-						Shadows = false
+						SelectionBoxStippleHidden = 52416
 					},
 					CamLeft = {
 						Rotation = {
@@ -503,19 +463,7 @@
 							Z = 0
 						}
 					},
-					CamTop = {
-						Rotation = {
-							Y = 0,
-							X = 90,
-							Z = 0
-						},
-						Scale = 1,
-						Position = {
-							Y = 0,
-							X = 0,
-							Z = 0
-						}
-					},
+					TextureDepth = "int8",
 					CamFront = {
 						Rotation = {
 							Y = 0,
@@ -529,34 +477,60 @@
 							Z = 0
 						}
 					},
-					TextureDepth = "int8",
+					SortMethod = "ZBuffer",
 					OverscanMode = 0,
 					CustomOverscan = 1.37,
-					SortMethod = "ZBuffer",
+					CamTop = {
+						Rotation = {
+							Y = 0,
+							X = 90,
+							Z = 0
+						},
+						Scale = 1,
+						Position = {
+							Y = 0,
+							X = 0,
+							Z = 0
+						}
+					},
 					CameraName = "Perspective"
 				},
-				Mirror = {
-					Enable = false,
-					StereoMethod = "Auto",
-					Device = ""
+				Histogram = {
+					DrawStyles = 0,
+					Channels = 7,
+					Scale = 0,
+					Transparent = false
 				},
-				VideoOut = false,
+				ShowClipFrameNumbers = true,
+				PrevCtrlActiveColor = 4278190335,
+				["3DHistogram"] = {
+					Proxy = 4,
+					Log = false,
+					Transparent = true,
+					LoopLines = true,
+					DrawStyles = 0
+				},
+				BufferLUT = {
+					Enable = false,
+					Selected = "",
+					Plugin = "FusionViewLUT"
+				},
 				Stereo = {
 					Enabled = false,
 					Swap = false,
 					AnaglyphMethod = "Color",
-					Stack = false,
+					StackMethod = "Horizontal",
 					OffsetX = {
 						QuadB = 0,
 						Stack = 0
 					},
-					ABSource = false,
+					Stack = false,
 					DisplayMethod = "Quad Buffer",
-					StackMethod = "Horizontal",
 					OffsetY = {
 						QuadB = 0,
 						Stack = 0
 					},
+					ABSource = false,
 					AnaglyphColor = "Red/Cyan"
 				},
 				OpToolbar = {
@@ -566,8 +540,8 @@
 			},
 			View3D = {
 				FitToView = {
-					Selected = 0.75,
-					All = 1
+					All = 1,
+					Selected = 0.75
 				},
 				DefLight = {
 					Ambient = {
@@ -577,12 +551,6 @@
 						Intensity = 0.85,
 						Position = 0
 					}
-				},
-				Orthographic = {
-					AdaptiveNear = false,
-					AdaptiveFar = false,
-					Far = 100000,
-					Near = -100000
 				},
 				Perspective = {
 					FovY = 45,
@@ -595,47 +563,66 @@
 					AdaptiveNear = false,
 					ConvergenceDistance = 2.5
 				},
+				Orthographic = {
+					AdaptiveNear = false,
+					Near = -100000,
+					Far = 100000,
+					AdaptiveFar = false
+				},
 				Grid = {
-					Scale = 1,
-					Antialiasing = false,
 					Minor = {
 						Enable = true,
-						Spacing = 0.25,
+						Width = 1,
 						Color = 4283453520,
-						Width = 1
+						Spacing = 0.25
 					},
 					Axes = {
 						Enable = true,
 						Color = 4280492835,
 						Width = 3
 					},
+					Scale = 1,
+					Antialiasing = false,
 					Major = {
 						Enable = true,
-						Spacing = 2,
+						Width = 1,
 						Color = 4280492835,
-						Width = 1
+						Spacing = 2
 					},
 					Size = 24
 				}
 			}
 		},
-		Memory = {
-			Render = {
-				SimultaneousBranching = false
+		UserInterface = {
+			SelectionSync = true
+		},
+		Timeline = {
+			AutoSnap = {
+				Keys = 2,
+				Guides = -1
 			},
-			FramesAtOnce = 2,
-			Interactive = {
-				ResponseTime = 0.5,
-				SimultaneousBranching = false
+			ViewFilterMode = -1
+		},
+		Import = {
+			EDL = {
+				FlowFormat = 0,
+				UseShotNames = 0
 			}
 		},
-		Info = {
-			CreateDate = "",
-			ModifyDate = "",
-			Job = "",
-			Author = "",
-			Client = "",
-			Comments = ""
+		ActionStrip = {
+			ToolbarName = "Default"
+		},
+		FreehandPrecDlg = {
+			Window = {
+				Left = 0,
+				Top = 88
+			}
+		},
+		FreehandLUTPrecDlg = {
+			Window = {
+				Left = 756,
+				Top = 135
+			}
 		},
 		Cluster = {
 			RenderNodeClasses = "all",
@@ -646,19 +633,32 @@
 			DataCheck = false,
 			KeyRate = 30,
 			Compressor = "Apple ProRes 422 HQ_apch",
-			Quality = 75,
-			DataRate = 1000,
 			KeyCheck = true,
+			DataRate = 1000,
+			Quality = 75,
 		},
-		Transport = {
-			FrameStep = 1
+		DiskCache = {
+			NetGroups = "all",
+			CacheLoaders = {
+				DiskCache = false,
+				MultiFrame = true,
+				Enable = true,
+				Separator = "!",
+				LimitedSize = false,
+				MaxSize = 200,
+				OnMissingOrig = 0,
+				NoLocal = true
+			}
 		},
 		LastLUTFile = "",
-		PolyKeyListDlg = {
-			Window = {
-				Left = -1,
-				Top = -1
-			}
+		Tweaks = {
+			CloneOverlayMethod = 0,
+			DisableFlowReordering = false,
+			GPU = {
+				Enable = 2,
+				Caching = 2
+			},
+			CloneOverlayBlend = 0.6
 		}
 	},
 	Global = {
@@ -687,7 +687,7 @@
 			Pos = {
 				Top = 413,
 				Height = 500,
-				Left = 1131,
+				Left = 1145,
 				Width = 240
 			}
 		},
@@ -711,15 +711,15 @@
 				LastFile = "Comps:",
 				Transforms = false,
 				Hierarchy = false,
-				UVs = true,
+				InvCameras = true,
 				Points = true,
 				Normals = true,
-				InvCameras = true
+				UVs = true
 			}
 		},
 		Controls = {
-			GammaCorrectControlGamma = 2,
-			HoverZoomWheel = true,
+			GammaCorrect = false,
+			GrabDistance = 5,
 			AutoClose = true,
 			AutoSelected = true,
 			AutoCloseTools = true,
@@ -730,8 +730,8 @@
 			AutoHide = true,
 			TabMode = 0,
 			CombinedColorWheel = true,
-			GrabDistance = 5,
-			GammaCorrect = false
+			HoverZoomWheel = true,
+			GammaCorrectControlGamma = 2
 		},
 		SplineSelector = {
 			Window = {
@@ -743,6 +743,9 @@
 		},
 		Network = {
 			ServerIP = 16777343,
+			RenderOnAll = false,
+			AllowNetworkRender = true,
+			ServerName = "",
 			Mail = {
 				Sender = "",
 				OnQueueDone = false,
@@ -751,18 +754,15 @@
 				SMTPServerPort = 25,
 				OnJobFailure = false,
 				LogLines = 15,
+				Recipients = "",
 				SMTP = {
 					Username = "",
 					Password = "",
 					Security = 0
-				},
-				Recipients = ""
+				}
 			},
-			IsRenderServer = false,
 			FrameTimeout = 3600,
-			RenderOnAll = false,
-			ServerName = "",
-			AllowNetworkRender = true,
+			IsRenderServer = false,
 			VerboseLogging = false
 		},
 		FlowView = {
@@ -771,13 +771,13 @@
 			PipeGrabDist = 5
 		},
 		Bookmark = {
-			Underlay = true,
 			Pos = {
 				Top = -1,
 				Height = -1,
 				Left = -1,
 				Width = -1
-			}
+			},
+			Underlay = true
 		},
 		Tweaks = {
 			AutoDetectGraphicsMemory = true,
@@ -797,23 +797,23 @@
 			},
 			ViewLUTMinRange = -2,
 			LastDroppedTimeout = 30000,
-			ImageOverlay = 1,
-			PaintFasterUpdate = false,
+			Use10BitFramebuffer = false,
 			ReadAheadBuffers = 4,
+			LoadCompTimeout = 150000,
 			ViewLUTMaxRange = 30,
 			BorderlessToolbars = true,
 			ImageViewerDoSmoothResize = 0,
 			UseVSync = true,
-			ShowKeys = false,
+			DisableViewLUTShaders = false,
 			UseFloat16Textures = false,
 			BeatInterval = 2000,
 			FlatToolbars = false,
 			PaintNoCaching = false,
 			GraphicsMemory = 24576,
-			DisableViewLUTShaders = false,
+			ShowKeys = false,
 			DisableDirectReads = true,
-			LoadCompTimeout = 150000,
-			Use10BitFramebuffer = false
+			PaintFasterUpdate = false,
+			ImageOverlay = 1
 		},
 		Main = {
 			Window = {
@@ -832,11 +832,11 @@
 		},
 		Script = {
 			EditorPath = "",
-			Python3Forced = false,
+			PythonVersion = 3,
 			LoginName = "",
 			LoginRequired = 0,
 			LoginPassword = "",
-			PythonVersion = 3
+			Python3Forced = false
 		},
 		Bins = {
 			Window = {
@@ -847,9 +847,9 @@
 				Top = 50,
 				MaxTop = 0,
 				MinTop = 0,
-				Split = 200,
+				MinLeft = 0,
 				State = 1,
-				MinLeft = 0
+				Split = 200
 			},
 			Open = false,
 			CheckerUnderlay = true,
@@ -860,31 +860,31 @@
 				["AutoSaves:"] = "Comps:Default AutoSaves",
 				["Guides:"] = "UserPaths:Guides",
 				["LUTs:"] = "UserPaths:LUTs",
-				["Help:"] = "Fusion:Help",
+				["Filters:"] = "UserPaths:Filters",
 				["Libraries:"] = "UserPaths:Library",
-				["Fuses:"] = "UserPaths:Fuses",
-				["Defaults:"] = "UserPaths:Defaults",
+				["Bins:"] = "UserData:Bins",
+				["Scripts:"] = "UserPaths:Scripts;Reactor:System/Scripts",
 				["Comps:"] = "UserDocs:",
-				["Config:"] = "UserPaths:Config",
-				["Brushes:"] = "UserPaths:Brushes",
+				["Settings:"] = "UserPaths:Settings",
+				["Macros:"] = "UserPaths:Macros",
 				["LoaderCache:"] = "Temp:DiskCache",
 				["UserPaths:"] = "UserData:;AllData:;Fusion:;Reactor:Deploy",
 				["Templates:"] = "UserPaths:Templates",
-				["Fonts:"] = "SystemFonts:",
-				["Reactor:"] = "/var/BlackmagicDesign/Fusion/Reactor/",
+				["Thumbs:"] = "Stamps:",
+				["Config:"] = "UserPaths:Config",
 				["SystemFonts:"] = "$(FUSION_FONTS);/usr/share/fonts",
-				["Macros:"] = "UserPaths:Macros",
-				["Settings:"] = "UserPaths:Settings",
-				["LuaModules:"] = "UserPaths:Modules/Lua",
+				["Brushes:"] = "UserPaths:Brushes",
+				["Fonts:"] = "SystemFonts:",
+				["DiskCaches:"] = "Temp:DiskCache",
 				["Queues:"] = "AllDocs:Queue",
 				["Stamps:"] = "UserData:Stamps",
-				["DiskCaches:"] = "Temp:DiskCache",
+				["LuaModules:"] = "UserPaths:Modules/Lua",
 				["Previews:"] = "Temp:",
 				["Plugins:"] = "UserPaths:Plugins",
-				["Thumbs:"] = "Stamps:",
-				["Scripts:"] = "UserPaths:Scripts;Reactor:System/Scripts",
-				["Bins:"] = "UserData:Bins",
-				["Filters:"] = "UserPaths:Filters"
+				["Fuses:"] = "UserPaths:Fuses",
+				["Defaults:"] = "UserPaths:Defaults",
+				["Reactor:"] = "/var/BlackmagicDesign/Fusion/Reactor/",
+				["Help:"] = "Fusion:Help"
 			}
 		},
 		RenderQueue = {
@@ -907,23 +907,23 @@
 			Comp = {
 				ColumnWidth = {
 					Completed = 75,
-					TimeOut = 56,
+					SubmitTime = 120,
 					Name = 250,
 					Who = 80,
 					Status = 200,
 					PriorityClass = 46,
-					SubmitTime = 120,
-					Frames = 75
+					Frames = 75,
+					TimeOut = 56
 				},
 				ColumnOrder = {
 					Completed = 2,
-					TimeOut = 6,
+					SubmitTime = -1,
 					Name = 0,
 					Who = 5,
 					Status = 3,
 					PriorityClass = 4,
-					SubmitTime = -1,
-					Frames = 1
+					Frames = 1,
+					TimeOut = 6
 				}
 			},
 			Window = {
@@ -932,15 +932,21 @@
 				Left = 0,
 				Width = 917
 			},
-			HorizSplitPos = 212,
-			VertSplitPos = 184
+			VertSplitPos = 184,
+			HorizSplitPos = 212
 		},
-		DiskCache = {
-			CacheLoaders = {
-				DisableAll = false
+		LensDistort = {
+			Import = {
+				LastFile = "Comps:"
 			}
 		},
-		LastFilterFile = "Filters:",
+		Unsorted = {
+			AutoSummedAreaTables = true,
+			SaveCompressedComps = false,
+			CheckForUpdates = true,
+			ToolbarState = false,
+			DevLicenceAgreement = true
+		},
 		FileReq = {
 			History = {
 				{ "/home/dave/Documents/BlackmagicDesign/Fusion/", 19277 },
@@ -950,7 +956,12 @@
 				{ "/render/unknown/", 19303 },
 				{ "/home/dave/Documents/BlackmagicDesign/Fusion/", 19303 },
 				{ "/home/dave/.fusion/BlackmagicDesign/Fusion/Macros/", 19303 },
-				{ "/home/dave/Documents/BlackmagicDesign/Fusion/", 19304 }
+				{ "/home/dave/Documents/BlackmagicDesign/Fusion/", 19304 },
+				{ "/home/dave/Documents/BlackmagicDesign/Fusion/", 19306 },
+				{ "/code/paperdave/creative-toolkit/assets/fusion/", 19306 },
+				{ "/code/paperdave/creative-toolkit/local/step2/", 19306 },
+				{ "/render/unknown/", 19306 },
+				{ "/project/test/step2/", 19306 }
 			}
 		},
 		FloatingListBox = {
@@ -961,58 +972,6 @@
 				Left = -1,
 				Bottom = -1
 			}
-		},
-		SpiralEdit = {
-			Window = {
-				Left = -1,
-				Top = -1
-			}
-		},
-		RectangleEdit = {
-			Window = {
-				Left = -1,
-				Top = -1
-			}
-		},
-		VideoIO = {
-			ShowSplash = false
-		},
-		LastCompFile = "/home/dave/Documents/BlackmagicDesign/Fusion/template.comp",
-		DXPreview = {
-			KeepAspect = true,
-			Monitor = 0,
-			VSync = true,
-			ScaleX = 1,
-			ResizeToFit = true,
-			ScaleY = 1,
-			Stereo = {
-				Swap = false,
-				Mode = 1
-			},
-			Enable = true
-		},
-		VR = {
-			Lighting = {
-				Enable = "auto",
-				Shadows = false,
-				Ambient = 0.3
-			},
-			Mirror = {
-				Show = true,
-				X = -1,
-				Height = -1,
-				Y = -1,
-				Width = -1
-			},
-			MatteObjects = false,
-			SortMethod = "zbuffer",
-			RelativePose = "seated",
-			Format = "auto",
-			Stereo = {
-				Method = "auto",
-				Swap = false
-			},
-			API = "auto"
 		},
 		FBX = {
 			Import = {
@@ -1025,18 +984,73 @@
 				UpAxis = 1,
 				EnableAxisConversion = true,
 				Animation = true,
-				Nulls = true,
+				Cameras = true,
 				FPS = 24,
 				GroupMeshes = false,
-				Meshes = true,
+				Triangulate = true,
 				LastFile = "Comps:",
-				BakeAnimation = true,
+				OptimizeForDisplay = true,
 				Materials = true,
 				Hierarchy = false,
-				OptimizeForDisplay = true,
-				Triangulate = true,
+				BakeAnimation = true,
+				Meshes = true,
 				VertexColors = true,
-				Cameras = true
+				Nulls = true
+			}
+		},
+		RectangleEdit = {
+			Window = {
+				Left = -1,
+				Top = -1
+			}
+		},
+		VideoIO = {
+			ShowSplash = false
+		},
+		Preview = {
+			ToolBarMode = 0,
+			ToolBarSize = -1
+		},
+		DXPreview = {
+			KeepAspect = true,
+			Monitor = 0,
+			VSync = true,
+			ResizeToFit = true,
+			Enable = true,
+			ScaleY = 1,
+			Stereo = {
+				Mode = 1,
+				Swap = false
+			},
+			ScaleX = 1
+		},
+		VR = {
+			Format = "auto",
+			Stereo = {
+				Method = "auto",
+				Swap = false
+			},
+			MatteObjects = false,
+			SortMethod = "zbuffer",
+			RelativePose = "seated",
+			API = "auto",
+			Mirror = {
+				Show = true,
+				X = -1,
+				Height = -1,
+				Y = -1,
+				Width = -1
+			},
+			Lighting = {
+				Enable = "auto",
+				Shadows = false,
+				Ambient = 0.3
+			}
+		},
+		SpiralEdit = {
+			Window = {
+				Left = -1,
+				Top = -1
 			}
 		},
 		Status = {
@@ -1045,22 +1059,23 @@
 				Top = 527
 			}
 		},
-		Unsorted = {
-			AutoSummedAreaTables = true,
-			DevLicenceAgreement = true,
-			CheckForUpdates = true,
-			ToolbarState = false,
-			SaveCompressedComps = false
+		LastCompFile = "/project/test/step2/000-050_test.comp",
+		Memory = {
+			PercentCacheLimit = 95,
+			Margin = 200000,
+			PlayCache = {
+				Threshold = 100,
+				Mode = 1
+			},
+			AutoPercentCacheLimit = true
 		},
-		RecentComps = {
-			"/home/dave/Documents/BlackmagicDesign/Fusion/template.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/test.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/Sampling.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/stresstest.comp"
-		},
-		ActionStrip = {
-			ToolbarLocked = false,
-			Toolbars = {
+		Views = {
+			Float = {
+				PrevCtrlInactiveColor = 4278255360,
+				PickW = 1,
+				PickH = 1,
+				PrevCtrlActiveColor = 4278190335,
+				RulersShow = true
 			}
 		},
 		Dev = {
@@ -1103,25 +1118,14 @@
 				Width = -1
 			}
 		},
-		Timeline = {
-			CurrentTime = false,
-			AutoScaleVal = 1,
-			AutoSnapGuides = 2,
-			SelectedTools = false,
-			FilterToUse = "",
-			AutoSnapPointsToGuides = true,
-			ShowTips = true,
-			ToolDisplayMode = 0,
-			AutoScale = false,
-			AutoSnapPoints = 2,
-			AnimatedTools = false,
-			ShowSpreadsheet = false,
-			DisplayPointValues = false
+		SubFrame = {
 		},
-		Interactive = {
-			Proxy = {
-				SummedAreaTables = 3
-			}
+		DeckControl = {
+			ComPort = 1
+		},
+		Layout = {
+			CreateFloat = 1,
+			ShowOnlyActiveComp = true
 		},
 		UserInterface = {
 			WheelPanModifiers = 0,
@@ -1129,40 +1133,49 @@
 			ChildForce = false,
 			LocalizedNodeNames = false,
 			AutoClipBrowse = true,
-			WheelZoomModifiers = 4,
+			SummarizeLoadErrors = false,
 			ShowActivePane = true,
 			Skin = "Fusion",
-			ShowRenderSettings = true,
 			ScaleFactor = 0,
+			ShowRenderSettings = true,
 			Language = "auto",
-			SummarizeLoadErrors = false
+			WheelZoomModifiers = 4
 		},
-		Layout = {
-			CreateFloat = 1,
-			ShowOnlyActiveComp = true
-		},
-		DeckControl = {
-			ComPort = 1
-		},
-		SubFrame = {
-		},
-		Views = {
-			Float = {
-				PrevCtrlInactiveColor = 4278255360,
-				PickW = 1,
-				PickH = 1,
-				PrevCtrlActiveColor = 4278190335,
-				RulersShow = true
+		Interactive = {
+			Proxy = {
+				SummedAreaTables = 3
 			}
 		},
-		Memory = {
-			PercentCacheLimit = 95,
-			PlayCache = {
-				Threshold = 100,
-				Mode = 1
-			},
-			Margin = 200000,
-			AutoPercentCacheLimit = true
+		Timeline = {
+			CurrentTime = false,
+			AutoScaleVal = 1,
+			AutoSnapGuides = 2,
+			SelectedTools = false,
+			FilterToUse = "",
+			ShowSpreadsheet = false,
+			DisplayPointValues = false,
+			ToolDisplayMode = 0,
+			AutoScale = false,
+			AnimatedTools = false,
+			AutoSnapPoints = 2,
+			ShowTips = true,
+			AutoSnapPointsToGuides = true
+		},
+		ActionStrip = {
+			ToolbarLocked = false,
+			Toolbars = {
+			}
+		},
+		RecentComps = {
+			"/project/test/step2/000-050_test.comp",
+			"/code/paperdave/creative-toolkit/local/step2/hold.comp",
+			"/code/paperdave/creative-toolkit/local/step2/default copy.comp",
+			"/code/paperdave/creative-toolkit/assets/fusion/default.comp",
+			"/home/dave/Documents/BlackmagicDesign/Fusion/template001.comp",
+			"/home/dave/Documents/BlackmagicDesign/Fusion/template.comp",
+			"/home/dave/Documents/BlackmagicDesign/Fusion/test.comp",
+			"/home/dave/Documents/BlackmagicDesign/Fusion/Sampling.comp",
+			"/home/dave/Documents/BlackmagicDesign/Fusion/stresstest.comp"
 		},
 		Default = {
 			Tools = {
@@ -1176,18 +1189,15 @@
 			AutoMerge = false
 		},
 		LastSettingFile = "Settings:",
-		Preview = {
-			ToolBarSize = -1,
-			ToolBarMode = 0
-		},
-		LensDistort = {
-			Import = {
-				LastFile = "Comps:"
+		LastFilterFile = "Filters:",
+		DiskCache = {
+			CacheLoaders = {
+				DisableAll = false
 			}
 		},
 		StampFiles = {
-			Quality = 0.75,
-			Format = ""
+			Format = "",
+			Quality = 0.75
 		},
 		DeckLinkPref = {
 			Device = 4294967295,

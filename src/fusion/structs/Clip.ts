@@ -2,6 +2,12 @@ import type { BoolNum, ClipAspectMode, ClipDepth, FormatID } from "../enums";
 import { LuaTable } from "../LuaTable";
 
 export class Clip extends LuaTable {
+  get ID() {
+    return this.get("ID");
+  }
+  set ID(value: string) {
+    this.set("ID", value);
+  }
   get Length() {
     return this.get("Length");
   }
@@ -19,6 +25,12 @@ export class Clip extends LuaTable {
   }
   set TrimIn(value: number) {
     this.set("TrimIn", value);
+  }
+  get TrimOut() {
+    return this.get("TrimOut");
+  }
+  set TrimOut(value: number) {
+    this.set("TrimOut", value);
   }
   get ExtendFirst() {
     return this.get("ExtendFirst");
@@ -73,5 +85,23 @@ export class Clip extends LuaTable {
   }
   set FormatID(value: FormatID) {
     this.set("FormatID", value);
+  }
+  get StartFrame() {
+    return this.get("StartFrame");
+  }
+  set StartFrame(value: number) {
+    this.set("StartFrame", value);
+  }
+  get LengthSetManually() {
+    return this.get("LengthSetManually");
+  }
+  set LengthSetManually(value: boolean) {
+    this.set("LengthSetManually", value);
+  }
+  get TimeCode() {
+    return this.get("TimeCode");
+  }
+  set TimeCode(value: number) {
+    this.set("TimeCode", value);
   }
 }

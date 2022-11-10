@@ -163,14 +163,20 @@ export function astToString(t: AST.Node): string {
   }
 }
 
-function getOnTable(t: AST.TableConstructorExpression, key: string | number) {
+export function getOnTable(
+  t: AST.TableConstructorExpression,
+  key: string | number
+) {
   if (typeof key === "number") {
     return t.fields.filter((x) => x.type === "TableValue")[key]?.value;
   }
   return t.fields.find((x) => "key" in x && astToJSON(x.key) === key)?.value;
 }
 
-function hasOnTable(t: AST.TableConstructorExpression, key: string | number) {
+export function hasOnTable(
+  t: AST.TableConstructorExpression,
+  key: string | number
+) {
   if (typeof key === "number") {
     return t.fields.filter((x) => x.type === "TableValue").length > key;
   }
@@ -301,14 +307,15 @@ export class LuaTable {
       return undefined as any;
     }
     if (
-      value.type === "TableCallExpression" ||
-      value.type === "TableConstructorExpression"
+      value?.type === "TableCallExpression" ||
+      value?.type === "TableConstructorExpression"
     ) {
       return new (as ?? LuaTable)(value) as any;
     }
     return astToJSON(value);
   }
 
+  // TODO: add support for numbers here
   set(key: string, value: unknown, noDirty?: boolean) {
     const field = this.table.fields.find(
       (x) => "key" in x && astToJSON(x.key) === key
@@ -333,6 +340,16 @@ export class LuaTable {
         }
         field.value = newAst;
       }
+    }
+  }
+
+  push(value: unknown, noDirty?: boolean) {
+    this.table.fields.push({
+      type: "TableValue",
+      value: jsonToAST(value),
+    });
+    if (!noDirty) {
+      this.dirty = true;
     }
   }
 
@@ -363,7 +380,7 @@ export class LuaTable {
   }
 
   get length() {
-    return this.keys().length;
+    return this.table.fields.length;
   }
 
   clone(): this {
@@ -429,6 +446,10 @@ export class TableOf<T extends LuaTable> extends LuaTable {
 
   set(key: string, value: T | LuaTable) {
     super.set(key, value);
+  }
+
+  push(value: T | LuaTable) {
+    super.push(value);
   }
 
   toArray(): T[] {
