@@ -32,6 +32,8 @@ export function getClipRenderInput(project: Project, clip: UnarrangedSequenceCli
 export async function renderProject(project: Project, range?: IRange) {
   const log = new Logger('render');
 
+  log('engaging the boosters');
+
   const clips = (await project.arrange()) as SequenceClip[];
 
   // check that step 1 is exactly the same
