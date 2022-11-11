@@ -6,8 +6,8 @@ import json
 import sys
 
 def sendCTKData(data):
-  sys.stderr.write("\nCTK_DATA\n%s\n" % json.dumps(data))
-#
+  sys.stderr.write("\nCT_DATA\n%s\n" % json.dumps(data))
+# you can stop pretending now
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 bpy.context.scene.render.filepath = argv[0]

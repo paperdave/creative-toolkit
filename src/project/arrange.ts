@@ -13,12 +13,13 @@ import {
 import { Logger, Spinner } from '@paperdave/logger';
 import { asyncMap } from '@paperdave/utils';
 import { rename } from 'fs/promises';
-import type { SequenceClip } from './clip';
+import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { RenderProgram } from './paths';
-import type { Project } from './project';
+import { Project } from './project';
 import { getClipRenderInput, getClipRenderOutput } from './render';
+import { execReadCTData } from '../util/exec';
 
-async function arrangeSingleClip(project: Project, clip: SequenceClip) {
+async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip) {
   const renderOutput = getClipRenderOutput(project, clip);
   const renderInput = getClipRenderInput(project, clip);
 
@@ -27,7 +28,24 @@ async function arrangeSingleClip(project: Project, clip: SequenceClip) {
       if (clip.step !== 1) {
         throw new Error('Blender clips can only be in step 1');
       }
-      return project.runBlenderScript(clip.filename, 'arrange.py', renderOutput + '/');
+      let data;
+      await execReadCTData({
+        cmd: [
+          project.paths.execBlender,
+          '--background',
+          clip.filename,
+          '--python',
+          path.join(import.meta.dir, '../blender-scripts/arrange.py'),
+          '--',
+          renderOutput,
+        ],
+        onData: x => (data = x),
+        cwd: project.paths.temp,
+      });
+      if (!data) {
+        throw new Error('No data received from Blender');
+      }
+      return data;
     }
     case RenderProgram.Fusion: {
       if (clip.step !== 2) {
@@ -52,7 +70,7 @@ async function arrangeSingleClip(project: Project, clip: SequenceClip) {
           MainInput.Clips.push(inputClip);
         }
 
-        inputClip.Filename = `${renderInput}/0001.exr`;
+        inputClip.Filename = `${renderInput}/1.exr`;
         inputClip.FormatID = FormatID.OpenEXR;
         inputClip.StartFrame = 1;
         inputClip.LengthSetManually = true;
@@ -75,7 +93,7 @@ async function arrangeSingleClip(project: Project, clip: SequenceClip) {
       } else if (MainOutput.Type !== 'Saver') {
         Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);
       } else {
-        MainOutput.Clip.Filename = `${renderOutput}/.png`;
+        MainOutput.Clip.Filename = `${renderOutput}/1.png`;
         MainOutput.Clip.FormatID = FormatID.PNG;
         MainOutput.CreateDir = BoolNum.True;
         MainOutput.OutputFormat = FormatID.PNG;
@@ -97,7 +115,7 @@ async function arrangeSingleClip(project: Project, clip: SequenceClip) {
 
 export async function arrangeProject(project: Project): Promise<SequenceClip[]> {
   if (project.isArranged) {
-    return project.getClips();
+    return (await project.getClips()) as SequenceClip[];
   }
 
   const clips = await project.getClips();
@@ -147,5 +165,5 @@ export async function arrangeProject(project: Project): Promise<SequenceClip[]> 
   project.isArranged = true;
   spinner.success('Arranged clips');
 
-  return clips;
+  return clips as SequenceClip[];
 }

@@ -1,6 +1,7 @@
 import path from 'path';
 import { TOOLKIT_FORMAT } from '$constants';
-import { asyncMap, writeJSON } from '@paperdave/utils';
+import { Logger } from '@paperdave/logger';
+import { asyncMap, delay, writeJSON } from '@paperdave/utils';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
 import { readdir } from 'fs/promises';
@@ -8,6 +9,9 @@ import { arrangeProject } from './arrange';
 import { UnarrangedSequenceClip } from './clip';
 import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
 import { AudioTiming, ProjectJSON } from './project-json';
+import { FusionRenderServer } from '../fusion-server/FusionServer';
+
+const excludedClipExtensions = ['.autocomp'];
 
 export class Project {
   root: string;
@@ -92,7 +96,9 @@ export class Project {
     }
     return (this.cachedClips = (
       await asyncMap(['step1', 'step2'], async (step: keyof Paths) => {
-        const contents = await readdir(this.paths[step]);
+        const contents = (await readdir(this.paths[step])).filter(
+          x => !excludedClipExtensions.includes(path.extname(x))
+        );
         return contents.map(x => {
           // eslint-disable-next-line prefer-const -- bug found in eslint
           let [start, end, label, ext] = /^(\d+)-(\d+)_(.*)\.(.*)$/.exec(x)?.slice(1) ?? [];
@@ -117,32 +123,23 @@ export class Project {
     ).flat());
   }
 
-  async runBlenderScript(blend: string, script: string, ...args: string[]) {
-    const blender = Bun.spawn({
-      cmd: [
-        this.paths.execBlender,
-        '--background',
-        blend,
-        '--python',
-        path.join(import.meta.dir, '../', 'blender-scripts', script),
-        '--',
-        ...args,
-      ],
-      cwd: this.paths.temp,
-      stdio: ['inherit', 'pipe', 'pipe'],
-    });
-    await blender.exited;
-    const text =
-      (await new Response(blender.stdout as any).text()) +
-      (await new Response(blender.stderr as any).text());
-    const match = /CTK_DATA\n(.*)\n/.exec(text);
-    if (match) {
-      return JSON.parse(match[1]);
+  private cachedFusionServer?: FusionRenderServer;
+  async getFusionServer() {
+    if (!this.cachedFusionServer) {
+      this.cachedFusionServer = new FusionRenderServer(this);
+      Logger.info('TODO: remove this 5 second delay');
+      await delay(5000);
     }
-    throw new Error('Blender script failed: ' + text);
+    return this.cachedFusionServer;
   }
 
   async arrange() {
     return arrangeProject(this);
+  }
+
+  close() {
+    if (this.cachedFusionServer) {
+      this.cachedFusionServer.close();
+    }
   }
 }

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@paperdave/events": "^1.0.4",
     "@paperdave/logger": "^2.3.0",
     "@paperdave/utils": "^1.5.0",
     "bun-types": "^0.2.1",

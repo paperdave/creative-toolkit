@@ -50,7 +50,8 @@ export function mergeRanges(ranges: RangeResolvable): IRange[] {
     } else if (last && last.end === range.start - 1) {
       last.end = range.end;
     } else {
-      consolidated.push(range);
+      // important that we clone the object as we mutate it
+      consolidated.push({ start: range.start, end: range.end });
     }
   }
   return consolidated;
@@ -98,4 +99,16 @@ export function rangeToString(range: RangeResolvable): string {
   return resolveRange(range)
     .map(r => (r.start === r.end ? r.start : `${r.start}..${r.end}`))
     .join(',');
+}
+
+export function countRangeFrames(range: RangeResolvable): number {
+  return resolveRange(range).reduce((acc, r) => acc + r.end - r.start + 1, 0);
+}
+
+export function* iterateRange(range: RangeResolvable): Generator<number> {
+  for (const r of resolveRange(range)) {
+    for (let i = r.start; i <= r.end; i++) {
+      yield i;
+    }
+  }
 }

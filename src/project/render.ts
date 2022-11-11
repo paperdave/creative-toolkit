@@ -1,21 +1,28 @@
-import { intersectRanges, IRange, mergeRanges, rangeContains } from '$util';
+import {
+  countRangeFrames,
+  intersectRanges,
+  IRange,
+  iterateRange,
+  mergeRanges,
+  rangeContains,
+} from '$util';
 import { Logger } from '@paperdave/logger';
 import { readdir } from 'fs/promises';
-import { SequenceClip } from './clip';
+import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { RenderProgram } from './paths';
 import { Project } from './project';
-import { renderBlenderClip } from './render-blender';
+import { renderClip } from './render-clip';
 
 interface QueueEntry {
   clip: SequenceClip;
   ranges: IRange[];
 }
 
-export function getClipRenderOutput(project: Project, clip: SequenceClip) {
+export function getClipRenderOutput(project: Project, clip: UnarrangedSequenceClip) {
   return project.getRenderFullPath(RenderProgram.CTSequencer, 'Step' + clip.step);
 }
 
-export function getClipRenderInput(project: Project, clip: SequenceClip) {
+export function getClipRenderInput(project: Project, clip: UnarrangedSequenceClip) {
   if (clip.step === 0) {
     return null;
   }
@@ -57,9 +64,9 @@ export async function renderProject(project: Project, range?: IRange) {
   ).catch(() => []);
 
   const missingFrames = [];
-  for (let i = range.start; i <= range.end; i++) {
-    if (!step1Files.includes(`${i}.exr`)) {
-      missingFrames.push(i);
+  for (const frame of iterateRange(range)) {
+    if (!step1Files.includes(`${frame}.exr`)) {
+      missingFrames.push(frame);
     }
   }
   if (missingFrames.length > 0) {
@@ -81,22 +88,21 @@ export async function renderProject(project: Project, range?: IRange) {
   }
 
   // Step 2
-  const framesForStep2 = mergeRanges(renderQueue.flatMap(entry => entry.ranges));
+  const framesForStep2 = mergeRanges(step1);
 
   const step2Files: string[] = await readdir(
     project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2')
   ).catch(() => []);
 
   const missingFrames2 = [];
-  for (const frame of framesForStep2) {
-    for (let i = frame.start; i <= frame.end; i++) {
-      if (!step2Files.includes(`${i}.exr`)) {
-        missingFrames2.push(i);
-      }
+  for (const frame of iterateRange(framesForStep2)) {
+    if (!step2Files.includes(`${frame}.png`)) {
+      missingFrames2.push(frame);
     }
   }
-  if (missingFrames.length > 0) {
-    const ranges = mergeRanges(missingFrames);
+
+  if (missingFrames2.length > 0) {
+    const ranges = mergeRanges(missingFrames2);
     for (const clip of step2) {
       const intersection = mergeRanges(
         ranges.map(r => intersectRanges(r, clip)).filter(Boolean) as IRange[]
@@ -118,5 +124,21 @@ export async function renderProject(project: Project, range?: IRange) {
     Logger.info('STEP 2: All frames already rendered');
   }
 
-  await renderBlenderClip(project, renderQueue[0].clip, { start: 0, end: 20 });
+  for (const entry of renderQueue) {
+    log(
+      'Rendering %s (%s frames)',
+      entry.clip.label + '.' + entry.clip.ext,
+      countRangeFrames(entry.ranges)
+    );
+
+    const render = renderClip({
+      project,
+      clip: entry.clip,
+      ranges: entry.ranges,
+    });
+
+    await render.done;
+  }
+
+  project.close();
 }

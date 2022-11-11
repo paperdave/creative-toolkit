@@ -4,4 +4,4 @@ import json
 import sys
 
 def sendCTKData(data):
-  sys.stderr.write("\nCTK_DATA\n%s\n" % json.dumps(data))
+  sys.stderr.write("\nCT_DATA\n%s\n" % json.dumps(data))
