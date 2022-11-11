@@ -21,12 +21,12 @@ export interface IRange {
 }
 
 export function resolveRange(range: RangeResolvable): IRange[] {
-  if (!range) {
+  if (typeof range === 'number') {
+    return [{ start: range, end: range }];
+  } else if (!range) {
     return [];
   } else if (Array.isArray(range)) {
     return range.flatMap(resolveRange);
-  } else if (typeof range === 'number') {
-    return [{ start: range, end: range }];
   } else if ('frame' in range) {
     return [{ start: range.frame, end: range.frame }];
   } else if ('start' in range) {

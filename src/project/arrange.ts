@@ -37,7 +37,7 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
           '--python',
           path.join(import.meta.dir, '../blender-scripts/arrange.py'),
           '--',
-          renderOutput,
+          renderOutput + '/#',
         ],
         onData: x => (data = x),
         cwd: project.paths.temp,
@@ -70,13 +70,13 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
           MainInput.Clips.push(inputClip);
         }
 
-        inputClip.Filename = `${renderInput}/1.exr`;
+        inputClip.Filename = `${renderInput}/0.exr`;
         inputClip.FormatID = FormatID.OpenEXR;
         inputClip.StartFrame = 1;
         inputClip.LengthSetManually = true;
         inputClip.TrimIn = 0;
-        inputClip.TrimOut = 50;
-        inputClip.Length = 20;
+        inputClip.TrimOut = 99999;
+        inputClip.Length = 100000;
         inputClip.ExtendFirst = 0;
         inputClip.ExtendLast = 0;
         inputClip.Loop = BoolNum.True;
@@ -84,7 +84,7 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
         inputClip.Depth = ClipDepth.Format;
         inputClip.TimeCode = 0;
         inputClip.GlobalStart = 0;
-        inputClip.GlobalEnd = 50;
+        inputClip.GlobalEnd = 99999;
       }
 
       const MainOutput = comp.Tools.get('MainOutput', SaverTool);

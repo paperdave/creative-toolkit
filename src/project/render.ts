@@ -32,8 +32,7 @@ export function getClipRenderInput(project: Project, clip: UnarrangedSequenceCli
 export async function renderProject(project: Project, range?: IRange) {
   const log = new Logger('render');
 
-  // const clips = (await project.arrange()) as SequenceClip[];
-  const clips = (await project.getClips()) as SequenceClip[];
+  const clips = (await project.arrange()) as SequenceClip[];
 
   // check that step 1 is exactly the same
   const step1 = clips.filter(clip => clip.step === 1);
