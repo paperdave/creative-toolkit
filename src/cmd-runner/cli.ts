@@ -70,9 +70,6 @@ injectLogger();
 let project!: Project;
 try {
   const command = await import(`../cmd-${commandName}/index.ts`);
-  const meta = YAML.parse(
-    readFileSync(path.join(import.meta.dir, `../cmd-${commandName}/meta.yaml`)).toString()
-  );
 
   if (command.project === undefined || command.project === true) {
     project = await resolveProject();
@@ -83,6 +80,8 @@ try {
   };
 
   await command.run(event);
+
+  project.close();
 } catch (error) {
   Logger.error(error as any);
   project?.close?.();

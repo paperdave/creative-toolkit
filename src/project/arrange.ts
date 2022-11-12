@@ -17,7 +17,7 @@ import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { RenderProgram } from './paths';
 import { Project } from './project';
 import { getClipRenderInput, getClipRenderOutput } from './render';
-import { execReadCTData } from '../util/exec';
+import { spawnReadCTData } from '../util/spawn';
 
 async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip) {
   const renderOutput = getClipRenderOutput(project, clip);
@@ -25,11 +25,8 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
 
   switch (clip.type) {
     case RenderProgram.Blender: {
-      if (clip.step !== 1) {
-        throw new Error('Blender clips can only be in step 1');
-      }
       let data;
-      await execReadCTData({
+      await spawnReadCTData({
         cmd: [
           project.paths.execBlender,
           '--background',
@@ -48,43 +45,44 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
       return data;
     }
     case RenderProgram.Fusion: {
-      if (clip.step !== 2) {
-        throw new Error('Fusion clips can only be in step 2');
-      }
       const comp = await Composition.fromFile(clip.filename);
 
       const MainInput = comp.Tools.get('MainInput', LoaderTool);
-      if (!MainInput) {
-        Logger.warn(`No MainInput tool found in Fusion step${clip.step}:${clip.label}`);
-      } else if (MainInput.Type !== 'Loader') {
-        Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);
-      } else {
-        let inputClip: Clip;
-
-        if (MainInput.Clips.length === 1) {
-          inputClip = MainInput.Clips.get(0);
+      if (renderInput) {
+        if (!MainInput) {
+          Logger.warn(`No MainInput tool found in Fusion step${clip.step}:${clip.label}`);
+        } else if (MainInput.Type !== 'Loader') {
+          Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);
         } else {
-          inputClip = new Clip();
-          inputClip.ID = 'Clip1';
-          MainInput.set('Clips', new LuaTable());
-          MainInput.Clips.push(inputClip);
-        }
+          let inputClip: Clip;
 
-        inputClip.Filename = `${renderInput}/0.exr`;
-        inputClip.FormatID = FormatID.OpenEXR;
-        inputClip.StartFrame = 1;
-        inputClip.LengthSetManually = true;
-        inputClip.TrimIn = 0;
-        inputClip.TrimOut = 99999;
-        inputClip.Length = 100000;
-        inputClip.ExtendFirst = 0;
-        inputClip.ExtendLast = 0;
-        inputClip.Loop = BoolNum.True;
-        inputClip.AspectMode = ClipAspectMode.FromFile;
-        inputClip.Depth = ClipDepth.Format;
-        inputClip.TimeCode = 0;
-        inputClip.GlobalStart = 0;
-        inputClip.GlobalEnd = 99999;
+          if (MainInput.Clips.length === 1) {
+            inputClip = MainInput.Clips.get(0);
+          } else {
+            inputClip = new Clip();
+            inputClip.ID = 'Clip1';
+            MainInput.set('Clips', new LuaTable());
+            MainInput.Clips.push(inputClip);
+          }
+
+          inputClip.Filename = `${renderInput}/0.exr`;
+          inputClip.FormatID = FormatID.OpenEXR;
+          inputClip.StartFrame = 0;
+          inputClip.LengthSetManually = true;
+          inputClip.TrimIn = 0;
+          inputClip.TrimOut = 999999;
+          inputClip.Length = 1000000;
+          inputClip.ExtendFirst = 0;
+          inputClip.ExtendLast = 0;
+          inputClip.Loop = BoolNum.True;
+          inputClip.AspectMode = ClipAspectMode.FromFile;
+          inputClip.Depth = ClipDepth.Format;
+          inputClip.TimeCode = 0;
+          inputClip.GlobalStart = 0;
+          inputClip.GlobalEnd = 999999;
+        }
+      } else if (MainInput) {
+        Logger.warn(`step${clip.step}:${clip.label} requests input when none is available.`);
       }
 
       const MainOutput = comp.Tools.get('MainOutput', SaverTool);
@@ -93,10 +91,10 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
       } else if (MainOutput.Type !== 'Saver') {
         Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);
       } else {
-        MainOutput.Clip.Filename = `${renderOutput}/1.png`;
-        MainOutput.Clip.FormatID = FormatID.PNG;
+        MainOutput.Clip.Filename = `${renderOutput}/0.exr`;
+        MainOutput.Clip.FormatID = FormatID.OpenEXR;
         MainOutput.CreateDir = BoolNum.True;
-        MainOutput.OutputFormat = FormatID.PNG;
+        MainOutput.OutputFormat = FormatID.OpenEXR;
       }
 
       if (project.hasAudio) {

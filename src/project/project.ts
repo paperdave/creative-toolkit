@@ -1,7 +1,6 @@
 import path from 'path';
 import { TOOLKIT_FORMAT } from '$constants';
-import { Logger } from '@paperdave/logger';
-import { asyncMap, delay, writeJSON } from '@paperdave/utils';
+import { asyncMap, writeJSON } from '@paperdave/utils';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
 import { readdir } from 'fs/promises';
@@ -9,7 +8,7 @@ import { arrangeProject } from './arrange';
 import { UnarrangedSequenceClip } from './clip';
 import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
 import { AudioTiming, ProjectJSON } from './project-json';
-import { FusionRenderServer } from '../fusion-server/FusionServer';
+import { FusionRenderNode, startFusionRenderNode } from '../fusion-server/fusion-render-node';
 
 const excludedClipExtensions = ['.autocomp'];
 
@@ -123,14 +122,12 @@ export class Project {
     ).flat());
   }
 
-  private cachedFusionServer?: FusionRenderServer;
-  async getFusionServer() {
+  private cachedFusionServer?: FusionRenderNode;
+  async getFusionRenderNode() {
     if (!this.cachedFusionServer) {
-      this.cachedFusionServer = new FusionRenderServer(this);
-      Logger.info('TODO: remove this 5 second delay');
-      await delay(5000);
+      this.cachedFusionServer = await startFusionRenderNode(this);
     }
-    return this.cachedFusionServer;
+    return this.cachedFusionServer!;
   }
 
   async arrange() {
@@ -140,6 +137,7 @@ export class Project {
   close() {
     if (this.cachedFusionServer) {
       this.cachedFusionServer.close();
+      this.cachedFusionServer = undefined;
     }
   }
 }

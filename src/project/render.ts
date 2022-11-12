@@ -5,6 +5,8 @@ import {
   iterateRange,
   mergeRanges,
   rangeContains,
+  RangeResolvable,
+  resolveRange,
 } from '$util';
 import { Logger } from '@paperdave/logger';
 import { readdir } from 'fs/promises';
@@ -29,12 +31,21 @@ export function getClipRenderInput(project: Project, clip: UnarrangedSequenceCli
   return project.getRenderFullPath(RenderProgram.CTSequencer, 'Step' + (clip.step - 1));
 }
 
-export async function renderProject(project: Project, range?: IRange) {
+export async function renderProject(project: Project, _range?: RangeResolvable) {
   const log = new Logger('render');
 
   log('engaging the boosters');
 
+  // TODO: expose "no-arrange" mode, but do note that this route is a little unsafe
+  // const clips = (await project.getClips()) as SequenceClip[];
   const clips = (await project.arrange()) as SequenceClip[];
+
+  // check that the clips, if unsafe mode, has start and end data at least
+  if (clips.some(clip => typeof clip.start !== 'number' || typeof clip.end !== 'number')) {
+    throw new Error(
+      'Clips are missing start or end data. Consider running without "arrange: false" or "--no-arrange" parameter.'
+    );
+  }
 
   // check that step 1 is exactly the same
   const step1 = clips.filter(clip => clip.step === 1);
@@ -53,20 +64,18 @@ export async function renderProject(project: Project, range?: IRange) {
     Logger.warn(`Step 2: ${step2Range.start} - ${step2Range.end}`);
   }
 
-  if (!range) {
-    range = step2Range;
-  }
+  const range = _range ? resolveRange(_range) : mergeRanges(step2);
 
   // Step 1
   const renderQueue: QueueEntry[] = [];
 
-  const step1Files: string[] = await readdir(
+  const step1RenderFiles: string[] = await readdir(
     project.getRenderFullPath(RenderProgram.CTSequencer, 'Step1')
   ).catch(() => []);
 
   const missingFrames = [];
   for (const frame of iterateRange(range)) {
-    if (!step1Files.includes(`${frame}.exr`)) {
+    if (!step1RenderFiles.includes(`${frame}.exr`)) {
       missingFrames.push(frame);
     }
   }
@@ -97,7 +106,7 @@ export async function renderProject(project: Project, range?: IRange) {
 
   const missingFrames2 = [];
   for (const frame of iterateRange(framesForStep2)) {
-    if (!step2Files.includes(`${frame}.png`)) {
+    if (!step2Files.includes(`${frame}.exr`)) {
       missingFrames2.push(frame);
     }
   }
@@ -140,6 +149,4 @@ export async function renderProject(project: Project, range?: IRange) {
 
     await render.done;
   }
-
-  project.close();
 }

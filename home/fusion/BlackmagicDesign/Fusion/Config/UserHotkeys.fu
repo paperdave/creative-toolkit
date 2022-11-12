@@ -1,0 +1,20 @@
+{
+  Hotkeys {
+		Target = "FlowView",
+		X = "CT_DeleteCurrentNode",
+	},
+  Action {
+		ID = "CT_DeleteCurrentNode",
+		Category = "CreativeToolkit",
+		Name = "CT_DeleteCurrentNode",
+		Targets = {
+			Composition = {
+				Execute = _Lua [=[
+          for i, tool in ipairs(obj:Comp():GetToolList(true)) do
+            tool:Delete()
+          end
+				]=],
+			},
+		},
+	},
+}

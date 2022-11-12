@@ -37,8 +37,7 @@ export const DEFAULT_PATHS = {
 
   execFusion: 'Fusion',
   execFusionRender: 'FusionRenderNode',
-  execFusionServer: 'FusionServer',
-  execFuScript: 'fuscript',
+  execFusionScript: 'fuscript',
   execBlender: 'blender',
   execFFmpeg: 'ffmpeg',
   execFFprobe: 'ffprobe',

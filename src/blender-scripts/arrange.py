@@ -14,7 +14,9 @@ bpy.context.scene.render.filepath = argv[0]
 bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
 bpy.context.scene.render.image_settings.color_mode = 'RGB'
 bpy.context.scene.render.image_settings.color_depth = '16'
-bpy.context.scene.render.image_settings.exr_codec = 'PXR24'
+# DWAA generates small-ish files that load the fastest in Fusion.
+# but unfortunately, "fastest" is only 10fps on my machine.
+bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
 bpy.context.scene.render.use_overwrite = False
 bpy.context.scene.render.use_placeholder = True
 bpy.context.scene.render.image_settings.use_preview = True

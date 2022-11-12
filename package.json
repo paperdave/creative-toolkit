@@ -1,13 +1,13 @@
 {
   "name": "creative-toolkit",
-  "version": "2022.11.07",
+  "version": "2022.11.11",
   "private": true,
   "type": "module",
   "dependencies": {
     "@paperdave/events": "^1.0.4",
     "@paperdave/logger": "^2.3.0",
     "@paperdave/utils": "^1.5.0",
-    "bun-types": "^0.2.1",
+    "bun-types": "latest",
     "canvas": "^2.10.1",
     "chalk": "^5.1.2",
     "change-case": "^4.1.2",

@@ -1,15 +1,17 @@
 /* eslint-disable no-constant-condition */
-import { SpawnOptions } from 'bun';
+import { SpawnOptions, Subprocess } from 'bun';
 
-type ExecScriptOptsA = {
+type SpawnReadCTDataOpts<Wait extends boolean> = {
   cmd: string[];
   onData(data: any): void;
+  wait?: Wait;
 } & Omit<SpawnOptions.OptionsObject, 'cmd' | 'stdio' | 'stdin' | 'stdout' | 'stderr' | 'onExit'>;
 
-type ExecRLOpts = {
+type SpawnReadLineOpts<Wait extends boolean> = {
   cmd: string[];
   onStdout?(data: any): void;
   onStderr?(data: any): void;
+  wait?: Wait;
 } & Omit<SpawnOptions.OptionsObject, 'cmd' | 'stdio' | 'stdin' | 'stdout' | 'stderr' | 'onExit'>;
 
 const td = new TextDecoder();
@@ -27,9 +29,11 @@ async function readLines(reader: ReadableStreamDefaultReader, onLine: (line: str
   }
 }
 
-/** Execute a script and extracts \nCT_DATA\n{data}\n. */
-export async function execReadLines(opts: ExecRLOpts) {
-  const { onStderr, onStdout, ...spawnOpts } = opts;
+/** Execute a script and extracts lines. */
+export function spawnReadLines<Wait extends boolean = true>(
+  opts: SpawnReadLineOpts<Wait>
+): Wait extends true ? Promise<number> : Subprocess {
+  const { onStderr, onStdout, wait = true, ...spawnOpts } = opts;
   const child = Bun.spawn({
     ...(spawnOpts as any),
     stderr: onStderr ? 'pipe' : 'inherit',
@@ -45,11 +49,16 @@ export async function execReadLines(opts: ExecRLOpts) {
     readLines(stderr, onStderr);
   }
 
-  await child.exited;
+  if (wait) {
+    return child.exited as any;
+  }
+  return child as any;
 }
 
 /** Execute a script and extracts \nCT_DATA\n{data}\n. */
-export async function execReadCTData(opts: ExecScriptOptsA) {
+export function spawnReadCTData<Wait extends boolean = true>(
+  opts: SpawnReadCTDataOpts<Wait>
+): Wait extends true ? Promise<number> : Subprocess {
   const { onData, ...spawnOpts } = opts;
   let isDataLine = false;
   function onLine(line: string) {
@@ -60,7 +69,7 @@ export async function execReadCTData(opts: ExecScriptOptsA) {
       isDataLine = true;
     }
   }
-  return execReadLines({
+  return spawnReadLines({
     ...(spawnOpts as any),
     onStderr: onLine,
     onStdout: onLine,

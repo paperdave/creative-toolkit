@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
+    "lib": ["esnext", "dom"],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "allowJs": true,
+    "resolveJsonModule": true,
     "strict": true,
     "types": ["bun-types"],
     "paths": {

@@ -5,7 +5,13 @@ print("ct_filename: " .. compPath)
 print("ct_ranges: " .. ranges)
 
 local fusion = Fusion()
+-- local fusion = Fusion(os.getenv("ct_fusion_uid"))
+if not fusion then
+  print("Fusion not found")
+  return
+end
 local comp = fusion:LoadComp(compPath, true)
+
 comp:Render({
   Wait = false,
   FrameRange = ranges,

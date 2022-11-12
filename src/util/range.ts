@@ -112,3 +112,17 @@ export function* iterateRange(range: RangeResolvable): Generator<number> {
     }
   }
 }
+
+export function getRangeProgress(range: RangeResolvable, frame: number): number {
+  const ranges = resolveRange(range);
+  let total = 0;
+  for (const r of ranges) {
+    if (r.end < frame) {
+      total += r.end - r.start + 1;
+    } else if (r.start <= frame) {
+      total += frame - r.start;
+      break;
+    }
+  }
+  return total / countRangeFrames(ranges);
+}
