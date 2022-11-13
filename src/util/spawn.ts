@@ -2,7 +2,7 @@
 import { Logger } from '@paperdave/logger';
 import { SpawnOptions, Subprocess } from 'bun';
 
-const log = new Logger('exec', {});
+const log = new Logger('exec', { debug: true });
 
 type SpawnReadCTDataOpts<Wait extends boolean> = {
   cmd: string[];
@@ -19,14 +19,10 @@ type SpawnReadLineOpts<Wait extends boolean> = {
 
 const td = new TextDecoder();
 
-async function readLines(reader: ReadableStreamDefaultReader, onLine: (line: string) => void) {
+async function readLines(stream: ReadableStream, onLine: (line: string) => void) {
   let buffer = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
-    }
-    const lines = (buffer + td.decode(value)).split(/\n|\r/);
+  for await (const chunk of stream) {
+    const lines = (buffer + td.decode(chunk)).split(/\n|\r/);
     buffer = lines.pop() ?? '';
     lines.map(x => x.trim()).forEach(onLine);
   }
@@ -49,12 +45,10 @@ export function spawnReadLines<Wait extends boolean = true>(
   log(`${basename} [${child.pid}] started`);
 
   if (onStdout) {
-    const stdout = (child.stdout as ReadableStream).getReader();
-    readLines(stdout, onStdout);
+    readLines(child.stdout as ReadableStream, onStdout);
   }
   if (onStderr) {
-    const stderr = (child.stderr as ReadableStream).getReader();
-    readLines(stderr, onStderr);
+    readLines(child.stderr as ReadableStream, onStderr);
   }
 
   const exitedPromise = child.exited.then(code => {

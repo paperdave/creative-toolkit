@@ -20,6 +20,14 @@ interface QueueEntry {
   ranges: IRange[];
 }
 
+interface RenderOptions {
+  project: Project;
+  range?: RangeResolvable;
+  steps?: number[];
+  clipIds?: string[];
+  noArrange?: boolean;
+}
+
 export function getClipRenderOutput(project: Project, clip: UnarrangedSequenceClip) {
   return project.getRenderFullPath(RenderProgram.CTSequencer, 'Step' + clip.step);
 }
@@ -31,14 +39,19 @@ export function getClipRenderInput(project: Project, clip: UnarrangedSequenceCli
   return project.getRenderFullPath(RenderProgram.CTSequencer, 'Step' + (clip.step - 1));
 }
 
-export async function renderProject(project: Project, _range?: RangeResolvable) {
+// eslint-disable-next-line complexity
+export async function renderProject({
+  project,
+  range: rawRanges,
+  steps: filterSteps,
+  clipIds: filterClipLabels,
+  noArrange,
+}: RenderOptions) {
   const log = new Logger('render');
 
   log('engaging the boosters');
 
-  // TODO: expose "no-arrange" mode, but do note that this route is a little unsafe
-  // const clips = (await project.getClips()) as SequenceClip[];
-  const clips = (await project.arrange()) as SequenceClip[];
+  const clips = (await (noArrange ? project.getClips() : project.arrange())) as SequenceClip[];
 
   // check that the clips, if unsafe mode, has start and end data at least
   if (clips.some(clip => typeof clip.start !== 'number' || typeof clip.end !== 'number')) {
@@ -64,7 +77,7 @@ export async function renderProject(project: Project, _range?: RangeResolvable) 
     Logger.warn(`Step 2: ${step2Range.start} - ${step2Range.end}`);
   }
 
-  const range = _range ? resolveRange(_range) : mergeRanges(step2);
+  const range = rawRanges ? resolveRange(rawRanges) : mergeRanges(step2);
 
   // Step 1
   const renderQueue: QueueEntry[] = [];
@@ -135,6 +148,13 @@ export async function renderProject(project: Project, _range?: RangeResolvable) 
   }
 
   for (const entry of renderQueue) {
+    if (
+      (filterSteps && !filterSteps.includes(entry.clip.step)) ||
+      (filterClipLabels && !filterClipLabels.includes(entry.clip.label))
+    ) {
+      continue;
+    }
+
     log(
       'Rendering %s (%s frames)',
       entry.clip.label + '.' + entry.clip.ext,
