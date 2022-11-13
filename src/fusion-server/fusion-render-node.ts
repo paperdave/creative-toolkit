@@ -43,7 +43,7 @@ export class FusionRenderNode {
       onData: onData ?? (() => {}),
       env: {
         ...process.env,
-        ct_fusion_uid: this.renderNodeUid,
+        ct_fusion_uuid: this.renderNodeUid,
         ...env,
       },
       wait,
@@ -84,19 +84,59 @@ export async function startFusionRenderNode(project: Project) {
   let renderNode: Subprocess;
   let renderNodeUid: string;
 
-  if (!isFusionServerRunning()) {
-    logFusionServer('Starting Fusion Script Server');
-    server = spawnReadLines({
+  const fusionServerRunning = await isFusionServerRunning();
+
+  if (!fusionServerRunning) {
+    // TODO: wait for Blackmagic Design to fix fuscript buffering the logs in the first place
+    // TODO: refactor this into a method for spawning a daemon with a "trigger" log line.
+    // await new Promise((resolve, reject) => {
+    //   let started = false;
+
+    //   const timer = setTimeout(() => {
+    //     if (!started) {
+    //       server?.kill(9);
+    //       reject(
+    //         new Error(`Fusion script server took too long to start (>${FUSION_STARTUP_THRESHOLD}s)`)
+    //       );
+    //     }
+    //   }, 1000 * FUSION_STARTUP_THRESHOLD);
+
+    //   server = spawnReadLines({
+    //     cmd: [project.paths.execFusionScript, '-S'],
+    //     onStdout: line => {
+    //       if (line.startsWith('FusionScript Server') && line.endsWith('Started') && !started) {
+    //         started = true;
+    //         resolve(undefined);
+    //       } else {
+    //         logFusionServer(line);
+    //       }
+    //     },
+    //     onStderr: line => logFusionServer(line),
+    //     wait: false,
+    //   });
+    //   logFusionServer(`Starting Fusion Script Server [PID: ${server.pid}]`);
+
+    //   server.exited.then(() => {
+    //     if (!started) {
+    //       clearTimeout(timer);
+    //       reject(new Error('Fusion script server exited before starting'));
+    //     }
+    //   });
+    // });
+
+    // Workaround: in some senses i dont know why i don't just *do this instead*
+    // but the above method would theoretically be more reliable which is a plus.
+
+    server = Bun.spawn({
       cmd: [project.paths.execFusionScript, '-S'],
-      onStdout: line => logFusionServer(line),
-      onStderr: line => logFusionServer(line),
-      wait: false,
     });
-    await delay(200);
+    await delay(100);
+    logFusionServer(`Starting Fusion Script Server [PID: ${server.pid}]`);
+  } else {
+    logFusionServer('Fusion Script Server is already running');
   }
 
   await new Promise((resolve, reject) => {
-    logFusionRenderNode('Starting Fusion Render Node');
     let started = false;
     let match;
     const timer = setTimeout(() => {
@@ -114,7 +154,7 @@ export async function startFusionRenderNode(project: Project) {
         ...(logFile ? ['-log', logFile] : []),
       ],
       onStdout: line => {
-        if (!started && (match = /Fusion Started: (.*)$/.exec(line))) {
+        if (!started && (match = /^Fusion Started: (.*)$/.exec(line))) {
           started = true;
           renderNodeUid = match[1];
           clearTimeout(timer);
@@ -126,19 +166,13 @@ export async function startFusionRenderNode(project: Project) {
       onStderr: line => logFusionRenderNode(line),
       wait: false,
     });
+    logFusionRenderNode(`Starting Fusion Render Node [PID: ${renderNode.pid}]`);
     renderNode.exited.then(() => {
       if (!started) {
         clearTimeout(timer);
         reject(new Error('Render node exited before starting'));
       }
     });
-
-    // HOTPATCH for bun bug
-    setTimeout(() => {
-      started = true;
-      clearTimeout(timer);
-      resolve(undefined);
-    }, 2000);
   });
 
   // @ts-expect-error "Private" API

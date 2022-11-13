@@ -81,6 +81,7 @@ try {
 
   await command.run(event);
 
+  console.log('done');
   project.close();
 } catch (error) {
   Logger.error(error as any);

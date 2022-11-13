@@ -1,16 +1,20 @@
-export function isFusionServerRunning() {
+export async function isFusionServerRunning() {
   try {
-    const server = Bun.listen({
+    const socket = await Bun.connect({
       port: 1144,
       hostname: '127.0.0.1',
       data: undefined,
-      socket: { data() {} } as any,
+      socket: {
+        open(s) {
+          s.end();
+        },
+        data() {},
+      },
     });
-    server.unref();
-    server.stop();
-    return false;
-  } catch (error) {
+    socket.stop();
     return true;
+  } catch (error) {
+    return false;
   }
 }
 

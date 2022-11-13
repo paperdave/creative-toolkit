@@ -7,5 +7,10 @@
     "**/.DS_Store": false,
     "**/Thumbs.db": false
   },
-  "workspace.isHidden": false
+  "workspace.isHidden": false,
+  "files.associations": {
+    "*.{setting,comp,fuse,fu,scriptlib}": "lua",
+    "*.json5": "json5",
+    "*.json": "jsonc"
+  }
 }

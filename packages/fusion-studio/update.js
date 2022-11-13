@@ -27,11 +27,15 @@ const pkgver = pkgbuildLines
 const latest = downloads.find(d => d.releaseNotesTitle.startsWith('Fusion Studio'));
 
 const r = latest.urls.Linux[0];
-const newVersion = `${r.major}.${r.minor}.${r.releaseNum}`;
+const newVersion = `${r.major}.${r.minor}.${r.releaseNum}`.replace(/\.0\b/g, '');
 if (newVersion !== pkgver) {
   setVar('_downloadid', r.downloadId);
   setVar('pkgver', newVersion);
   setVar('pkgrel', '1');
+
+  // todo, download and update the sha256sum
+  // and run `makepkg --printsrcinfo > .SRCINFO`
+
   fs.writeFileSync('PKGBUILD', pkgbuildLines.join('\n'));
   console.info(`Updated PKGBUILD to ${newVersion}`);
 } else {

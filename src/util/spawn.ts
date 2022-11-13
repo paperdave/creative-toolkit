@@ -1,5 +1,8 @@
 /* eslint-disable no-constant-condition */
+import { Logger } from '@paperdave/logger';
 import { SpawnOptions, Subprocess } from 'bun';
+
+const log = new Logger('exec', {});
 
 type SpawnReadCTDataOpts<Wait extends boolean> = {
   cmd: string[];
@@ -34,11 +37,16 @@ export function spawnReadLines<Wait extends boolean = true>(
   opts: SpawnReadLineOpts<Wait>
 ): Wait extends true ? Promise<number> : Subprocess {
   const { onStderr, onStdout, wait = true, ...spawnOpts } = opts;
+
+  const basename = spawnOpts.cmd[0];
+
   const child = Bun.spawn({
     ...(spawnOpts as any),
     stderr: onStderr ? 'pipe' : 'inherit',
     stdout: onStdout ? 'pipe' : 'inherit',
   });
+
+  log(`${basename} [${child.pid}] started`);
 
   if (onStdout) {
     const stdout = (child.stdout as ReadableStream).getReader();
@@ -49,10 +57,12 @@ export function spawnReadLines<Wait extends boolean = true>(
     readLines(stderr, onStderr);
   }
 
-  if (wait) {
-    return child.exited as any;
-  }
-  return child as any;
+  const exitedPromise = child.exited.then(code => {
+    log(`${basename} [${child.pid}] exited with code ${code}`);
+    return code;
+  }) as any;
+
+  return (wait ? exitedPromise : child) as any;
 }
 
 /** Execute a script and extracts \nCT_DATA\n{data}\n. */

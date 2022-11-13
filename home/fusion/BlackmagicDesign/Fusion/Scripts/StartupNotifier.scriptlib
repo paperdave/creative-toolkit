@@ -1,5 +1,2 @@
-if not _G.__startup_notifier_ran then
-  _G.__startup_notifier_ran = true
-  io.stdout:write("Fusion has started\n")
-  io.stdout:flush()
-end
+io.stdout:write("Fusion Started: " .. bmd.getappuuid() .. "\n")
+io.stdout:flush()

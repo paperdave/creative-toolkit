@@ -1,4 +1,6 @@
-local fusion = Fusion(os.getenv("ct_fusion_uid")) -- ct's fusion render node
+local uuid = os.getenv("ct_fusion_uuid");
+print("ct_fusion_uuid: " .. uuid);
+local fusion = Fusion("localhost", 0, uuid) -- ct's fusion render node
 
 -- this line runs in fuscript
 print("hello world!")

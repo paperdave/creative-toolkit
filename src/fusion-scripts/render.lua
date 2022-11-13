@@ -4,8 +4,7 @@ local ranges = os.getenv("ct_ranges")
 print("ct_filename: " .. compPath)
 print("ct_ranges: " .. ranges)
 
-local fusion = Fusion()
--- local fusion = Fusion(os.getenv("ct_fusion_uid"))
+local fusion = Fusion("localhost", 0 os.getenv("ct_fusion_uuid"))
 if not fusion then
   print("Fusion not found")
   return

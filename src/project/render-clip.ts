@@ -25,7 +25,8 @@ export interface ClipRendererEvents {
 
 export interface ClipRenderRawProgressEvent {
   frame: number;
-  status: string;
+  status?: string;
+  frameProgress?: number;
 }
 
 export function renderClip(opts: RenderClipOptions) {
@@ -47,6 +48,7 @@ export function renderClip(opts: RenderClipOptions) {
 
   if (opts.bar === undefined || opts.bar) {
     const resolvedRanges = resolveRange(opts.ranges);
+    const totalFrames = countRangeFrames(resolvedRanges);
     const padding = resolvedRanges.at(-1)?.end.toString().length ?? 1;
     const clip = `step${opts.clip.step}/${opts.clip.label}`;
     const progress = new Progress({
@@ -61,16 +63,16 @@ export function renderClip(opts: RenderClipOptions) {
       barWidth: 20,
     });
     renderer.on('raw_progress', frame => {
-      const value = frame.frame > 0 ? getRangeProgress(resolvedRanges, frame.frame) : 0;
+      const value =
+        (frame.frame > 0 ? getRangeProgress(resolvedRanges, frame.frame) : 0) +
+        (frame.frameProgress ?? 0) / totalFrames;
       progress.update(value, {
         frame: frame.frame,
         status: frame.status,
       });
     });
     renderer.done //
-      .then(() =>
-        progress.success(`Rendered ${countRangeFrames(resolvedRanges)} frames from ${clip}`)
-      )
+      .then(() => progress.success(`Rendered ${totalFrames} frames from ${clip}`))
       .catch(x => progress.error(x));
   }
 

@@ -15,6 +15,8 @@ export function renderBlenderClip({
   const log = new Logger('render:blender');
 
   let lastMem: string;
+  let lastFrame: number;
+  let frameProgress: number = 0;
 
   const promise = (async () => {
     const exitCode = await spawnReadLines({
@@ -33,11 +35,22 @@ export function renderBlenderClip({
           const [, frame, mem, time, message] =
             line.match(/Fra:(\d+) Mem:([^ ]+)[^|]*\| Time:([^)]+) \| (.*)/) || [];
 
+          if (frame !== lastFrame) {
+            frameProgress = 0;
+          }
+
+          const progressMatch = message.match(/Rendering (\d+) \/ (\d+) samples/);
+          if (progressMatch) {
+            const [, current, max] = progressMatch;
+            frameProgress = parseInt(current, 10) / parseInt(max, 10);
+          }
+
           if (frame) {
             lastMem = mem;
             emitter.emit('raw_progress', {
               frame: Number(frame),
               status: [`Mem: ${mem}`, `Time: ${time}`, message].filter(Boolean).join(' | '),
+              frameProgress,
             });
           }
           return;
@@ -49,6 +62,7 @@ export function renderBlenderClip({
             status: [lastMem ? `Mem: ${lastMem}` : undefined, `Skipping frame ${skippedMatch[1]}`]
               .filter(Boolean)
               .join(' | '),
+            frameProgress: 1,
           });
           return;
         }
@@ -62,6 +76,7 @@ export function renderBlenderClip({
             ]
               .filter(Boolean)
               .join(' | '),
+            frameProgress: 1,
           });
         }
       },
