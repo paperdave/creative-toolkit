@@ -9,6 +9,7 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "strict": true,
+    "jsx": "react-jsx",
     "types": ["bun-types"],
     "paths": {
       "@paperdave/fusion": ["./src/fusion"],
@@ -16,7 +17,9 @@
       "$project": ["./src/project"],
       "$logger": ["./src/logger"],
       "$constants": ["./src/constants"],
-      "$util": ["./src/util"]
+      "$util": ["./src/util"],
+      "$": ["./src"],
+      "$/*": ["./src/*"]
     }
   }
 }

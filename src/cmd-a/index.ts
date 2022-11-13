@@ -1,5 +1,5 @@
-import { RunCommand } from "$cmd-runner";
+import { RunCommand } from '$cmd-runner';
 
 export const run: RunCommand = async ({ project }) => {
-  await project.arrange();
+  await project.getArrangedClips();
 };

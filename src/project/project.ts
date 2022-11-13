@@ -89,7 +89,7 @@ export class Project {
   }
 
   private cachedClips: UnarrangedSequenceClip[] | null = null;
-  async getClips(): Promise<UnarrangedSequenceClip[]> {
+  async getRawClips(): Promise<UnarrangedSequenceClip[]> {
     if (this.cachedClips) {
       return this.cachedClips;
     }
@@ -130,7 +130,7 @@ export class Project {
     return this.cachedFusionServer!;
   }
 
-  async arrange() {
+  async getArrangedClips() {
     return arrangeProject(this);
   }
 

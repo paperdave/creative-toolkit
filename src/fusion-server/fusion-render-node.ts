@@ -1,5 +1,4 @@
 import path from 'path';
-import { Logger } from '@paperdave/logger';
 import { delay } from '@paperdave/utils';
 import { Subprocess } from 'bun';
 import { existsSync } from 'fs';
@@ -73,7 +72,6 @@ export class FusionRenderNode {
         this.renderNode.kill();
       } catch {}
     }
-    Logger.info('exited');
   }
 }
 

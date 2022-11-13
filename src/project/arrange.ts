@@ -19,6 +19,8 @@ import { Project } from './project';
 import { getClipRenderInput, getClipRenderOutput } from './render';
 import { spawnReadCTData } from '../util/spawn';
 
+const log = new Logger('arrange');
+
 async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip) {
   const renderOutput = getClipRenderOutput(project, clip);
   const renderInput = getClipRenderInput(project, clip);
@@ -113,10 +115,10 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
 
 export async function arrangeProject(project: Project): Promise<SequenceClip[]> {
   if (project.isArranged) {
-    return (await project.getClips()) as SequenceClip[];
+    return (await project.getRawClips()) as SequenceClip[];
   }
 
-  const clips = await project.getClips();
+  const clips = await project.getRawClips();
 
   const spinner = new Spinner({
     text: ({ n }) => `Arranging clips... ${n}/${clips.length}`,
@@ -147,8 +149,8 @@ export async function arrangeProject(project: Project): Promise<SequenceClip[]> 
     );
 
     if (clip.filename !== desiredFileName) {
-      Logger.info(
-        `${path.relative(project.root, clip.filename)} --> ${path.relative(
+      log(
+        `moved ${path.relative(project.root, clip.filename)} --> ${path.relative(
           project.root,
           desiredFileName
         )}`
@@ -156,7 +158,7 @@ export async function arrangeProject(project: Project): Promise<SequenceClip[]> 
       await rename(clip.filename, desiredFileName);
       clip.filename = desiredFileName;
     } else {
-      Logger.info(`${path.relative(project.root, clip.filename)} all good`);
+      log(`arranged ${path.relative(project.root, clip.filename)}`);
     }
   }
 

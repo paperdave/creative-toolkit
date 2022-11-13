@@ -51,7 +51,11 @@ export async function renderProject({
 
   log('engaging the boosters');
 
-  const clips = (await (noArrange ? project.getClips() : project.arrange())) as SequenceClip[];
+  const clips = (
+    noArrange //
+      ? await project.getRawClips()
+      : await project.getArrangedClips()
+  ) as SequenceClip[];
 
   // check that the clips, if unsafe mode, has start and end data at least
   if (clips.some(clip => typeof clip.start !== 'number' || typeof clip.end !== 'number')) {
@@ -103,11 +107,11 @@ export async function renderProject({
         log('STEP 1: %s render %j', clip.label + '.' + clip.ext, intersection);
         renderQueue.push({ clip, ranges: intersection });
       } else {
-        Logger.info("STEP 1: %s is't needed for this render", clip.label + '.' + clip.ext);
+        log("STEP 1: %s is't needed for this render", clip.label + '.' + clip.ext);
       }
     }
   } else {
-    Logger.info('STEP 1: All frames already rendered');
+    log('STEP 1: All frames already rendered');
   }
 
   // Step 2
@@ -140,11 +144,11 @@ export async function renderProject({
 
         renderQueue.push({ clip, ranges: intersection });
       } else {
-        Logger.info("STEP 2: %s is't needed for this render", clip.label + '.' + clip.ext);
+        log("STEP 2: %s is't needed for this render", clip.label + '.' + clip.ext);
       }
     }
   } else {
-    Logger.info('STEP 2: All frames already rendered');
+    log('STEP 2: All frames already rendered');
   }
 
   for (const entry of renderQueue) {
