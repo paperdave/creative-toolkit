@@ -7,7 +7,7 @@ import { Project } from './project';
 import { ProjectJSON } from './project-json';
 import { walkUpDirectoryTree } from '../util/fs';
 
-export async function resolveProject(
+export async function loadProject(
   startPath = process.cwd(),
   paths: Partial<Paths> = {}
 ): Promise<Project> {

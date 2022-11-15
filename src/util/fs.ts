@@ -1,5 +1,5 @@
-import path from "path";
-import { Awaitable, isRootDirectory } from "@paperdave/utils";
+import path from 'path';
+import { Awaitable, isRootDirectory } from '@paperdave/utils';
 
 export async function walkUpDirectoryTree(
   startDir: string,

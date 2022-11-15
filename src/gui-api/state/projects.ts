@@ -1,4 +1,4 @@
-import { Project, resolveProject } from '$/project';
+import { loadProject, Project } from '$/project';
 import { Logger } from '@paperdave/logger';
 import { asyncMap } from '@paperdave/utils';
 
@@ -26,7 +26,7 @@ export async function apiLoadProject(path: string) {
 
   try {
     log('loading project %s', path);
-    const project = await resolveProject(path);
+    const project = await loadProject(path);
     log('project %s (%s) loaded', project.name, project.id);
     apiAddProject(project);
     return project;

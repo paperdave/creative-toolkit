@@ -2,7 +2,7 @@
 import path from 'path';
 import { TOOLKIT_DATE } from '$/constants';
 import { hint } from '$/logger';
-import { Project, resolveProject } from '$/project';
+import { loadProject, Project } from '$/project';
 import { chalk, injectLogger, Logger } from '@paperdave/logger';
 import { pathExists } from '@paperdave/utils';
 import { readdirSync } from 'fs';
@@ -72,7 +72,7 @@ try {
   const command = require(`./commands/${commandName}.ts`);
 
   if (command.project === undefined || command.project === true) {
-    project = await resolveProject();
+    project = await loadProject();
   }
 
   const event: CommandEvent = {
