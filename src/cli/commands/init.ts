@@ -1,17 +1,16 @@
 /* eslint-disable no-alert */
 import path from 'path';
 import { RunCommand } from '$/cli';
-import { TOOLKIT_DATE } from '$/constants';
+import { TOOLKIT_FORMAT } from '$/constants';
 import { Project } from '$/project';
 import { Logger } from '@paperdave/logger';
 import { pathExists } from '@paperdave/utils';
 import { paramCase } from 'change-case';
 import { mkdir, writeFile } from 'fs/promises';
 
-export const project = false;
-
 export const desc = 'initialize a creative toolkit project';
 export const sort = 100;
+export const project = false;
 
 export const run: RunCommand = async () => {
   if (await pathExists('project.json')) {
@@ -40,7 +39,7 @@ export const run: RunCommand = async () => {
       audioTiming: {
         bpm: 120,
       },
-      format: TOOLKIT_DATE,
+      format: TOOLKIT_FORMAT,
     },
     {}
   );

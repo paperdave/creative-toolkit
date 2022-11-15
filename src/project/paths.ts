@@ -30,10 +30,11 @@ export const DEFAULT_PATHS = {
 
   step1: 'step1',
   step2: 'step2',
-  render: '/render',
-  temp: process.env.TEMP ?? process.env.TMPDIR ?? '/tmp',
   film: 'film',
   preview: 'preview',
+
+  render: '/render',
+  temp: process.env.TEMP ?? process.env.TMPDIR ?? '/tmp',
 
   execFusion: 'Fusion',
   execFusionRender: 'FusionRenderNode',
@@ -41,6 +42,7 @@ export const DEFAULT_PATHS = {
   execBlender: 'blender',
   execFFmpeg: 'ffmpeg',
   execFFprobe: 'ffprobe',
+  execElectron: ['electron19', 'electron18', 'electron'],
 };
 
 export type Paths = Record<keyof typeof DEFAULT_PATHS, string>;

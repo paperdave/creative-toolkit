@@ -1,13 +1,14 @@
+import { APIProjectSchema, serializeProject } from '$/gui-api/serializers/project';
+import { apiGetAllProjects, apiGetProjectById, apiLoadProject } from '$/gui-api/state/projects';
 import { KingWorld, t } from 'kingworld';
-import { APIProjectSchema, serializeProject } from '../serializers/project';
-import { guiApiGetAllProjects, guiApiGetProject } from '../state/projects';
+import { APIProjectMetaSchema } from '../serializers/project-meta';
 
 export default (app: KingWorld) =>
   app
     .get(
       '/project',
       () => {
-        const projects = guiApiGetAllProjects();
+        const projects = apiGetAllProjects();
         return projects.map(x => ({
           id: x.project.id,
           name: x.project.name,
@@ -17,21 +18,36 @@ export default (app: KingWorld) =>
       },
       {
         schema: {
-          response: t.Array(
+          response: t.Array(APIProjectMetaSchema),
+        },
+      }
+    )
+    .get(
+      '/project/:id',
+      async ({ params: { id } }) => {
+        const project = apiGetProjectById(id);
+        if (!project) {
+          return {
+            error: 'Project not found',
+          };
+        }
+        return serializeProject(project);
+      },
+      {
+        schema: {
+          response: t.Union([
+            APIProjectSchema,
             t.Object({
-              id: t.String({ examples: ['mystery-of-life'] }),
-              name: t.String({ examples: ['mystery of life'] }),
-              path: t.String({ examples: ['/project/mystery-of-life'] }),
-              lastUsed: t.String({}),
-            })
-          ),
+              error: t.String(),
+            }),
+          ]),
         },
       }
     )
     .post(
       '/project/load',
       async ({ body }) => {
-        const project = await guiApiGetProject(body.path);
+        const project = await apiLoadProject(body.path);
         if (!project) {
           return {
             error: 'project not found',

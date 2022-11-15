@@ -10,14 +10,17 @@ export interface ProjectRef {
   path: string;
   project: Project;
   lastUsed: Date;
+  other: ProjectRef;
 }
 
-const guiApiOpenProjects = new Map<string, ProjectRef>();
+const projectsByPath = new Map<string, ProjectRef>();
+const projectsById = new Map<string, ProjectRef>();
 
-export async function guiApiGetProject(path: string) {
-  const ref = guiApiOpenProjects.get(path);
+export async function apiLoadProject(path: string) {
+  const ref = projectsByPath.get(path);
   if (ref) {
     ref.lastUsed = new Date();
+    ref.other.lastUsed = new Date();
     return ref.project;
   }
 
@@ -25,35 +28,54 @@ export async function guiApiGetProject(path: string) {
     log('loading project %s', path);
     const project = await resolveProject(path);
     log('project %s (%s) loaded', project.name, project.id);
-    guiApiOpenProjects.set(path, { path, project, lastUsed: new Date() });
+    apiAddProject(project);
     return project;
   } catch {
     return null;
   }
 }
 
-export async function guiApiCloseProject(path: string) {
-  const ref = guiApiOpenProjects.get(path);
+export function apiGetProjectById(id: string) {
+  const ref = projectsById.get(id);
+  if (ref) {
+    ref.lastUsed = new Date();
+    ref.other.lastUsed = new Date();
+    return ref.project;
+  }
+  return null;
+}
+
+export async function apiCloseProject(path: string) {
+  const ref = projectsByPath.get(path);
   if (ref) {
     log('closing project %s', ref.project.id);
     ref.project.close();
-    guiApiOpenProjects.delete(path);
+    projectsByPath.delete(path);
   }
 }
 
-export async function guiApiCloseAllProjects() {
-  await asyncMap(guiApiOpenProjects.keys(), guiApiCloseProject);
+export async function apiCloseAllProjects() {
+  await asyncMap(projectsByPath.keys(), apiCloseProject);
 }
 
-export async function guiApiCloseUnusedProjects() {
+export async function apiCloseUnusedProjects() {
   const now = new Date();
-  await asyncMap(guiApiOpenProjects.values(), async ref => {
+  await asyncMap(projectsByPath.values(), async ref => {
     if (now.getTime() - ref.lastUsed.getTime() > PROJECT_TIMEOUT) {
-      await guiApiCloseProject(ref.path);
+      await apiCloseProject(ref.path);
     }
   });
 }
 
-export function guiApiGetAllProjects() {
-  return [...guiApiOpenProjects.values()];
+export function apiGetAllProjects() {
+  return [...projectsByPath.values()];
+}
+
+export function apiAddProject(project: Project) {
+  const byPath: ProjectRef = { path: project.root, project, lastUsed: new Date(), other: null! };
+  const byId: ProjectRef = { path: project.root, project, lastUsed: new Date(), other: null! };
+  byPath.other = byId;
+  byId.other = byPath;
+  projectsByPath.set(project.root, byPath);
+  projectsById.set(project.id, byId);
 }

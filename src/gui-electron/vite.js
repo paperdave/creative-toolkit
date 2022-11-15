@@ -9,7 +9,10 @@ export async function startViteDevServer() {
   const server = await createServer({
     configFile: path.join(dirname, '../gui-frontend/vite.config.js'),
     root: path.join(dirname, '../gui-frontend'),
+    server: {
+      port,
+    },
   });
-  await server.listen({ port });
+  await server.listen();
   return { url: `http://localhost:${port}`, stop: () => server.close() };
 }

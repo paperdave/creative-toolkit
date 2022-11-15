@@ -7,12 +7,25 @@ import { chalk, injectLogger, Logger } from '@paperdave/logger';
 import { pathExists } from '@paperdave/utils';
 import { readdirSync } from 'fs';
 import { CommandEvent } from '.';
+import { hslToRgb } from './hsl';
 
 const commandName = process.argv[2];
 
 if (!commandName) {
-  Logger.writeLine(chalk.greenBright(`dave caruso's creative toolkit, ${TOOLKIT_DATE}`));
-  Logger.writeLine(chalk.grey('usage: ct <cmd> [...]'));
+  Logger.writeLine(
+    chalk.bold.greenBright(`dave's creative toolkit`) + '  ' + chalk.whiteBright(TOOLKIT_DATE)
+  );
+  Logger.writeLine(
+    '   ' +
+      [...'now featuring the two step process!']
+        .map((char, i) => {
+          const hue = (i * 7 + 102) % 360;
+          const [r, g, b] = hslToRgb(hue, i > 17 ? 0.7 : 0.5, i > 17 ? 0.7 : 0.8);
+          return (i > 17 && i < 34 ? chalk.underline : chalk).italic.rgb(r, g, b)(char);
+        })
+        .join('')
+  );
+
   Logger.writeLine('');
 
   const cmds = readdirSync(path.join(import.meta.dir, './commands'))
@@ -33,24 +46,23 @@ if (!commandName) {
     const space = ' '.repeat(padding - cmd.name.length);
     Logger.writeLine(`- ${chalk.green('ct ' + cmd.name)}:${space}${cmd.desc}`);
   }
+
+  process.exit(1);
+}
+
+function printHintAndExit() {
+  hint(`commands are located at ./src/cli/commands/${chalk.redBright('{name}')}.ts`);
   process.exit(1);
 }
 
 if (/[^a-z0-9_-]/.exec(commandName)) {
   Logger.error('invalid command: ' + commandName);
-  hint('commands are located at ./src/cli/commands/index.ts');
-  process.exit(1);
+  printHintAndExit();
 }
 
 if (!(await pathExists(path.join(import.meta.dir, `commands/${commandName}.ts`)))) {
   Logger.error('unknown command: ' + commandName);
-  hint('commands are located at ./src/cli/commands/{name}.ts');
-  process.exit(1);
-}
-
-if (commandName === 'runner') {
-  Logger.error('cannot run the command runner as a command.');
-  process.exit(1);
+  printHintAndExit();
 }
 
 injectLogger();

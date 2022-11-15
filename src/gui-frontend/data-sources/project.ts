@@ -1,5 +1,7 @@
 import { APIProject } from '$/gui-api/serializers/project';
-import { jsonFetcher, Store } from './utils';
+import { APIProjectMeta } from '$/gui-api/serializers/project-meta';
+import { uiActiveProjectId } from '../state/global-ui';
+import { jsonFetcher, Store } from '../utils';
 
 export const $projectList = new Store(
   jsonFetcher({
@@ -14,3 +16,7 @@ export const $project = new Store(
     transform: data => data as APIProject,
   })
 );
+
+export function readActiveProject() {
+  return $project.read(uiActiveProjectId.use());
+}

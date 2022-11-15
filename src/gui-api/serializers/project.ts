@@ -1,4 +1,4 @@
-import { DEFAULT_PATHS, Paths, Project } from '$project';
+import { DEFAULT_PATHS, Paths, Project } from '$/project';
 import { Static, TString } from '@sinclair/typebox';
 import { t } from 'kingworld';
 import { UnarrangedSequenceClipSchema } from './clip';

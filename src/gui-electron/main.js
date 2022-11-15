@@ -13,7 +13,11 @@ const win = new Electron.BrowserWindow({
   },
 });
 
-win.loadURL(gui.url);
+const url = new URL(gui.url);
+url.searchParams.set('project-id', process.argv[3]);
+url.searchParams.set('electron-version', process.versions.electron);
+url.searchParams.set('node-version', process.versions.node);
+win.loadURL(url.toString());
 
 win.on('closed', () => {
   gui.stop();
