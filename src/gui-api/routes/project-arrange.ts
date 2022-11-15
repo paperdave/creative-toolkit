@@ -4,7 +4,7 @@ import { APIArrangeClipResult } from '../serializers/project-meta';
 
 export default (app: KingWorld) =>
   app.get(
-    '/jfdsai/:id',
+    '/project/:id/arrange',
     async ({ params: { id } }) => {
       const project = apiGetProjectById(id);
       if (!project) {

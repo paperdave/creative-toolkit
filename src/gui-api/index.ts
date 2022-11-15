@@ -27,7 +27,7 @@ export function createAPIServer() {
     origin: ['http://localhost:18325'],
   });
 
-  for (const file of readdirSync(path.join(import.meta.dir, './routes'))) {
+  for (const file of readdirSync(path.join(import.meta.dir, './routes')).sort()) {
     require(`./routes/${file}`).default(kingWorld);
   }
 
