@@ -1,4 +1,4 @@
-import { TOOLKIT_DATE } from '$constants';
+import { TOOLKIT_DATE } from '$/constants';
 import { KingWorld } from 'kingworld';
 import { APIStatusSchema } from '../serializers/status';
 

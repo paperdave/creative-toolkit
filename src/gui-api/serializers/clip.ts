@@ -1,4 +1,4 @@
-import { RenderProgram } from '$project';
+import { RenderProgram } from '$/project';
 import { t } from 'kingworld';
 import { Nullable } from './utils';
 

@@ -12,14 +12,9 @@
     "jsx": "react-jsx",
     "types": ["bun-types"],
     "paths": {
-      "@paperdave/fusion": ["./src/fusion"],
-      "$cmd-runner": ["./src/cmd-runner"],
-      "$project": ["./src/project"],
-      "$logger": ["./src/logger"],
-      "$constants": ["./src/constants"],
-      "$util": ["./src/util"],
       "$": ["./src"],
       "$/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*"]
 }

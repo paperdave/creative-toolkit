@@ -1,5 +1,5 @@
 import path from 'path';
-import { TOOLKIT_FORMAT } from '$constants';
+import { TOOLKIT_FORMAT } from '$/constants';
 import { asyncMap, writeJSON } from '@paperdave/utils';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';

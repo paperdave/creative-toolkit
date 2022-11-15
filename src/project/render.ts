@@ -7,7 +7,7 @@ import {
   rangeContains,
   RangeResolvable,
   resolveRange,
-} from '$util';
+} from '$/util';
 import { Logger } from '@paperdave/logger';
 import { readdir } from 'fs/promises';
 import { SequenceClip, UnarrangedSequenceClip } from './clip';

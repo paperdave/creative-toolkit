@@ -9,7 +9,7 @@ import {
   LoaderTool,
   LuaTable,
   SaverTool,
-} from '@paperdave/fusion';
+} from '$/fusion-format';
 import { Logger, Spinner } from '@paperdave/logger';
 import { asyncMap } from '@paperdave/utils';
 import { rename } from 'fs/promises';

@@ -1,7 +1,8 @@
+/* eslint-disable no-alert */
 import path from 'path';
-import { RunCommand } from '$cmd-runner';
-import { TOOLKIT_DATE } from '$constants';
-import { Project } from '$project';
+import { RunCommand } from '$/cli';
+import { TOOLKIT_DATE } from '$/constants';
+import { Project } from '$/project';
 import { Logger } from '@paperdave/logger';
 import { pathExists } from '@paperdave/utils';
 import { paramCase } from 'change-case';
@@ -9,7 +10,10 @@ import { mkdir, writeFile } from 'fs/promises';
 
 export const project = false;
 
-export const run: RunCommand = async ({}) => {
+export const desc = 'initialize a creative toolkit project';
+export const sort = 100;
+
+export const run: RunCommand = async () => {
   if (await pathExists('project.json')) {
     Logger.error(`project already exists here!`);
     return;

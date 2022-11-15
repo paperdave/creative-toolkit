@@ -1,4 +1,4 @@
-import { countRangeFrames, getRangeProgress, RangeResolvable, resolveRange } from '$util';
+import { countRangeFrames, getRangeProgress, RangeResolvable, resolveRange } from '$/util';
 import { Emitter } from '@paperdave/events';
 import { Progress } from '@paperdave/logger';
 import { mkdirSync } from 'fs';
