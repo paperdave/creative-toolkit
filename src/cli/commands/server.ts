@@ -3,8 +3,6 @@ import { RunCommand } from '$/cli';
 import { createAPIServer } from '$/gui-api';
 import { apiAddProject } from '$/gui-api/state/projects';
 
-export const desc = 'run the project server';
-
 export const run: RunCommand = async ({ project }) => {
   const server = createAPIServer();
   apiAddProject(project);

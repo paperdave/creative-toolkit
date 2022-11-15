@@ -3,7 +3,6 @@ import { RunCommand } from '$/cli';
 import { chalk, Logger } from '@paperdave/logger';
 import { range } from '@paperdave/utils';
 
-export const desc = 'print project metadata';
 export const run: RunCommand = async ({ project }) => {
   Logger.writeLine(chalk.bold.whiteBright('INFO:'));
   Logger.writeLine(chalk.yellowBright(`  id:       `) + project.id);

@@ -31,7 +31,7 @@ export async function serializeProject(project: Project): Promise<APIProject> {
     name: project.name,
     root: project.root,
     clips: await project.getRawClips(),
-    isArranged: project.isArranged,
+    isArranged: project.arranged,
     hasAudio: project.hasAudio,
     paths: project.paths,
   };

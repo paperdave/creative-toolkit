@@ -3,8 +3,6 @@ import { RunCommand } from '$/cli';
 import { Logger } from '@paperdave/logger';
 import { existsSync } from 'fs';
 
-export const desc = 'add project audio from mp3/wav';
-
 export const run: RunCommand = async ({ project }) => {
   // TODO: args
   const file = process.argv[3];
@@ -43,5 +41,5 @@ export const run: RunCommand = async ({ project }) => {
   }
   project.hasAudio = true;
   Logger.success('set audio, running arrange to sync project files.');
-  await project.getArrangedClips();
+  await project.getClips();
 };

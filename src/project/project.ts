@@ -5,7 +5,7 @@ import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
 import { readdir } from 'fs/promises';
 import { arrangeProject } from './arrange';
-import { UnarrangedSequenceClip } from './clip';
+import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
 import { AudioTiming, ProjectJSON } from './project-json';
 import { FusionRenderNode, startFusionRenderNode } from '../fusion-server/fusion-render-node';
@@ -20,7 +20,7 @@ export class Project {
   audioTiming: AudioTiming;
   overridePaths: Partial<Paths> = {};
   hasAudio: boolean;
-  isArranged = false;
+  arranged = false;
 
   constructor(root: string, json: ProjectJSON, pathOverrides: Partial<Paths>) {
     this.root = path.resolve(root);
@@ -122,16 +122,23 @@ export class Project {
     ).flat());
   }
 
+  async arrange() {
+    return arrangeProject(this);
+  }
+
+  async getClips() {
+    if (this.arranged) {
+      return (await this.getRawClips()) as SequenceClip[];
+    }
+    return this.arrange();
+  }
+
   private cachedFusionServer?: FusionRenderNode;
   async getFusionRenderNode() {
     if (!this.cachedFusionServer) {
       this.cachedFusionServer = await startFusionRenderNode(this);
     }
     return this.cachedFusionServer!;
-  }
-
-  async getArrangedClips() {
-    return arrangeProject(this);
   }
 
   close() {

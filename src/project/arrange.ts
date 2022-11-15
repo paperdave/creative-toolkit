@@ -114,10 +114,6 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
 }
 
 export async function arrangeProject(project: Project): Promise<SequenceClip[]> {
-  if (project.isArranged) {
-    return (await project.getRawClips()) as SequenceClip[];
-  }
-
   const clips = await project.getRawClips();
 
   const spinner = new Spinner({
@@ -162,7 +158,7 @@ export async function arrangeProject(project: Project): Promise<SequenceClip[]> 
     }
   }
 
-  project.isArranged = true;
+  project.arranged = true;
   spinner.success('Arranged clips');
 
   return clips as SequenceClip[];

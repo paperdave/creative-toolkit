@@ -5,9 +5,6 @@ import { createAPIServer } from '$/gui-api';
 import { apiAddProject } from '$/gui-api/state/projects';
 import { Logger } from '@paperdave/logger';
 
-export const desc = 'open desktop application';
-export const sort = 90;
-
 const log = new Logger('gui');
 
 export const run: RunCommand = async ({ project }) => {

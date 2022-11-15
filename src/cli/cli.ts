@@ -1,17 +1,36 @@
 #!/usr/bin/env bun
 import path from 'path';
+import YAML from 'yaml';
 import { TOOLKIT_DATE } from '$/constants';
 import { hint } from '$/logger';
 import { loadProject, Project } from '$/project';
 import { chalk, injectLogger, Logger } from '@paperdave/logger';
 import { pathExists } from '@paperdave/utils';
-import { readdirSync } from 'fs';
-import { CommandEvent } from '.';
+import { readdirSync, readFileSync } from 'fs';
 import { hslToRgb } from './hsl';
+import { CommandEvent } from './index';
+
+function readYAML(filename: string) {
+  return YAML.parse(readFileSync(filename, 'utf8'));
+}
 
 const commandName = process.argv[2];
 
 if (!commandName) {
+  const cmds = readdirSync(path.join(import.meta.dir, './commands'))
+    .filter(x => x.endsWith('.yaml'))
+    .map(name => {
+      const cmd = readYAML(path.join(import.meta.dir, './commands', name));
+      return {
+        ...cmd,
+        name: name.replace('.yaml', ''),
+        sort: cmd.sort ?? 0,
+      };
+    })
+    .sort((a, b) => b.sort - a.sort);
+
+  const padding = Math.max(...cmds.map(x => x.name.length)) + 2;
+
   Logger.writeLine(
     chalk.bold.greenBright(`dave's creative toolkit`) + '  ' + chalk.whiteBright(TOOLKIT_DATE)
   );
@@ -28,23 +47,12 @@ if (!commandName) {
 
   Logger.writeLine('');
 
-  const cmds = readdirSync(path.join(import.meta.dir, './commands'))
-    .filter(x => x.endsWith('.ts'))
-    .map(name => {
-      const cmd = require(path.join(import.meta.dir, './commands', name));
-      return {
-        name: name.replace('.ts', ''),
-        desc: cmd.desc,
-        sort: cmd.sort ?? 0,
-      };
-    })
-    .sort((a, b) => b.sort - a.sort);
-
-  const padding = Math.max(...cmds.map(x => x.name.length)) + 2;
-
   for (const cmd of cmds) {
     const space = ' '.repeat(padding - cmd.name.length);
     Logger.writeLine(`- ${chalk.green('ct ' + cmd.name)}:${space}${cmd.desc}`);
+    if (cmd.separator) {
+      Logger.writeLine('');
+    }
   }
 
   process.exit(1);

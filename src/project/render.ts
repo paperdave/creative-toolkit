@@ -54,7 +54,7 @@ export async function renderProject({
   const clips = (
     noArrange //
       ? await project.getRawClips()
-      : await project.getArrangedClips()
+      : await project.getClips()
   ) as SequenceClip[];
 
   // check that the clips, if unsafe mode, has start and end data at least

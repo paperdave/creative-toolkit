@@ -12,7 +12,7 @@ export default (app: KingWorld) =>
           error: 'Project not found',
         };
       }
-      const clips = await project.getArrangedClips();
+      const clips = await project.getClips();
       return {
         clips,
       };
