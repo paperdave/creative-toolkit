@@ -16,7 +16,7 @@ export function renderBlenderClip({
 
   let lastMem: string;
   let lastFrame: number;
-  let frameProgress: number = 0;
+  let frameProgress = 0;
 
   const promise = (async () => {
     const exitCode = await spawnReadLines({

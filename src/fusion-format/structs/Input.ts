@@ -1,4 +1,4 @@
-import type { Class } from "@paperdave/utils";
+import { Class } from "@paperdave/utils";
 import { LuaTable } from "../LuaTable";
 
 export class Input<T = any> extends LuaTable {

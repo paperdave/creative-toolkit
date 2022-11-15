@@ -1,4 +1,4 @@
-import type { BoolNum, ClipAspectMode, ClipDepth, FormatID } from "../enums";
+import { BoolNum, ClipAspectMode, ClipDepth, FormatID } from "../enums";
 import { LuaTable } from "../LuaTable";
 
 export class Clip extends LuaTable {
