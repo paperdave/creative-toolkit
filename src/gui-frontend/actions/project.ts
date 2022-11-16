@@ -11,7 +11,7 @@ export async function guiActionLoadProject(path: string) {
 }
 
 export async function guiActionArrangeClips(projectId: string) {
-  const clips = await getJSON<APIArrangeClipResult>('/jfdsai/' + projectId);
+  const clips = await getJSON<APIArrangeClipResult>('/project/' + projectId + '/arrange');
   $project.update(projectId, project => {
     project.clips = clips.clips;
     project.isArranged = true;
