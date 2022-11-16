@@ -1,4 +1,5 @@
 import path from 'path';
+import { Logger } from '@paperdave/logger';
 import { existsSync } from 'fs';
 
 export enum RenderProgram {
@@ -23,8 +24,23 @@ export function extensionToRenderProgram(ext: string): RenderProgram {
   }
 }
 
+let globalElectron: string | undefined = undefined;
+try {
+  globalElectron = require('electron');
+} catch (error) {
+  Logger.warn('Could not find built-in electron installation!');
+  Logger.warn(error);
+  const electronSearchPaths = ['electron', 'electron18'];
+  for (const electron of electronSearchPaths.filter(p => p)) {
+    const resolved = resolveExec(electron!);
+    if (resolved) {
+      globalElectron = resolved;
+      break;
+    }
+  }
+}
+
 export const DEFAULT_PATHS = {
-  projectJSON: 'project.json',
   audio: '{id}.wav',
   fusionLog: 'fusion.log',
 
@@ -42,7 +58,7 @@ export const DEFAULT_PATHS = {
   execBlender: 'blender',
   execFFmpeg: 'ffmpeg',
   execFFprobe: 'ffprobe',
-  execElectron: ['electron19', 'electron18', 'electron'],
+  execElectron: globalElectron,
 };
 
 export type Paths = Record<keyof typeof DEFAULT_PATHS, string>;

@@ -1,7 +1,7 @@
 import { Paths } from './paths';
 import { TOOLKIT_FORMAT } from '../constants';
 
-export interface ProjectJSON {
+export interface RawProject {
   id: string;
   name: string;
   audioTiming: AudioTiming;

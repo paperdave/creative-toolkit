@@ -1,5 +1,5 @@
-import { APIProject } from '$/gui-api/serializers/project';
-import { APIArrangeClipResult } from '$/gui-api/serializers/project-meta';
+import { APIProject } from '$/gui-api/structs/project';
+import { APIArrangeClipResult } from '$/gui-api/structs/project-meta';
 import { $project, $projectList } from '../data-sources/project';
 import { getJSON, postJSON } from '../utils';
 

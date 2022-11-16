@@ -1,5 +1,5 @@
-import { APIProject } from '$/gui-api/serializers/project';
-import { APIProjectMeta } from '$/gui-api/serializers/project-meta';
+import { APIProject } from '$/gui-api/structs/project';
+import { APIProjectMeta } from '$/gui-api/structs/project-meta';
 import { uiActiveProjectId } from '../state/global-ui';
 import { jsonFetcher, Store } from '../utils';
 

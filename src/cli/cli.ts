@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import path from 'path';
 import YAML from 'yaml';
-import { TOOLKIT_DATE } from '$/constants';
+import { TOOLKIT_VERSION } from '$/constants';
 import { hint } from '$/logger';
 import { loadProject, Project } from '$/project';
 import { chalk, injectLogger, Logger } from '@paperdave/logger';
@@ -32,7 +32,7 @@ if (!commandName) {
   const padding = Math.max(...cmds.map(x => x.name.length)) + 2;
 
   Logger.writeLine(
-    chalk.bold.greenBright(`dave's creative toolkit`) + '  ' + chalk.whiteBright(TOOLKIT_DATE)
+    chalk.bold.greenBright(`dave's creative toolkit`) + '  ' + chalk.whiteBright(TOOLKIT_VERSION)
   );
   Logger.writeLine(
     '   ' +
@@ -77,10 +77,14 @@ injectLogger();
 
 let project!: Project;
 try {
-  const command = require(`./commands/${commandName}.ts`);
+  const command = await import(`./commands/${commandName}.ts`);
 
-  if (command.project === undefined || command.project === true) {
+  try {
     project = await loadProject();
+  } catch (error) {
+    if (command.requiresProject === undefined || command.requiresProject) {
+      throw error;
+    }
   }
 
   const event: CommandEvent = {
@@ -89,7 +93,10 @@ try {
 
   await command.run(event);
 
-  project.close();
+  if (project) {
+    await project.write();
+    project.close();
+  }
 } catch (error) {
   Logger.error(error as any);
   project?.close?.();

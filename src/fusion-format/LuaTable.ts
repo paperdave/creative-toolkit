@@ -372,7 +372,7 @@ export class LuaTable {
 
     const newOptions = {
       ...options,
-      depth: options.depth === null ? null : options.depth - 1,
+      depth: options.depth == null ? null : options.depth - 1,
     };
 
     let inner = this.keys()

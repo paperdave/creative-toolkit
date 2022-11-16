@@ -1,6 +1,7 @@
+import path from 'path';
 import { guiActionArrangeClips } from '../actions/project';
 import { $status, readActiveProject } from '../data-sources';
-import { electronVersion } from '../state/versions';
+import { electronVersion, nodeVersion } from '../state/versions';
 import { useLoadingState } from '../utils';
 
 export function Info() {
@@ -11,6 +12,7 @@ export function Info() {
 
   async function arrange() {
     const clips = await updateLoadingState(guiActionArrangeClips(project!.id));
+    // eslint-disable-next-line no-console
     console.log(clips);
   }
 
@@ -18,12 +20,6 @@ export function Info() {
 
   return (
     <div>
-      <h2>System</h2>
-      <p>
-        <b>status</b>: {status.message} <br />
-        <b>backend</b>: ct {status.version}, bun {status.versions.bun} <br />
-        <b>frontend</b>: electron {electronVersion}, node {status.versions.node}
-      </p>
       <h2>Project</h2>
       {project ? (
         <>
@@ -49,10 +45,46 @@ export function Info() {
           <p>
             <b>clips</b>: {String(project.clips.length)} <br />
           </p>
+          <p>
+            <b>path map:</b>
+          </p>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <b>project root:</b>
+                </td>
+                <td>
+                  <b>{project.root}</b>
+                </td>
+              </tr>
+              {Object.entries(project.paths).map(([key, value]) => {
+                const dir = (path.dirname(value) + '/')
+                  .replace(/\/\//g, '/')
+                  .replace(project.root + '/', './');
+                return (
+                  <tr key={key}>
+                    <td style={{ paddingRight: '20px' }}>{key}</td>
+                    <td>
+                      {dir}
+                      <b>{path.basename(value)}</b>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </>
       ) : (
         <p>(no active project)</p>
       )}
+      <h2>Creative Toolkit</h2>
+      <p>
+        <b>version</b>: {status.version} <br />
+        <b>codename</b>: {status.codename} <br />
+        <b>api runtime</b>: bun {status.versions.bun} <br />
+        <b>gui runtime</b>: electron {electronVersion}, node {nodeVersion} <br />
+      </p>
     </div>
   );
 }

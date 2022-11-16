@@ -1,4 +1,4 @@
-import { APIStatus } from '$/gui-api/serializers/status';
+import { APIStatus } from '$/gui-api/routes/status';
 import { jsonFetcher, Store } from '../utils';
 
 export const $status = new Store(

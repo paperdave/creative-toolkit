@@ -1,13 +1,15 @@
 import path from 'path';
+import YAML from 'yaml';
 import { TOOLKIT_FORMAT } from '$/constants';
-import { asyncMap, writeJSON } from '@paperdave/utils';
+import { FilmStore, loadFilmStore } from '$/film/film-store';
+import { asyncMap } from '@paperdave/utils';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
-import { readdir } from 'fs/promises';
+import { readdir, writeFile } from 'fs/promises';
 import { arrangeProject } from './arrange';
 import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
-import { AudioTiming, ProjectJSON } from './project-json';
+import { AudioTiming, RawProject } from './project-json';
 import { FusionRenderNode, startFusionRenderNode } from '../fusion-server/fusion-render-node';
 
 const excludedClipExtensions = ['.autocomp'];
@@ -22,7 +24,7 @@ export class Project {
   hasAudio: boolean;
   arranged = false;
 
-  constructor(root: string, json: ProjectJSON, pathOverrides: Partial<Paths>) {
+  constructor(root: string, json: RawProject, pathOverrides: Partial<Paths>) {
     this.root = path.resolve(root);
 
     this.id = json.id;
@@ -60,7 +62,7 @@ export class Project {
     }
   }
 
-  get json(): ProjectJSON {
+  get json(): RawProject {
     return {
       id: this.id,
       name: this.name,
@@ -70,11 +72,9 @@ export class Project {
     };
   }
 
-  async writeJSON() {
-    await writeJSON(this.paths.projectJSON, this.json, {
-      spaces: 2,
-      replacer: null,
-    });
+  async write() {
+    this.cachedFilmStore?.write();
+    await writeFile(this.root + '/project.yaml', YAML.stringify(this.json));
   }
 
   getRenderId(program: string, ...shot: string[]) {
@@ -139,6 +139,14 @@ export class Project {
       this.cachedFusionServer = await startFusionRenderNode(this);
     }
     return this.cachedFusionServer!;
+  }
+
+  private cachedFilmStore?: FilmStore;
+  async getFilmStore() {
+    if (!this.cachedFilmStore) {
+      this.cachedFilmStore = await loadFilmStore(this);
+    }
+    return this.cachedFilmStore;
   }
 
   close() {

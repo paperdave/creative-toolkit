@@ -1,7 +1,7 @@
-import { APIProjectSchema, serializeProject } from '$/gui-api/serializers/project';
 import { apiGetAllProjects, apiGetProjectById, apiLoadProject } from '$/gui-api/state/projects';
+import { APIProjectSchema, serializeProject } from '$/gui-api/structs/project';
 import { KingWorld, t } from 'kingworld';
-import { APIProjectMetaSchema } from '../serializers/project-meta';
+import { APIProjectMetaSchema } from '../structs/project-meta';
 
 export default (app: KingWorld) =>
   app
@@ -23,9 +23,9 @@ export default (app: KingWorld) =>
       }
     )
     .get(
-      '/project/:id',
-      async ({ params: { id } }) => {
-        const project = apiGetProjectById(id);
+      '/project/:projectId',
+      async ({ params: { projectId } }) => {
+        const project = apiGetProjectById(projectId);
         if (!project) {
           return {
             error: 'Project not found',

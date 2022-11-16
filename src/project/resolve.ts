@@ -1,10 +1,12 @@
 import path from 'path';
+import YAML from 'yaml';
 import { TOOLKIT_FORMAT } from '$/constants';
 import { CLIError } from '@paperdave/logger';
-import { pathExists, readJSON } from '@paperdave/utils';
+import { pathExists } from '@paperdave/utils';
+import { readFile } from 'fs/promises';
 import { Paths } from './paths';
 import { Project } from './project';
-import { ProjectJSON } from './project-json';
+import { RawProject } from './project-json';
 import { walkUpDirectoryTree } from '../util/fs';
 
 export async function loadProject(
@@ -13,7 +15,7 @@ export async function loadProject(
 ): Promise<Project> {
   const root = await walkUpDirectoryTree(
     startPath, //
-    dir => pathExists(path.join(dir, 'project.json'))
+    dir => pathExists(path.join(dir, 'project.yaml'))
   );
 
   if (!root) {
@@ -25,7 +27,7 @@ export async function loadProject(
     throw e;
   }
 
-  const json = (await readJSON(path.join(root, 'project.json'), {})) as ProjectJSON;
+  const json = YAML.parse(await readFile(path.join(root, 'project.yaml'), 'utf8')) as RawProject;
 
   if (json.format !== TOOLKIT_FORMAT) {
     throw new CLIError(
@@ -33,5 +35,6 @@ export async function loadProject(
       `This project was saved with format #${json.format}, expected #${TOOLKIT_FORMAT}.`
     );
   }
+
   return new Project(root, json, paths);
 }

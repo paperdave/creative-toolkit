@@ -1,6 +1,6 @@
 /* eslint-disable no-alert */
 import path from 'path';
-import { RunCommand } from '$/cli';
+import { RunCommandNoProject } from '$/cli';
 import { TOOLKIT_FORMAT } from '$/constants';
 import { Project } from '$/project';
 import { Logger } from '@paperdave/logger';
@@ -10,10 +10,10 @@ import { mkdir, writeFile } from 'fs/promises';
 
 export const desc = 'initialize a creative toolkit project';
 export const sort = 100;
-export const project = false;
+export const requiresProject = false;
 
-export const run: RunCommand = async () => {
-  if (await pathExists('project.json')) {
+export const run: RunCommandNoProject = async () => {
+  if (await pathExists('project.yaml')) {
     Logger.error(`project already exists here!`);
     return;
   }
@@ -43,13 +43,14 @@ export const run: RunCommand = async () => {
     },
     {}
   );
-  await newProject.writeJSON();
 
-  await mkdir('./out');
-  await mkdir('./film');
-  await mkdir('./materials');
-  await mkdir('./step1');
-  await mkdir('./step2');
+  await mkdir('./out', { recursive: true });
+  await mkdir('./film', { recursive: true });
+  await mkdir('./materials', { recursive: true });
+  await mkdir('./step1', { recursive: true });
+  await mkdir('./step2', { recursive: true });
+
+  await newProject.write();
 
   if (!(await pathExists(path.join(root, '.bitwig-project')))) {
     await writeFile(path.join(root, '.bitwig-project'), '');
