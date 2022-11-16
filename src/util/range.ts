@@ -41,13 +41,7 @@ export function mergeRanges(ranges: RangeResolvable): IRange[] {
   const consolidated: IRange[] = [];
   for (const range of resolveRange(ranges).sort((a, b) => (a.start < b.start ? -1 : 1))) {
     const last = consolidated[consolidated.length - 1];
-    if (typeof range === 'number') {
-      if (consolidated.length === 0 || range !== last.end + 1) {
-        consolidated.push({ start: range, end: range });
-      } else {
-        last.end = range;
-      }
-    } else if (last && last.end === range.start - 1) {
+    if (last && last.end >= range.start - 1) {
       last.end = range.end;
     } else {
       // important that we clone the object as we mutate it
