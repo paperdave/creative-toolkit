@@ -1,14 +1,12 @@
 {
-  "extends": "dave",
+  "extends": "../../.eslintrc",
   "rules": {
     "@typescript-eslint/consistent-type-imports": [
       "error",
       {
-        "prefer": "no-type-imports",
+        "prefer": "type-imports",
         "disallowTypeAnnotations": false
       }
-    ],
-    "new-cap": "off",
-    "no-empty-pattern": "off"
+    ]
   }
 }

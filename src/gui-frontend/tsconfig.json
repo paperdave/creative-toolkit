@@ -1,0 +1,12 @@
+{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "$data": ["./data/index.ts"],
+      "$data/*": ["./data/*"],
+      "$/*": ["../*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "strict": true
+  }
+}

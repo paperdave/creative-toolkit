@@ -1,7 +1,14 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { sveltekit } from '@sveltejs/kit/vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-export default defineConfig({
-  plugins: [react(), nodePolyfills({ protocolImports: true })],
-});
+/** @type {import('vite').UserConfig} */
+const config = {
+  plugins: [sveltekit(), nodePolyfills({ protocolImports: true })],
+  server: {
+    fs: {
+      allow: ['./'],
+    },
+  },
+};
+
+export default config;
