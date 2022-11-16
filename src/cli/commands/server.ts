@@ -1,13 +1,21 @@
-/* eslint-disable @typescript-eslint/require-await */
-import { RunCommand } from '$/cli';
+import { RunCommandNoProject } from '$/cli';
 import { createAPIServer } from '$/gui-api';
 import { apiAddProject } from '$/gui-api/state/projects';
 
-export const run: RunCommand = async ({ project }) => {
+export const requiresProject = false;
+
+export const run: RunCommandNoProject = async ({ project }) => {
   const server = createAPIServer();
-  apiAddProject(project);
-  // never resolve, let the server run forever
-  await new Promise(() => {
+  new Promise(() => {
     server.listen(2004);
   });
+  const global = globalThis as any;
+  if (project) {
+    apiAddProject(project);
+    global.project = project;
+    global.p = project;
+    global.clips = await project.getClips();
+    global.film = await project?.getFilmStore();
+  }
+  // TODO: start a repl
 };

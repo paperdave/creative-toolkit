@@ -5,19 +5,19 @@ import { Logger } from '@paperdave/logger';
 import { pathExists } from '@paperdave/utils';
 import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises';
 
-interface FilmShotFilenameSplit {
+export interface FilmShotFilenameSplit {
   start: number;
   end: number;
   id: string;
 }
 
-interface RawFilmShot {
+export interface RawFilmShot {
   comment: string;
   createdAt: number;
   takes: RawFilmShotTake[];
 }
 
-interface RawFilmShotTake {
+export interface RawFilmShotTake {
   num: number;
   createdAt: number;
 }
@@ -43,13 +43,14 @@ export class FilmStore {
   }
 
   async createShot({ start, end, id }: FilmShotFilenameSplit) {
-    const dirname = `${start}-${end}_${id}`;
-    if (this.shots.has(dirname)) {
+    if (this.shotsById.has(id)) {
       let n = 2;
-      while (this.shots.has(`${dirname}_${n}`)) {
+      while (this.shotsById.has(`${id}_${n}`)) {
         n++;
       }
+      id = `${id}_${n}`;
     }
+    const dirname = `${start}-${end}_${id}`;
     const metadata = {
       comment: '',
       createdAt: Date.now(),
@@ -120,7 +121,8 @@ export class FilmShot {
   }
 
   get nextTakeNum() {
-    return Math.max(...this.takes.keys()) + 1 || 1;
+    const next = Math.max(...this.takes.keys()) + 1;
+    return next > 0 ? next : 1;
   }
 
   /** Does not do the file writing, the caller is responsible for that. */

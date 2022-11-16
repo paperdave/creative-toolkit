@@ -18,10 +18,8 @@ export default (app: KingWorld) =>
           id: x.id,
           start: x.start,
           end: x.end,
-          comment: x.comment,
           takeCount: x.takes.size,
           createdAt: x.createdAt.getTime(),
-          root: x.root,
         }));
       },
       {
@@ -32,6 +30,48 @@ export default (app: KingWorld) =>
               error: t.String(),
             }),
           ]),
+        },
+      }
+    )
+    .post(
+      '/project/:projectId/film',
+      async ({ params: { projectId }, body }) => {
+        const project = apiGetProjectById(projectId);
+        if (!project) {
+          return {
+            error: 'Project not found',
+          };
+        }
+        const filmStore = await project.getFilmStore();
+        const shot = await filmStore.createShot(body);
+        return {
+          id: shot.id,
+          start: shot.start,
+          end: shot.end,
+          comment: shot.comment,
+          takes: [...shot.takes.values()].map(take => ({
+            num: take.num,
+            createdAt: take.createdAt.getTime(),
+            filename: take.filename,
+          })),
+          createdAt: shot.createdAt.getTime(),
+          root: shot.root,
+          nextTakeNum: shot.nextTakeNum,
+        };
+      },
+      {
+        schema: {
+          response: t.Union([
+            APIFilmShotSchema,
+            t.Object({
+              error: t.String(),
+            }),
+          ]),
+          body: t.Object({
+            id: t.String(),
+            start: t.Number(),
+            end: t.Number(),
+          }),
         },
       }
     )
@@ -63,12 +103,13 @@ export default (app: KingWorld) =>
           })),
           createdAt: shot.createdAt.getTime(),
           root: shot.root,
+          nextTakeNum: shot.nextTakeNum,
         };
       },
       {
         schema: {
           response: t.Union([
-            t.Array(APIFilmShotSchema),
+            APIFilmShotSchema,
             t.Object({
               error: t.String(),
             }),

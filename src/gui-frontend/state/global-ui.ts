@@ -13,3 +13,9 @@ export const uiActiveTab = new State({
     return 'clips' as UITabType;
   },
 });
+
+export const uiActiveFilmShotId = new State({
+  initialState() {
+    return null as string | null;
+  },
+});

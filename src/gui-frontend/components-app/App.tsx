@@ -1,4 +1,6 @@
+import { Film } from './Film';
 import { Info } from './Info';
+import { PromptManager } from './PromptManager';
 import { TabBar } from './TabBar';
 import { $status } from '../data-sources';
 import { uiActiveProjectId, uiActiveTab } from '../state/global-ui';
@@ -36,15 +38,18 @@ export function App() {
 export function ProjectApp() {
   const tab = uiActiveTab.use();
   return (
-    <div>
-      <TabBar />
-      {tab === 'info' ? (
-        <Info />
-      ) : tab === 'clips' ? (
-        <div>clips</div>
-      ) : tab === 'film' ? (
-        <div>film</div>
-      ) : null}
-    </div>
+    <>
+      <PromptManager />
+      <div>
+        <TabBar />
+        {tab === 'info' ? (
+          <Info />
+        ) : tab === 'clips' ? (
+          <div>clips</div>
+        ) : tab === 'film' ? (
+          <Film />
+        ) : null}
+      </div>
+    </>
   );
 }
