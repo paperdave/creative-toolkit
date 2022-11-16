@@ -9,7 +9,7 @@ const { downloads } = await fetch(meta).then(res => res.json());
 
 const pkgbuildLines = fs.readFileSync('PKGBUILD', 'utf8').split('\n');
 
-function setVar(name, value) {
+function setVar(name: string, value: string) {
   for (let i = 0; i < pkgbuildLines.length; i++) {
     if (pkgbuildLines[i].startsWith(name + '=')) {
       pkgbuildLines[i] = `${name}=${value}`;
@@ -21,10 +21,10 @@ function setVar(name, value) {
 
 const pkgver = pkgbuildLines
   .find(line => line.startsWith('pkgver='))
-  .split('=')[1]
+  ?.split('=')[1]
   .trim();
 
-const latest = downloads.find(d => d.releaseNotesTitle.startsWith('Fusion Studio'));
+const latest = downloads.find((d: any) => d.releaseNotesTitle.startsWith('Fusion Studio'));
 
 const r = latest.urls.Linux[0];
 const newVersion = `${r.major}.${r.minor}.${r.releaseNum}`.replace(/\.0\b/g, '');
