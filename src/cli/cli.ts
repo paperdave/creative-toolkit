@@ -2,7 +2,7 @@
 import path from 'path';
 import YAML from 'yaml';
 import { TOOLKIT_VERSION } from '$/constants';
-import { killFusionRenderNode } from '$/fusion-server/fusion-render-node';
+import { killFusionRenderNode } from '$/fusion-clip';
 import { hint } from '$/logger';
 import { loadProject, Project } from '$/project';
 import { chalk, injectLogger, Logger } from '@paperdave/logger';

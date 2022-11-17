@@ -1,4 +1,5 @@
 // export-directory
+export * from './array';
 export * from './ffmpeg-args';
 export * from './ffmpeg-progress';
 export * from './fs';
