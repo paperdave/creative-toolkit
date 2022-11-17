@@ -1,7 +1,15 @@
-import { countRangeFrames, getRangeProgress, RangeResolvable, resolveRange } from '$/util';
+import {
+  countRangeFrames,
+  getRangeProgress,
+  iterateRange,
+  RangeResolvable,
+  rangeToString,
+  resolveRange,
+} from '$/util';
 import { Emitter } from '@paperdave/events';
-import { Progress } from '@paperdave/logger';
-import { mkdirSync } from 'fs';
+import { CLIError, Progress } from '@paperdave/logger';
+import { deferred } from '@paperdave/utils';
+import { existsSync, mkdirSync } from 'fs';
 import { SequenceClip } from './clip';
 import { RenderProgram } from './paths';
 import { Project } from './project';
@@ -16,7 +24,7 @@ export interface RenderClipOptions {
 }
 
 export type ClipRenderer = Emitter<ClipRendererEvents> & {
-  done: Promise<void>;
+  done: Promise<boolean>;
 };
 
 export interface ClipRendererEvents {
@@ -46,7 +54,13 @@ export function renderClip(opts: RenderClipOptions) {
       throw new Error(`Unsupported clip type: ${opts.clip.type}`);
   }
 
-  if (opts.bar === undefined || opts.bar) {
+  const internalDone = renderer.done;
+
+  const [promise, resolve, reject] = deferred<boolean>();
+
+  // TODO: uhhh
+  // eslint-disable-next-line no-constant-condition
+  if (opts.bar === undefined || opts.bar || true) {
     const resolvedRanges = resolveRange(opts.ranges);
     const totalFrames = countRangeFrames(resolvedRanges);
     const padding = resolvedRanges.at(-1)?.end.toString().length ?? 1;
@@ -72,9 +86,35 @@ export function renderClip(opts: RenderClipOptions) {
       });
     });
     renderer.done //
-      .then(() => progress.success(`Rendered ${totalFrames} frames from ${clip}`))
-      .catch(x => progress.error(x));
+      .catch(e => e)
+      .then(result => {
+        if (result instanceof Error) {
+          progress.error(result);
+          reject(result);
+          return;
+        }
+        const renderBase = opts.project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2');
+        for (const checkFrame of iterateRange(opts.ranges)) {
+          const filename = `${renderBase}/${checkFrame}.exr`;
+          if (!existsSync(filename)) {
+            const e = new CLIError(
+              `Fusion Render Failed`,
+              [
+                `Comp: ${opts.clip.filename}`,
+                `Frame: ${checkFrame}`,
+                `Requested Ranges: ${rangeToString(opts.ranges)}.`,
+              ].join('\n')
+            );
+            progress.error(e);
+            reject(e);
+            return;
+          }
+        }
+        progress.success(`Rendered ${totalFrames} frames from ${clip}`);
+        resolve(true);
+      });
   }
 
+  renderer.done = promise;
   return renderer;
 }

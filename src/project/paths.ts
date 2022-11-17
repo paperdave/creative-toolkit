@@ -45,12 +45,14 @@ export const DEFAULT_PATHS = {
   step2: 'step2',
   film: 'film',
   preview: 'preview',
+  output: 'out',
 
   render: '/render',
   temp: process.env.TEMP ?? process.env.TMPDIR ?? '/tmp',
 
   execFusion: 'Fusion',
   execFusionRender: 'FusionRenderNode',
+  execFusionServer: 'FusionServer',
   execFusionScript: 'fuscript',
   execBlender: 'blender',
   execFFmpeg: 'ffmpeg',

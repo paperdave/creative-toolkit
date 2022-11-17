@@ -2,8 +2,8 @@ import path from 'path';
 import YAML from 'yaml';
 import { Project } from '$/project';
 import { Logger } from '@paperdave/logger';
-import { pathExists } from '@paperdave/utils';
-import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises';
+import { pathExists, writeYAML } from '@paperdave/utils';
+import { mkdir, readdir, readFile, rm } from 'fs/promises';
 
 export interface FilmShotFilenameSplit {
   start: number;
@@ -111,9 +111,7 @@ export class FilmShot {
   }
 
   async write() {
-    const text = YAML.stringify(this.data);
-
-    await writeFile(path.join(this.root, 'metadata.yaml'), text);
+    await writeYAML(path.join(this.root, 'metadata.yaml'), this.data);
   }
 
   async delete() {

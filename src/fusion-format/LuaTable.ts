@@ -299,10 +299,9 @@ export class LuaTable {
       this.table.fields.push({
         type: 'TableKey',
         value: jsonToAST(value),
-        key: {
-          type: 'Identifier',
-          name: key,
-        },
+        key: /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)
+          ? { type: 'Identifier', name: key }
+          : { type: 'StringLiteral', value: key, raw: JSON.stringify(key) },
       });
       if (!noDirty) {
         this.dirty = true;

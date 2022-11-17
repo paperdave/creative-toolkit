@@ -97,6 +97,14 @@ try {
     await project.write();
     project.close();
   }
+
+  // TODO: Bun #880
+  // const timer = setTimeout(() => {
+  //   Logger.warn('Bun has an open ref after command ends, forcing exit!');
+  //   process.exit(5);
+  // }, 2000);
+  // timer.unref();
+  process.exit(0);
 } catch (error) {
   Logger.error(error as any);
   project?.close?.();

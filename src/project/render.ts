@@ -1,5 +1,7 @@
+import path from 'path';
 import {
   countRangeFrames,
+  getFFMpegH264Args,
   intersectRanges,
   IRange,
   iterateRange,
@@ -8,7 +10,7 @@ import {
   RangeResolvable,
   resolveRange,
 } from '$/util';
-import { Logger } from '@paperdave/logger';
+import { CLIError, Logger } from '@paperdave/logger';
 import { readdir } from 'fs/promises';
 import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { RenderProgram } from './paths';
@@ -165,12 +167,38 @@ export async function renderProject({
       countRangeFrames(entry.ranges)
     );
 
-    const render = renderClip({
-      project,
-      clip: entry.clip,
-      ranges: entry.ranges,
-    });
-
-    await render.done;
+    try {
+      const render = renderClip({
+        project,
+        clip: entry.clip,
+        ranges: entry.ranges,
+      });
+      await render.done;
+    } catch {
+      throw new CLIError(
+        'Render failed',
+        'One or more renders for this project failed, and cannot continue. Please see messages above for more detail.'
+      );
+    }
   }
+
+  log('render clips done what if we made an mp4');
+
+  const ffmpegArgs = [
+    project.paths.execFFmpeg,
+    '-hide_banner',
+    '-y',
+    '-r',
+    project.fps,
+    '-i',
+    path.join(project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2'), '%d.exr'),
+    ...getFFMpegH264Args(),
+    path.join(project.paths.output, 'render.mp4'),
+  ];
+
+  const ffmpeg = Bun.spawn({
+    cmd: ffmpegArgs as any,
+    stdio: ['inherit', 'inherit', 'inherit'],
+  });
+  await ffmpeg.exited;
 }

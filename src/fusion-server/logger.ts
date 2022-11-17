@@ -1,8 +1,8 @@
 import { Logger } from '@paperdave/logger';
 
-const serverLogger = new Logger('fusion:Server');
-const renderLogger = new Logger('fusion:RenderNode');
-const scriptLogger = new Logger('fusion:Script');
+const serverLogger = new Logger('fusion:Server', { debug: true });
+const renderLogger = new Logger('fusion:RenderNode', { debug: true });
+const scriptLogger = new Logger('fusion:Script', { debug: true });
 
 const hide: Array<string | RegExp> = [
   //

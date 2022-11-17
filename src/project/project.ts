@@ -1,11 +1,10 @@
 import path from 'path';
-import YAML from 'yaml';
 import { TOOLKIT_FORMAT } from '$/constants';
 import { FilmStore, loadFilmStore } from '$/film/film-store';
-import { asyncMap } from '@paperdave/utils';
+import { asyncMap, writeYAML } from '@paperdave/utils';
 import { pascalCase } from 'change-case';
 import { existsSync, mkdirSync } from 'fs';
-import { readdir, writeFile } from 'fs/promises';
+import { readdir } from 'fs/promises';
 import { arrangeProject } from './arrange';
 import { SequenceClip, UnarrangedSequenceClip } from './clip';
 import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
@@ -19,6 +18,7 @@ export class Project {
   id: string;
   name: string;
   paths: Paths;
+  fps: number;
   audioTiming: AudioTiming;
   overridePaths: Partial<Paths> = {};
   hasAudio: boolean;
@@ -31,6 +31,7 @@ export class Project {
     this.name = json.name;
     this.audioTiming = json.audioTiming;
     this.overridePaths = json.paths ?? {};
+    this.fps = json.fps ?? 60;
 
     this.paths = {} as Paths;
 
@@ -62,11 +63,12 @@ export class Project {
     }
   }
 
-  get json(): RawProject {
+  get data(): RawProject {
     return {
       id: this.id,
       name: this.name,
       paths: Object.keys(this.overridePaths).length > 0 ? this.overridePaths : undefined,
+      fps: this.fps,
       audioTiming: this.audioTiming,
       format: TOOLKIT_FORMAT,
     };
@@ -74,7 +76,7 @@ export class Project {
 
   async write() {
     this.cachedFilmStore?.write();
-    await writeFile(this.root + '/project.yaml', YAML.stringify(this.json));
+    await writeYAML(this.root + '/project.yaml', this.data);
   }
 
   getRenderId(program: string, ...shot: string[]) {

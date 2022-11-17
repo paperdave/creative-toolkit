@@ -67,7 +67,7 @@ export function intersectRanges(a: IRange, b: IRange): IRange | null {
 }
 
 /** Gets the range of the list of ranges (a single range containing all) */
-export function rangeRange(range: RangeResolvable): IRange {
+export function rangeToSingle(range: RangeResolvable): IRange {
   const ranges = resolveRange(range);
   return {
     start: Math.min(...ranges.map(r => r.start)),

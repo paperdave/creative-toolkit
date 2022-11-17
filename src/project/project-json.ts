@@ -5,6 +5,7 @@ export interface RawProject {
   id: string;
   name: string;
   audioTiming: AudioTiming;
+  fps?: number;
   paths?: Partial<Paths>;
   format: typeof TOOLKIT_FORMAT;
 }

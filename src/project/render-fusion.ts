@@ -17,7 +17,15 @@ export function renderFusionClip({
     log('Rendering Fusion Clip: %s (%s frames)', clip.label, countRangeFrames(ranges));
 
     let frame = resolveRange(ranges)[0].start;
+    emitter.emit('raw_progress', {
+      frame,
+      status: 'Loading Render Node...',
+    });
     const renderNode = await project.getFusionRenderNode();
+    emitter.emit('raw_progress', {
+      frame,
+      status: 'Loading Composition...',
+    });
     await renderNode.spawnScript({
       script: 'render.lua',
       env: {
@@ -32,15 +40,15 @@ export function renderFusionClip({
           ...data,
           frame,
           status: [
-            data.lastFrameTime && `Last: ${data.lastFrameTime.toFixed(2)}`,
-            data.averageFrameTime && `Avg: ${data.averageFrameTime.toFixed(2)}`,
+            data.lastFrameTime && `Last: ${data.lastFrameTime.toFixed(2)}s`,
+            data.averageFrameTime && `Avg: ${data.averageFrameTime.toFixed(2)}s`,
           ]
             .filter(Boolean)
             .join(' | '),
         });
       },
     });
-  })();
+  })().catch(e => e);
 
   (emitter as any).done = promise;
 

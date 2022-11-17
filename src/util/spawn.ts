@@ -66,6 +66,7 @@ export function spawnReadCTData<Wait extends boolean = true>(
   const { onData, ...spawnOpts } = opts;
   let isDataLine = false;
   function onLine(line: string) {
+    log('debug ' + line);
     if (isDataLine) {
       onData(JSON.parse(line));
       isDataLine = false;

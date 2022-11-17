@@ -1,3 +1,5 @@
+/* eslint-disable require-atomic-updates */
+/* eslint-disable @typescript-eslint/no-loop-func */
 import path from 'path';
 import {
   BoolNum,
@@ -6,10 +8,15 @@ import {
   ClipDepth,
   Composition,
   FormatID,
+  FuId,
+  Input,
   LoaderTool,
   LuaTable,
   SaverTool,
+  Tool,
 } from '$/fusion-format';
+import { IRange, rangeToSingle } from '$/util';
+import { arrayGroupByA } from '$/util/array';
 import { Logger, Spinner } from '@paperdave/logger';
 import { asyncMap } from '@paperdave/utils';
 import { rename } from 'fs/promises';
@@ -21,7 +28,20 @@ import { spawnReadCTData } from '../util/spawn';
 
 const log = new Logger('arrange');
 
-async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip) {
+function setFuidInput(tool: Tool, name: string, value: string) {
+  let input = tool.Inputs.get(name);
+  if (!input) {
+    input = new Input(`{ Value = FuID { "" } }`);
+    tool.Inputs.set(name, input);
+  }
+  input.valueAs(FuId).value = value;
+}
+
+async function arrangeSingleClip(
+  project: Project,
+  clip: UnarrangedSequenceClip,
+  inputRange: IRange
+) {
   const renderOutput = getClipRenderOutput(project, clip);
   const renderInput = getClipRenderInput(project, clip);
 
@@ -69,19 +89,24 @@ async function arrangeSingleClip(project: Project, clip: UnarrangedSequenceClip)
 
           inputClip.Filename = `${renderInput}/0.exr`;
           inputClip.FormatID = FormatID.OpenEXR;
-          inputClip.StartFrame = 0;
+          inputClip.StartFrame = inputRange.start;
           inputClip.LengthSetManually = true;
-          inputClip.TrimIn = 0;
-          inputClip.TrimOut = 999999;
-          inputClip.Length = 1000000;
+          inputClip.TrimIn = inputRange.start;
+          inputClip.TrimOut = inputRange.end;
+          inputClip.Length = inputRange.end - inputRange.start + 1;
           inputClip.ExtendFirst = 0;
           inputClip.ExtendLast = 0;
           inputClip.Loop = BoolNum.True;
           inputClip.AspectMode = ClipAspectMode.FromFile;
           inputClip.Depth = ClipDepth.Format;
           inputClip.TimeCode = 0;
-          inputClip.GlobalStart = 0;
-          inputClip.GlobalEnd = 999999;
+          inputClip.GlobalStart = inputRange.start;
+          inputClip.GlobalEnd = inputRange.end;
+
+          setFuidInput(MainInput, 'Clip1.OpenEXRFormat.RedName', 'ViewLayer.Combined.R');
+          setFuidInput(MainInput, 'Clip1.OpenEXRFormat.GreenName', 'ViewLayer.Combined.G');
+          setFuidInput(MainInput, 'Clip1.OpenEXRFormat.BlueName', 'ViewLayer.Combined.B');
+          setFuidInput(MainInput, 'Clip1.OpenEXRFormat.AlphaName', 'ViewLayer.Combined.A');
         }
       } else if (MainInput) {
         Logger.warn(`step${clip.step}:${clip.label} requests input when none is available.`);
@@ -123,15 +148,20 @@ export async function arrangeProject(project: Project): Promise<SequenceClip[]> 
 
   let maxPadding = 0;
 
-  /* eslint-disable require-atomic-updates */
-  await asyncMap(clips, async clip => {
-    const [start, end] = await arrangeSingleClip(project, clip);
-    clip.start = start;
-    clip.end = end;
-    clip.length = end - start + 1;
-    maxPadding = Math.max(maxPadding, Math.log10(clip.start!) + 1, Math.log10(clip.end!) + 1);
-    spinner.update({ n: spinner.props.n + 1 });
-  });
+  const steps = arrayGroupByA(clips, x => x.step);
+
+  let lastStepInput: IRange[] = [];
+  for (const stepClips of steps) {
+    lastStepInput = await asyncMap(stepClips, async clip => {
+      const [start, end] = await arrangeSingleClip(project, clip, rangeToSingle(lastStepInput));
+      clip.start = start;
+      clip.end = end;
+      clip.length = end - start + 1;
+      maxPadding = Math.max(maxPadding, Math.log10(clip.start!) + 1, Math.log10(clip.end!) + 1);
+      spinner.update({ n: spinner.props.n + 1 });
+      return { start, end };
+    });
+  }
 
   for (const clip of clips) {
     const desiredFileName = path.join(

@@ -60,24 +60,28 @@ export class FusionRenderNode {
   }
 
   close() {
-    if (this.server && !this.server.killed) {
-      logFusionServer('Stopping Fusion Script Server');
-      try {
-        this.server?.kill();
-      } catch {}
-    }
     if (this.renderNode && !this.renderNode.killed) {
+      const renderNodePid = this.renderNode.pid;
       logFusionRenderNode('Stopping Fusion Render Node');
       try {
         this.renderNode.kill();
+        this.renderNode.kill(9);
+        Bun.spawnSync({ cmd: ['kill', '-9', String(renderNodePid)] } as any);
+      } catch {}
+    }
+    if (this.server && !this.server.killed) {
+      const serverPid = this.server.pid;
+      logFusionServer('Stopping Fusion Script Server');
+      try {
+        this.server.kill();
+        this.server.kill(9);
+        Bun.spawnSync({ cmd: ['kill', '-9', String(serverPid)] } as any);
       } catch {}
     }
   }
 }
 
 export async function startFusionRenderNode(project: Project) {
-  const logFile = process.env.DEBUG ? project.paths.fusionLog : undefined;
-
   let server: Subprocess | undefined;
   let renderNode: Subprocess;
   let renderNodeUid: string;
@@ -126,15 +130,16 @@ export async function startFusionRenderNode(project: Project) {
     // but the above method would theoretically be more reliable which is a plus.
 
     server = Bun.spawn({
-      cmd: [project.paths.execFusionScript, '-S'],
-    });
+      cmd: [project.paths.execFusionServer, '-S'],
+      stdio: ['inherit', 'inherit', 'inherit'],
+    } as any);
     await delay(100);
     logFusionServer(`Starting Fusion Script Server [PID: ${server.pid}]`);
   } else {
     logFusionServer('Fusion Script Server is already running');
   }
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     let started = false;
     let match;
     const timer = setTimeout(() => {
@@ -149,14 +154,13 @@ export async function startFusionRenderNode(project: Project) {
       cmd: [
         //
         project.paths.execFusionRender,
-        ...(logFile ? ['-log', logFile] : []),
       ],
       onStdout: line => {
         if (!started && (match = /^Fusion Started: (.*)$/.exec(line))) {
           started = true;
           renderNodeUid = match[1];
           clearTimeout(timer);
-          resolve(undefined);
+          resolve();
         } else {
           logFusionRenderNode(line);
         }
