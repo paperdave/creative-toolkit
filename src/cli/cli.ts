@@ -2,6 +2,7 @@
 import path from 'path';
 import YAML from 'yaml';
 import { TOOLKIT_VERSION } from '$/constants';
+import { killFusionRenderNode } from '$/fusion-server/fusion-render-node';
 import { hint } from '$/logger';
 import { loadProject, Project } from '$/project';
 import { chalk, injectLogger, Logger } from '@paperdave/logger';
@@ -95,8 +96,9 @@ try {
 
   if (project) {
     await project.write();
-    project.close();
   }
+
+  await killFusionRenderNode();
 
   // TODO: Bun #880
   // const timer = setTimeout(() => {
@@ -107,6 +109,6 @@ try {
   process.exit(0);
 } catch (error) {
   Logger.error(error as any);
-  project?.close?.();
+  await killFusionRenderNode();
   process.exit(1);
 }

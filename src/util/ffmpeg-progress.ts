@@ -27,7 +27,7 @@
 //   return new Promise<void>((resolve, reject) => {
 //     let log = "";
 //     const ffmpeg = new FFMpegProgress(args, {
-//       cmd: project.paths.execFFmpeg,
+//       cmd: appPath.ffmpeg,
 //       hideFFConfig: true,
 //       cwd: project.root,
 //       ...opts,

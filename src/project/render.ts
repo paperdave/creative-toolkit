@@ -1,4 +1,5 @@
 import path from 'path';
+import { appPath } from '$/global/exec-paths';
 import {
   countRangeFrames,
   getFFMpegH264Args,
@@ -185,7 +186,7 @@ export async function renderProject({
   log('render clips done what if we made an mp4');
 
   const ffmpegArgs = [
-    project.paths.execFFmpeg,
+    appPath.ffmpeg,
     '-hide_banner',
     '-y',
     '-r',

@@ -9,6 +9,7 @@
       }
     ],
     "new-cap": "off",
-    "no-empty-pattern": "off"
+    "no-empty-pattern": "off",
+    "require-atomic-updates": "off"
   }
 }

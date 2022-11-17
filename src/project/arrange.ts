@@ -15,6 +15,7 @@ import {
   SaverTool,
   Tool,
 } from '$/fusion-format';
+import { appPath } from '$/global/exec-paths';
 import { IRange, rangeToSingle } from '$/util';
 import { arrayGroupByA } from '$/util/array';
 import { Logger, Spinner } from '@paperdave/logger';
@@ -50,7 +51,7 @@ async function arrangeSingleClip(
       let data;
       await spawnReadCTData({
         cmd: [
-          project.paths.execBlender,
+          appPath.blender,
           '--background',
           clip.filename,
           '--python',

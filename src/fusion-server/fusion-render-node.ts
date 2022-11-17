@@ -1,87 +1,34 @@
 import path from 'path';
+import { appPath } from '$/global/exec-paths';
 import { delay } from '@paperdave/utils';
 import { Subprocess } from 'bun';
 import { existsSync } from 'fs';
 import { isFusionServerRunning } from './detect-running';
 import { logFusionRenderNode, logFusionScript, logFusionServer } from './logger';
-import { Project } from '../project/project';
+import { SpawnScriptOpts } from './types';
 import { spawnReadCTData, spawnReadLines } from '../util/spawn';
 
 const FUSION_STARTUP_THRESHOLD = 15;
 
-interface SpawnScriptOpts<Wait extends boolean> {
-  script: string;
-  env?: Record<string, string>;
-  onData?(data: any): void;
-  onLine?(line: string): void;
-  wait?: Wait;
+let singleton: FusionRenderNode | Promise<FusionRenderNode> | undefined;
+
+export async function getFusionRenderNode(): Promise<FusionRenderNode> {
+  if (singleton) {
+    return singleton;
+  }
+  singleton = startFusionRenderNode();
+  singleton = await singleton;
+  return singleton;
 }
 
-export class FusionRenderNode {
-  private constructor(
-    public project: Project,
-    readonly server: Subprocess | null,
-    readonly renderNode: Subprocess,
-    readonly renderNodeUid: string
-  ) {}
-
-  spawnScript<Wait extends boolean = true>({
-    script,
-    onData,
-    onLine,
-    env,
-    wait,
-  }: SpawnScriptOpts<Wait>): Wait extends true ? Promise<number> : Subprocess {
-    const scriptPath = path.resolve(path.join(import.meta.dir, '../fusion-scripts'), script);
-    // fuscript will not print any errors if there is no script file, so let's do that check
-    if (!existsSync(scriptPath)) {
-      throw new Error(`Script not found: ${script}`);
-    }
-    const common = {
-      cmd: [this.project.paths.execFusionScript, scriptPath],
-      onData: onData ?? (() => {}),
-      env: {
-        ...process.env,
-        ct_fusion_uuid: this.renderNodeUid,
-        ...env,
-      },
-      wait,
-    };
-    return onData
-      ? spawnReadCTData({
-          ...common,
-          onData,
-        })
-      : spawnReadLines({
-          ...common,
-          onStdout: onLine ?? logFusionScript,
-          onStderr: onLine ?? logFusionScript,
-        });
-  }
-
-  close() {
-    if (this.renderNode && !this.renderNode.killed) {
-      const renderNodePid = this.renderNode.pid;
-      logFusionRenderNode('Stopping Fusion Render Node');
-      try {
-        this.renderNode.kill();
-        this.renderNode.kill(9);
-        Bun.spawnSync({ cmd: ['kill', '-9', String(renderNodePid)] } as any);
-      } catch {}
-    }
-    if (this.server && !this.server.killed) {
-      const serverPid = this.server.pid;
-      logFusionServer('Stopping Fusion Script Server');
-      try {
-        this.server.kill();
-        this.server.kill(9);
-        Bun.spawnSync({ cmd: ['kill', '-9', String(serverPid)] } as any);
-      } catch {}
-    }
+// TODO: make this not async
+export async function killFusionRenderNode() {
+  if (singleton) {
+    (await singleton).close();
   }
 }
 
-export async function startFusionRenderNode(project: Project) {
+async function startFusionRenderNode(): Promise<FusionRenderNode> {
   let server: Subprocess | undefined;
   let renderNode: Subprocess;
   let renderNodeUid: string;
@@ -89,48 +36,15 @@ export async function startFusionRenderNode(project: Project) {
   const fusionServerRunning = await isFusionServerRunning();
 
   if (!fusionServerRunning) {
-    // TODO: wait for Blackmagic Design to fix fuscript buffering the logs in the first place
-    // TODO: refactor this into a method for spawning a daemon with a "trigger" log line.
-    // await new Promise((resolve, reject) => {
-    //   let started = false;
-
-    //   const timer = setTimeout(() => {
-    //     if (!started) {
-    //       server?.kill(9);
-    //       reject(
-    //         new Error(`Fusion script server took too long to start (>${FUSION_STARTUP_THRESHOLD}s)`)
-    //       );
-    //     }
-    //   }, 1000 * FUSION_STARTUP_THRESHOLD);
-
-    //   server = spawnReadLines({
-    //     cmd: [project.paths.execFusionScript, '-S'],
-    //     onStdout: line => {
-    //       if (line.startsWith('FusionScript Server') && line.endsWith('Started') && !started) {
-    //         started = true;
-    //         resolve(undefined);
-    //       } else {
-    //         logFusionServer(line);
-    //       }
-    //     },
-    //     onStderr: line => logFusionServer(line),
-    //     wait: false,
-    //   });
-    //   logFusionServer(`Starting Fusion Script Server [PID: ${server.pid}]`);
-
-    //   server.exited.then(() => {
-    //     if (!started) {
-    //       clearTimeout(timer);
-    //       reject(new Error('Fusion script server exited before starting'));
-    //     }
-    //   });
-    // });
-
-    // Workaround: in some senses i dont know why i don't just *do this instead*
-    // but the above method would theoretically be more reliable which is a plus.
-
+    // I had an idea to spawn this with stdout piping and then waiting for a "ready"
+    // message, but there's a ton of weird issues, from FusionServer buffering it's stdout
+    // and making it unreadable to pipes, but also weird stuff in bun like:
+    // https://github.com/oven-sh/bun/issues/1498
+    // plus some other stuff that cause THIS process to keep an open ref.
+    // And honestly, this approach works 99% of the way and is simple enough, so I think
+    // we'll keep it and hope that bun fixes whatever is causing the ref to stay open.
     server = Bun.spawn({
-      cmd: [project.paths.execFusionServer, '-S'],
+      cmd: [appPath.fusionServer, '-S'],
       stdio: ['ignore', 'ignore', 'ignore'],
     } as any);
     await delay(100);
@@ -151,10 +65,7 @@ export async function startFusionRenderNode(project: Project) {
       }
     }, 1000 * FUSION_STARTUP_THRESHOLD);
     renderNode = spawnReadLines({
-      cmd: [
-        //
-        project.paths.execFusionRender,
-      ],
+      cmd: [appPath.fusionRenderNode],
       onStdout: line => {
         if (!started && (match = /^Fusion Started: (.*)$/.exec(line))) {
           started = true;
@@ -178,5 +89,71 @@ export async function startFusionRenderNode(project: Project) {
   });
 
   // @ts-expect-error "Private" API
-  return new FusionRenderNode(project, server, renderNode, renderNodeUid);
+  return new FusionRenderNode(server, renderNode, renderNodeUid);
+}
+
+export class FusionRenderNode {
+  private constructor(
+    readonly server: Subprocess | null,
+    readonly renderNode: Subprocess,
+    readonly renderNodeUid: string
+  ) {}
+
+  spawnScript<Wait extends boolean = true>({
+    script,
+    onData,
+    onLine,
+    env,
+    wait,
+  }: SpawnScriptOpts<Wait>): Wait extends true ? Promise<number> : Subprocess {
+    const scriptPath = path.resolve(path.join(import.meta.dir, '../fusion-scripts'), script);
+    // fuscript will not print any errors if there is no script file, so let's do that check
+    if (!existsSync(scriptPath)) {
+      throw new Error(`Script not found: ${script}`);
+    }
+    const common = {
+      cmd: [appPath.fuscript, scriptPath],
+      onData: onData ?? (() => {}),
+      env: {
+        ...process.env,
+        ct_fusion_uuid: this.renderNodeUid,
+        ...env,
+      },
+      wait,
+    };
+    return onData
+      ? spawnReadCTData({
+          ...common,
+          onData,
+        })
+      : spawnReadLines({
+          ...common,
+          onStdout: onLine ?? logFusionScript,
+          onStderr: onLine ?? logFusionScript,
+        });
+  }
+
+  close() {
+    // I really want to make sure this kill works, so I go a tad overboard:
+    if (this.renderNode && !this.renderNode.killed) {
+      const renderNodePid = this.renderNode.pid;
+      logFusionRenderNode('Stopping Fusion Render Node');
+      try {
+        this.renderNode.kill();
+        this.renderNode.kill(9);
+        Bun.spawnSync({ cmd: ['kill', '-9', String(renderNodePid)] } as any);
+      } catch {}
+    }
+    if (this.server && !this.server.killed) {
+      const serverPid = this.server.pid;
+      logFusionServer('Stopping Fusion Script Server');
+      try {
+        this.server.kill();
+        this.server.kill(9);
+        Bun.spawnSync({ cmd: ['kill', '-9', String(serverPid)] } as any);
+      } catch {}
+    }
+
+    singleton = null!;
+  }
 }

@@ -1,3 +1,4 @@
+import { getFusionRenderNode } from '$/fusion-server/fusion-render-node';
 import { Emitter } from '@paperdave/events';
 import { Logger } from '@paperdave/logger';
 import { ClipRenderer, ClipRendererEvents, RenderClipOptions } from './render-clip';
@@ -21,7 +22,7 @@ export function renderFusionClip({
       frame,
       status: 'Loading Render Node...',
     });
-    const renderNode = await project.getFusionRenderNode();
+    const renderNode = await getFusionRenderNode();
     emitter.emit('raw_progress', {
       frame,
       status: 'Loading Composition...',

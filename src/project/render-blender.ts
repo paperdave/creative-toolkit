@@ -1,3 +1,4 @@
+import { appPath } from '$/global/exec-paths';
 import { Emitter } from '@paperdave/events';
 import { Logger } from '@paperdave/logger';
 import { ClipRenderer, ClipRendererEvents, RenderClipOptions } from './render-clip';
@@ -20,13 +21,7 @@ export function renderBlenderClip({
 
   const promise = (async () => {
     const exitCode = await spawnReadLines({
-      cmd: [
-        project.paths.execBlender,
-        '-b',
-        clip.filename,
-        '-f',
-        rangeToString(resolveRange(ranges)),
-      ],
+      cmd: [appPath.blender, '-b', clip.filename, '-f', rangeToString(resolveRange(ranges))],
       onStdout(line) {
         // Status:
         // Fra:2 Mem:42.85M (Peak 43.96M) | Time:00:00.49 | Rendering 12 / 256 samples

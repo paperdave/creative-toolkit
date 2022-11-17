@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/require-await */
 import path from 'path';
 import { RunCommandNoProject } from '$/cli';
+import { appPath } from '$/global/exec-paths';
 import { createAPIServer } from '$/gui-api';
 import { apiAddProject } from '$/gui-api/state/projects';
-import { DEFAULT_PATHS } from '$/project';
 import { CLIError, Logger } from '@paperdave/logger';
 
 const log = new Logger('gui');
@@ -11,10 +11,7 @@ const log = new Logger('gui');
 export const requiresProject = false;
 
 export const run: RunCommandNoProject = async ({ project }) => {
-  const cmd = [
-    project ? project.paths.execElectron : DEFAULT_PATHS.execElectron,
-    path.join(import.meta.dir, '../../gui-electron/bootstrap.cjs'),
-  ];
+  const cmd = [appPath.electron, path.join(import.meta.dir, '../../gui-electron/bootstrap.cjs')];
 
   if (cmd[0] == null) {
     throw new CLIError(

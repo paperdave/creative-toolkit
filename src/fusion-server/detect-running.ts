@@ -17,14 +17,3 @@ export async function isFusionServerRunning() {
     return false;
   }
 }
-
-const td = new TextDecoder();
-export function getFusionRenderNodePid() {
-  const { stdout } = Bun.spawnSync({
-    cmd: ['pgrep', '-f', 'FusionRenderNode'],
-    stdout: 'pipe',
-    stderr: 'pipe',
-  });
-  const id = td.decode(stdout).trim().split('\n')[0];
-  return id ? parseInt(id, 10) : null;
-}

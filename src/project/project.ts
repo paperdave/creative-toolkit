@@ -7,9 +7,8 @@ import { existsSync, mkdirSync } from 'fs';
 import { readdir } from 'fs/promises';
 import { arrangeProject } from './arrange';
 import { SequenceClip, UnarrangedSequenceClip } from './clip';
-import { DEFAULT_PATHS, extensionToRenderProgram, Paths, resolveExec } from './paths';
+import { DEFAULT_PATHS, extensionToRenderProgram, Paths } from './paths';
 import { AudioTiming, RawProject } from './project-json';
-import { FusionRenderNode, startFusionRenderNode } from '../fusion-server/fusion-render-node';
 
 const excludedClipExtensions = ['.autocomp'];
 
@@ -41,9 +40,10 @@ export class Project {
     for (const pathObject of pathObjects) {
       for (const key in pathObject) {
         if (pathObject[key as keyof Paths]) {
-          this.paths[key as keyof Paths] = key.startsWith('exec')
-            ? resolveExec(pathObject[key as keyof Paths], this.root)
-            : path.resolve(this.root, pathObject[key as keyof Paths].replaceAll('{id}', this.id));
+          this.paths[key as keyof Paths] = path.resolve(
+            this.root,
+            pathObject[key as keyof Paths].replaceAll('{id}', this.id)
+          );
         }
       }
     }
@@ -135,26 +135,11 @@ export class Project {
     return this.arrange();
   }
 
-  private cachedFusionServer?: FusionRenderNode;
-  async getFusionRenderNode() {
-    if (!this.cachedFusionServer) {
-      this.cachedFusionServer = await startFusionRenderNode(this);
-    }
-    return this.cachedFusionServer!;
-  }
-
   private cachedFilmStore?: FilmStore;
   async getFilmStore() {
     if (!this.cachedFilmStore) {
       this.cachedFilmStore = await loadFilmStore(this);
     }
     return this.cachedFilmStore;
-  }
-
-  close() {
-    if (this.cachedFusionServer) {
-      this.cachedFusionServer.close();
-      this.cachedFusionServer = undefined;
-    }
   }
 }

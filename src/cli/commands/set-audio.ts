@@ -1,5 +1,6 @@
 /* eslint-disable no-alert */
 import { RunCommand } from '$/cli';
+import { appPath } from '$/global/exec-paths';
 import { Logger } from '@paperdave/logger';
 import { existsSync } from 'fs';
 
@@ -21,7 +22,7 @@ export const run: RunCommand = async ({ project }) => {
   }
   const result = Bun.spawnSync({
     cmd: [
-      project.paths.execFFmpeg,
+      appPath.ffmpeg,
       '-hide_banner',
       '-i',
       file,
