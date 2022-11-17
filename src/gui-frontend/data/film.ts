@@ -28,6 +28,7 @@ export const activeFilmShot = derived(
 
 export async function guiActionCreateFilmShot(projectId: string, opts: FilmShotFilenameSplit) {
   const film = await postJSON<APIFilmShot>(`/project/${projectId}/film`, opts);
+  filmShot.set(projectId, film.id, film);
   filmShotList.update(projectId, old => [
     ...old,
     {
@@ -38,6 +39,5 @@ export async function guiActionCreateFilmShot(projectId: string, opts: FilmShotF
       takeCount: film.takes.length,
     },
   ]);
-  filmShot.set(projectId, film.id, film);
   return film;
 }

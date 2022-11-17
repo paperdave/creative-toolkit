@@ -49,10 +49,10 @@ export function setCacheEntry(endpoint: string, data: any) {
   listeners.forEach(fn => fn(getCacheEntry));
 }
 
-export function updateCacheEntry(endpoint: string, data: any) {
+export function updateCacheEntry(endpoint: string, updater: any) {
   const entry = getCacheEntry(endpoint) as any;
   if (entry) {
-    setCacheEntry(endpoint, { ...entry, ...data });
+    setCacheEntry(endpoint, updater(entry));
   }
 }
 
@@ -88,7 +88,7 @@ export function createSimpleCacheStore<R>(endpoint: string): SimpleDataStore<R> 
   };
 
   store.update = (updater: (data: R) => R) => {
-    updateCacheEntry(endpoint, updater(getCacheEntry(endpoint)));
+    updateCacheEntry(endpoint, updater);
   };
 
   store.fetch = (async (force = false) => {
@@ -120,7 +120,7 @@ export function createCacheStore<T extends Array<string | undefined | null | num
 
   store.update = (...args: [...T, (data: R) => R]) => {
     const endpoint = getEndpoint(...(args.slice(0, -1) as T));
-    updateCacheEntry(endpoint, (args[args.length - 1] as any)(getCacheEntry(endpoint)));
+    updateCacheEntry(endpoint, args[args.length - 1] as any);
   };
 
   // Lol sorry for types.

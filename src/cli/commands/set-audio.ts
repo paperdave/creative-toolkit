@@ -9,6 +9,7 @@ export const run: RunCommand = async ({ project }) => {
   const file = process.argv[3];
   if (!file) {
     Logger.error('no file specified');
+    return;
   }
   if (!existsSync(file)) {
     Logger.error(`"${file}" does not exist`);

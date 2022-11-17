@@ -7,6 +7,8 @@ const config = {
   kit: {
     alias: {
       $data: './data',
+      $components: './components',
+      $assets: '../../assets/',
     },
     adapter: {
       adapt() {
@@ -18,7 +20,11 @@ const config = {
       appTemplate: './index.html',
       routes: './routes',
       params: './params',
+      hooks: {
+        client: './hooks.ts',
+      },
     },
+    trailingSlash: 'always',
   },
 };
 

@@ -1,0 +1,23 @@
+layout-fill {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+input-button {
+  display: flex;
+
+  & > button {
+    flex: 1;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}

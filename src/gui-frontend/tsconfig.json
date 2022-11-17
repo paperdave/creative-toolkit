@@ -4,6 +4,8 @@
     "paths": {
       "$data": ["./data/index.ts"],
       "$data/*": ["./data/*"],
+      "$components": ["./components/index.ts"],
+      "$components/*": ["./components/*"],
       "$/*": ["../*"]
     },
     "allowSyntheticDefaultImports": true,

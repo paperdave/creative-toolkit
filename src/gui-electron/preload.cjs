@@ -14,3 +14,12 @@ electron.contextBridge.exposeInMainWorld('CTFilm', {
     electron.ipcRenderer.send('cancelCapture');
   },
 });
+
+/* eslint-disable no-console */
+const _warn = console.warn;
+console.warn = (...args) => {
+  if (typeof args[0] === 'string' && args[0].includes('Electron Security Warning')) {
+    return;
+  }
+  _warn(...args);
+};

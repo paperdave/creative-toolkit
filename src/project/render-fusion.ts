@@ -1,4 +1,4 @@
-import { getFusionRenderNode } from '$/fusion-server/fusion-render-node';
+import { getFusionRenderNode } from '$/fusion-clip';
 import { Emitter } from '@paperdave/events';
 import { Logger } from '@paperdave/logger';
 import { ClipRenderer, ClipRendererEvents, RenderClipOptions } from './render-clip';

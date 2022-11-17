@@ -1,0 +1,13 @@
+<script lang='ts'>
+  import { getFilmAppLogic } from '../film-app-logic';
+  import '../film-app-logic.ts';
+  import FilmApp from '../FilmApp.svelte';
+
+  const film = getFilmAppLogic();
+</script>
+
+{#await film}
+  <p>Loading...</p>
+{:then film}
+  <FilmApp film={film} />
+{/await}

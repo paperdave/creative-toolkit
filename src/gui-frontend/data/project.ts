@@ -1,7 +1,7 @@
 import type { APIProject } from '$/gui-api/structs/project';
 import type { APIArrangeClipResult, APIProjectMeta } from '$/gui-api/structs/project-meta';
 import { page } from '$app/stores';
-import { derived } from 'svelte/store';
+import { derived, get } from 'svelte/store';
 import { createCacheStore, createSimpleCacheStore, fetchJSON, postJSON } from './fetch';
 
 export const projectList = createSimpleCacheStore<APIProjectMeta[]>('/project');
@@ -38,4 +38,8 @@ export async function guiActionArrangeClips(projectId: string) {
     return p;
   });
   return clips;
+}
+
+export function getActiveProjectFPS() {
+  return get(activeProject).fps;
 }

@@ -3,10 +3,14 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 /** @type {import('vite').UserConfig} */
 const config = {
-  plugins: [sveltekit(), nodePolyfills({ protocolImports: true })],
+  plugins: [
+    //
+    sveltekit(),
+    nodePolyfills({ protocolImports: true }),
+  ],
   server: {
     fs: {
-      allow: ['./'],
+      allow: ['./', '../../assets/'],
     },
   },
 };

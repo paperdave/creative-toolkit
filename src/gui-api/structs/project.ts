@@ -11,6 +11,7 @@ export const APIProjectSchema = t.Object(
     clips: t.Array(UnarrangedSequenceClipSchema),
     isArranged: t.Boolean(),
     hasAudio: t.Boolean(),
+    fps: t.Number({ examples: [60] }),
     paths: t.Object(
       Object.fromEntries(
         Object.entries(DEFAULT_PATHS).map(([key, value]) => [key, t.String({ examples: [value] })])
@@ -31,6 +32,7 @@ export async function serializeProject(project: Project): Promise<APIProject> {
     name: project.name,
     root: project.root,
     clips: await project.getRawClips(),
+    fps: project.fps,
     isArranged: project.arranged,
     hasAudio: project.hasAudio,
     paths: project.paths,
