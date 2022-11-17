@@ -131,7 +131,7 @@ export async function startFusionRenderNode(project: Project) {
 
     server = Bun.spawn({
       cmd: [project.paths.execFusionServer, '-S'],
-      stdio: ['inherit', 'inherit', 'inherit'],
+      stdio: ['ignore', 'ignore', 'ignore'],
     } as any);
     await delay(100);
     logFusionServer(`Starting Fusion Script Server [PID: ${server.pid}]`);
