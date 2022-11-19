@@ -4,7 +4,7 @@ import { KingWorld } from 'kingworld';
 export default (app: KingWorld) =>
   app.get(
     '/project/:projectId/audio.wav',
-    ({ params: { projectId }, set }) => {
+    ({ params: { projectId } }) => {
       const project = apiGetProjectById(projectId);
       if (!project) {
         return {
@@ -16,8 +16,7 @@ export default (app: KingWorld) =>
           error: 'Project has no audio',
         };
       }
-      set.headers['Content-Type'] = 'audio/wav';
-      return Bun.file(project.paths.audio);
+      return new Response(Bun.file(project.paths.audio));
     },
     {}
   );

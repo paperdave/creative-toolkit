@@ -39,7 +39,7 @@
     "eslint": "^8.27.0",
     "eslint-config-dave": "^3.0.11",
     "export-directory": "^0.1.0",
-    "kingworld": "^0.0.0-experimental.42",
+    "kingworld": "0.0.0-experimental.45",
     "luaparse": "^0.3.1",
     "prettier": "^2.7.1",
     "prettier-config-dave": "^1.0.7",

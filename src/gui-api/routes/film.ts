@@ -1,6 +1,6 @@
 import { KingWorld, t } from 'kingworld';
 import { apiGetProjectById } from '../state/projects';
-import { APIFilmShotPreviewSchema, APIFilmShotSchema } from '../structs/film';
+import { APIFilmShotPreviewSchema, APIFilmShotSchema, APIFilmTakeSchema } from '../structs/film';
 
 export default (app: KingWorld) =>
   app
@@ -112,6 +112,80 @@ export default (app: KingWorld) =>
             APIFilmShotSchema,
             t.Object({
               error: t.String(),
+            }),
+          ]),
+        },
+      }
+    )
+    .post(
+      '/project/:projectId/film/:shotId/take',
+      async ({ params: { projectId, shotId } }) => {
+        const project = apiGetProjectById(projectId);
+        if (!project) {
+          return {
+            error: 'Project not found',
+          };
+        }
+        const filmStore = await project.getFilmStore();
+        const shot = filmStore.getShot(shotId);
+        if (!shot) {
+          return {
+            error: 'Shot not found',
+          };
+        }
+        const take = await shot.createTake();
+        return {
+          num: take.num,
+          createdAt: take.createdAt.getTime(),
+          filename: take.filename,
+        };
+      },
+      {
+        schema: {
+          response: t.Union([
+            APIFilmTakeSchema,
+            t.Object({
+              error: t.String(),
+            }),
+          ]),
+        },
+      }
+    )
+    .post(
+      '/project/:projectId/film/:shotId/take/:takeNum/delete',
+      async ({ params: { projectId, shotId, takeNum } }) => {
+        const project = apiGetProjectById(projectId);
+        if (!project) {
+          return {
+            error: 'Project not found',
+          };
+        }
+        const filmStore = await project.getFilmStore();
+        const shot = filmStore.getShot(shotId);
+        if (!shot) {
+          return {
+            error: 'Shot not found',
+          };
+        }
+        const take = shot.getTake(takeNum);
+        if (!take) {
+          return {
+            error: 'Take not found',
+          };
+        }
+        await take.delete();
+        return {
+          status: 'ok',
+        };
+      },
+      {
+        schema: {
+          response: t.Union([
+            t.Object({
+              error: t.String(),
+            }),
+            t.Object({
+              status: t.String(),
             }),
           ]),
         },

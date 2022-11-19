@@ -1,17 +1,50 @@
 const electron = require('electron');
+const child_process = require('child_process');
 
-electron.contextBridge.exposeInMainWorld('CTFilm', {
+let ffmpeg;
+electron.contextBridge.exposeInMainWorld('CTFilmBackend', {
   async initCapture(opts) {
-    await electron.ipcRenderer.invoke('initCapture', opts);
+    ffmpeg = child_process.spawn(
+      'ffmpeg',
+      [
+        '-y',
+        '-f',
+        'rawvideo',
+        '-vcodec',
+        'rawvideo',
+        '-pix_fmt',
+        'rgba',
+        '-s',
+        `1920x1080`,
+        '-r',
+        '60',
+        '-i',
+        '-',
+        '-c:v',
+        'h264_nvenc',
+        '-pix_fmt',
+        'yuv420p',
+        '-preset',
+        'slow',
+        '-crf',
+        '19',
+        '/project/test/test.mp4',
+      ],
+      {
+        stdio: ['pipe', 'ignore', 'ignore'],
+        windowsHide: true,
+      }
+    );
   },
   pushFrame(data) {
-    electron.ipcRenderer.send('pushFrame', data);
+    ffmpeg.stdin.write(data);
+    return null;
   },
   finishCapture() {
-    electron.ipcRenderer.send('finishCapture');
+    ffmpeg.stdin.end();
   },
   cancelCapture() {
-    electron.ipcRenderer.send('cancelCapture');
+    ffmpeg.kill();
   },
 });
 

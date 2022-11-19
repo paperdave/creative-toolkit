@@ -7,7 +7,7 @@
   Object.assign(window, { ...data });
 </script>
 
-<ThemeRoot>
+<ThemeRoot primary='#AF7EFF' background='#232030' foreground='#DACAFF'>
   <slot></slot>
 
   <PopupManager />

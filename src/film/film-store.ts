@@ -123,8 +123,12 @@ export class FilmShot {
     return next > 0 ? next : 1;
   }
 
+  getTake(takeNum: number | string) {
+    return this.takes.get(Number(takeNum));
+  }
+
   /** Does not do the file writing, the caller is responsible for that. */
-  async createTakeEntry() {
+  async createTake() {
     const num = this.nextTakeNum;
     const take = new FilmTake({ num, createdAt: Date.now() }, this);
     this.takes.set(num, take);
@@ -153,10 +157,12 @@ export class FilmTake {
     return path.join(this.shot.root, `${this.num}.mp4`);
   }
 
-  async delete() {
+  async delete(write = true) {
     this.shot.takes.delete(this.num);
     await rm(this.filename, { force: true });
-    await this.shot.write();
+    if (write) {
+      await this.shot.write();
+    }
   }
 }
 

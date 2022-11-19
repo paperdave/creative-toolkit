@@ -1,6 +1,8 @@
+/// <reference types="electron" />
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { startViteDevServer } from './vite.js';
+import './film.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,7 +16,9 @@ const win = new Electron.BrowserWindow({
   webPreferences: {
     preload: path.join(dirname, './preload.cjs'),
     webSecurity: false,
+    nodeIntegration: true,
   },
+  transparent: true,
 });
 
 const url = new URL(gui.url);

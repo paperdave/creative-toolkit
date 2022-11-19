@@ -12,6 +12,10 @@ export const APIProjectSchema = t.Object(
     isArranged: t.Boolean(),
     hasAudio: t.Boolean(),
     fps: t.Number({ examples: [60] }),
+    audioTiming: t.Object({
+      bpm: t.Number({ examples: [120] }),
+      start: t.Number({ examples: [0] }),
+    }),
     paths: t.Object(
       Object.fromEntries(
         Object.entries(DEFAULT_PATHS).map(([key, value]) => [key, t.String({ examples: [value] })])
@@ -35,6 +39,10 @@ export async function serializeProject(project: Project): Promise<APIProject> {
     fps: project.fps,
     isArranged: project.arranged,
     hasAudio: project.hasAudio,
+    audioTiming: {
+      bpm: project.audioTiming.bpm,
+      start: project.audioTiming.start ?? 0,
+    },
     paths: project.paths,
   };
 }

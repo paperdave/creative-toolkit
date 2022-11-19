@@ -1,12 +1,11 @@
 import { getActiveProjectFPS } from '$data';
 import type { FilmStatus } from './film-app-logic';
 
-export function roundSecondToNearestFrame(seconds: number) {
-  const fps = getActiveProjectFPS();
+export function roundSecondToFrame(seconds: number, fps = getActiveProjectFPS()) {
   return Math.floor(seconds * fps) / fps;
 }
 
-export function getReadableStatus(status: FilmStatus) {
+export function getReadableStatus(status: FilmStatus, countdown: null | number) {
   switch (status) {
     case 'idle':
       return 'Idle...';
@@ -15,7 +14,7 @@ export function getReadableStatus(status: FilmStatus) {
     case 'previewing':
       return 'Previewing Audio...';
     case 'recording_prep':
-      return 'Recording in {time}...';
+      return `Recording in ${countdown}...`;
     case 'recording_post':
       return 'Finishing Recording...';
     default:

@@ -17,6 +17,6 @@
       "$/*": ["./src/*"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.js", "./**/*.jsx"],
+  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/**/*.cjs"],
   "exclude": ["node_modules/**/*"]
 }

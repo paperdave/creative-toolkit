@@ -24,13 +24,13 @@ export async function fetchBuffer(endpoint: string) {
   return fetch(BASE_URL + endpoint).then(res => res.arrayBuffer());
 }
 
-export async function postJSON<T>(endpoint: string, body: any): Promise<T> {
+export async function postJSON<T>(endpoint: string, body?: any): Promise<T> {
   return fetch(BASE_URL + endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(body || {}),
   }).then(res => res.json());
 }
 
@@ -56,6 +56,10 @@ export function updateCacheEntry(endpoint: string, updater: any) {
   }
 }
 
+export function deleteCacheEntry(endpoint: string) {
+  map.delete(endpoint);
+}
+
 export const data = readable(getCacheEntry, set => {
   listeners.add(set);
   return () => listeners.delete(set);
@@ -65,6 +69,7 @@ export interface SimpleDataStore<R> extends Readable<R> {
   get(): R;
   set(value: R): void;
   update(updater: (value: R) => R): void;
+  delete(): void;
   fetch(): Promise<R>;
   fetch(force: boolean): Promise<R>;
 }
@@ -74,6 +79,7 @@ export interface DataStore<T extends Array<string | undefined | null | number>, 
   get(...args: T): R;
   set(...args: [...args: T, value: R]): void;
   update(...args: [...args: T, updater: (value: R) => R]): void;
+  delete(...args: T): void;
   fetch(...args: T): Promise<R>;
   fetch(...args: [...args: T, force: boolean]): Promise<R>;
 }
@@ -96,6 +102,10 @@ export function createSimpleCacheStore<R>(endpoint: string): SimpleDataStore<R> 
     setCacheEntry(endpoint, result);
     return result;
   }) as any;
+
+  store.delete = () => {
+    deleteCacheEntry(endpoint);
+  };
 
   return store;
 }
@@ -121,6 +131,10 @@ export function createCacheStore<T extends Array<string | undefined | null | num
   store.update = (...args: [...T, (data: R) => R]) => {
     const endpoint = getEndpoint(...(args.slice(0, -1) as T));
     updateCacheEntry(endpoint, args[args.length - 1] as any);
+  };
+
+  store.delete = (...args: T) => {
+    deleteCacheEntry(getEndpoint(...args));
   };
 
   // Lol sorry for types.

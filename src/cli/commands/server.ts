@@ -18,4 +18,6 @@ export const run: RunCommandNoProject = async ({ project }) => {
     global.film = await project?.getFilmStore();
   }
   // TODO: start a repl
+
+  await new Promise(() => {});
 };

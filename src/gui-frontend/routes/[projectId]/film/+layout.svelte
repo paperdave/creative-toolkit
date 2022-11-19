@@ -44,7 +44,7 @@
 <div class="split_h">
   <div class='shots'>
     <Button on:click={addById}>Add Shot</Button>
-    <Button on:click={() => goto(`/${$activeProject.id}/film/freeform`)}>Freeform</Button>
+    <Button on:click={() => goto(`/${$activeProject.id}/film/capture`)}>Capture!</Button>
     <br>
     {#each $activeFilmShotList.sort((a, b) => a.start - b.start) as shot (shot.id)}
       <Button on:click={() => goto(`/${$activeProject.id}/film/${shot.id}`)}>
@@ -73,11 +73,12 @@
     flex: 1;
   }
   .shots {
-    background-color: #ddd;
+    background-color: rgba(var(--on-bg), 0.1);
     flex: 0 0 28rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    height:calc(100vh - 48px);
   }
   .shot {
     display: flex;
