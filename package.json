@@ -41,6 +41,7 @@
     "export-directory": "^0.1.0",
     "kingworld": "0.0.0-experimental.45",
     "luaparse": "^0.3.1",
+    "mitata": "^0.1.6",
     "prettier": "^2.7.1",
     "prettier-config-dave": "^1.0.7",
     "react": "^18.2.0",

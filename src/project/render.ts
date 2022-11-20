@@ -126,7 +126,7 @@ export async function renderProject({
 
   const missingFrames2 = [];
   for (const frame of iterateRange(framesForStep2)) {
-    if (!step2Files.includes(`${frame}.exr`)) {
+    if (!step2Files.includes(`${frame}.png`)) {
       missingFrames2.push(frame);
     }
   }
@@ -192,7 +192,7 @@ export async function renderProject({
     '-r',
     project.fps,
     '-i',
-    path.join(project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2'), '%d.exr'),
+    path.join(project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2'), '%d.png'),
     ...getFFMpegH264Args(),
     path.join(project.paths.output, 'render.mp4'),
   ];

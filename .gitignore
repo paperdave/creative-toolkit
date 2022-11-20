@@ -6,3 +6,5 @@ __pycache__
 src/cli/commands/z.ts
 .svelte-kit
 src/gui-frontend/build
+zig-out
+zig-cache

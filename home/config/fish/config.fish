@@ -9,5 +9,6 @@ set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
 alias ssh="kitty +kitten ssh"
+alias zr="zig run"
 
 set --export PATH $HOME/.bin $PATH
