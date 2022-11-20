@@ -119,10 +119,10 @@ async function arrangeSingleClip(
       } else if (MainOutput.Type !== 'Saver') {
         Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);
       } else {
-        MainOutput.Clip.Filename = `${renderOutput}/0.exr`;
-        MainOutput.Clip.FormatID = FormatID.OpenEXR;
+        MainOutput.Clip.Filename = `${renderOutput}/0.png`;
+        MainOutput.Clip.FormatID = FormatID.PNG;
         MainOutput.CreateDir = BoolNum.True;
-        MainOutput.OutputFormat = FormatID.OpenEXR;
+        MainOutput.OutputFormat = FormatID.PNG;
       }
 
       if (project.hasAudio) {
