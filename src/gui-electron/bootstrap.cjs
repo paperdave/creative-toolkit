@@ -1,4 +1,4 @@
-globalThis.Electron = globalThis.Electron || require('electron');
-Electron.app.whenReady().then(() => {
+globalThis.electron = globalThis.electron || require('electron');
+electron.app.whenReady().then(() => {
   import('./main.js');
 });

@@ -29,7 +29,7 @@ const latest = downloads.find((d: any) => d.releaseNotesTitle.startsWith('Fusion
 
 const r = latest.urls.Linux[0];
 const newVersion = `${r.major}.${r.minor}.${r.releaseNum}`.replace(/\.0\b/g, '');
-if (newVersion !== pkgver || true) {
+if (newVersion !== pkgver) {
   setVar('_downloadid', r.downloadId);
   setVar('pkgver', newVersion);
   setVar('pkgrel', '1');

@@ -21,7 +21,7 @@ import { roundSecondToFrame } from './film-utils';
 declare const CTFilmBackend: CTFilmBackend;
 
 interface CTFilmBackend {
-  initCapture(opts: { startFrame: number; endFrame: number; targetId: string }): Promise<string>;
+  initCapture(opts: { startFrame: number; endFrame: number; filename: string }): Promise<string>;
   pushFrame(data: any): void;
   finishCapture(): void;
   cancelCapture(): void;
@@ -88,6 +88,10 @@ export class FilmAppLogic {
   currentAudioInstance?: AudioInstance;
 
   private boundVideos: HTMLVideoElement[] = [];
+
+  get captureFPS() {
+    return this.project.fps === 60 ? 30 : this.project.fps;
+  }
 
   async start() {
     (globalThis as any).film = this;
@@ -249,8 +253,9 @@ export class FilmAppLogic {
     const latency = this.audioCtx.baseLatency;
 
     const { beatDuration, videoCanvas: canvas, videoCanvasCtx: ctx } = this;
-    const { fps } = this.project;
-    const { start, end } = this.targetRange;
+    const fps = this.captureFPS;
+    const start = Math.floor((this.targetRange.start / this.project.fps) * fps);
+    const end = Math.ceil((this.targetRange.end / this.project.fps) * fps);
 
     const beatOffset = (start / fps) % beatDuration;
 
@@ -275,9 +280,9 @@ export class FilmAppLogic {
 
     try {
       await CTFilmBackend.initCapture({
-        startFrame: Math.max(0, Math.floor((start - latency - beatDuration * 2) * 30) - 1),
-        endFrame: Math.floor((end - latency + beatDuration * 2) * 30 - 1),
-        targetId: this.targetId,
+        startFrame: Math.max(0, Math.floor((start - latency - beatDuration * 2) * fps) - 1),
+        endFrame: Math.floor((end - latency + beatDuration * 2) * fps - 1),
+        filename: take.filename,
       });
     } catch (error: any) {
       this.$status.set('idle');
@@ -299,7 +304,6 @@ export class FilmAppLogic {
     this.playBuffer(this.clickWeak, { delay: beatDuration * 4 - beatOffset });
 
     const startTime = roundSecondToFrame(start / fps, fps) - beatDuration * 5;
-
     const duration = roundSecondToFrame((end - start) / fps, fps);
 
     for (let i = 0; i < duration / beatDuration; i++) {
@@ -357,6 +361,8 @@ export class FilmAppLogic {
   }
 
   close() {
+    this.audioCtx.close();
+    this.stopCameraStream();
     delete (globalThis as any).film;
   }
 

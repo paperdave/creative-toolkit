@@ -1,8 +1,7 @@
-/// <reference types="electron" />
+/// <reference path="../../env.d.ts" />
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { startViteDevServer } from './vite.js';
-import './film.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -10,7 +9,7 @@ process.chdir(path.join(dirname, '../gui-frontend'));
 
 const gui = await startViteDevServer();
 
-const win = new Electron.BrowserWindow({
+const win = new electron.BrowserWindow({
   width: 800,
   height: 600,
   webPreferences: {
@@ -19,6 +18,8 @@ const win = new Electron.BrowserWindow({
     nodeIntegration: true,
   },
   transparent: true,
+  roundedCorners: true,
+  autoHideMenuBar: true,
 });
 
 const url = new URL(gui.url);
@@ -31,5 +32,5 @@ win.loadURL(url.toString());
 
 win.on('closed', () => {
   gui.stop();
-  Electron.app.quit();
+  electron.app.quit();
 });

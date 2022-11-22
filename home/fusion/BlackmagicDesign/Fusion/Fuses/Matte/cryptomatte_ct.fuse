@@ -1,0 +1,365 @@
+--[[
+Version    : 1.4.0
+Requires   : Fusion 9.0.2 - 17.1.1+
+Requires   : Resolve 15.1 - 17.1.1+
+Optional   : cjson
+Created by : Dave Caruso           [me@paperdave.net]
+             Cédric Duriau         [duriau.cedric@live.be]
+             Kristof Indeherberge  [xmnr0x23@gmail.com]
+             Andrew Hazelden       [andrew@andrewhazelden.com]
+--]]
+
+-- ============================================================================
+-- modules
+-- ============================================================================
+local cryptoutils = self and require("cryptomatte_utilities") or nil
+
+-- ============================================================================
+-- constants
+-- ============================================================================
+FUSE_NAME = "CryptomatteAlt"
+FUSE_CATEGORY = "Matte"
+FUSE_COMPANY = "Psyop"
+FUSE_HELP = "https://www.steakunderwater.com/wesuckless/viewtopic.php?f=6&t=1027"
+FUSE_URL = "https://github.com/Psyop/Cryptomatte"
+FUSE_VERSION = 140
+
+SEPARATOR_INDEX = 0
+VIEW_MODE_EDGES = "Edges"
+VIEW_MODE_COLORS = "Colors"
+VIEW_MODE_BEAUTY = "Beauty"
+VIEW_MODE_MATTE = "Matte"
+VIEW_MODES = {VIEW_MODE_COLORS, VIEW_MODE_EDGES, VIEW_MODE_BEAUTY, VIEW_MODE_MATTE}
+SHOW_CALLBACKS = false
+
+
+-- ============================================================================
+-- utils
+-- ============================================================================
+function create_separator()
+    --[[
+    Creates a separator input control.
+
+    :rtype: Input
+    ]]
+    SEPARATOR_INDEX = SEPARATOR_INDEX + 1
+    local name = string.format("Separator%s", SEPARATOR_INDEX)
+    return self:AddInput(name, name, {
+        INPID_InputControl = "SeparatorControl",
+        IC_Visible = true,
+        INP_External = false,
+        INP_Passive = true
+    })
+end
+
+
+-- ============================================================================
+-- fuse
+-- ============================================================================
+FuRegisterClass(FUSE_NAME, CT_Tool, {
+    REGS_Name = FUSE_NAME,
+    REGS_Category = FUSE_CATEGORY,
+    REGS_Company = FUSE_COMPANY,
+    REGS_OpIconString = FUSE_NAME,
+    REGS_OpDescription = FUSE_NAME,
+    REGS_URL = FUSE_URL,
+    REGS_HelpTopic = FUSE_HELP,
+    REG_NoMotionBlurCtrls = true,
+    REG_NoBlendCtrls = true,
+    REG_OpNoMask = true,
+    REG_Version = FUSE_VERSION,
+    REG_SupportsDoD = true
+})
+
+function Create()
+    --[[ Creates the user interface. ]]
+    -- input
+    InImage = self:AddInput("Input", "Input", {
+        LINKID_DataType = "Image",
+        LINK_Main = 1
+    })
+
+    -- output
+    OutImage = self:AddOutput("Output", "Output", {
+        LINKID_DataType = "Image",
+        LINK_Main = 1
+    })
+
+    -- locator
+    LocatorMatte = self:AddInput("Matte Locator", "Locator", {
+        LINKID_DataType = "Point",
+        INPID_InputControl = "OffsetControl",
+        INPID_PreviewControl = "CrosshairControl",
+        INP_External = false,
+        INP_Passive = true
+    })
+
+    ButtonAdd = self:AddInput("Add", "Add", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 1 / 3
+    })
+
+    ButtonRemove = self:AddInput("Remove", "Remove", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 1 / 3
+    })
+
+    ButtonToggle = self:AddInput("Toggle", "Toggle", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 1 / 3
+    })
+
+    create_separator()
+
+    -- preview
+    ComboViewMode = self:AddInput("View Mode", "ViewMode", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ComboControl",
+        INP_Default = 0.0,
+        INP_Integer = true,
+        { CCS_AddString = VIEW_MODES[1] },
+        { CCS_AddString = VIEW_MODES[2] },
+        { CCS_AddString = VIEW_MODES[3] },
+        { CCS_AddString = VIEW_MODES[4] },
+        INP_External = true
+    })
+
+    create_separator()
+
+    -- matte list
+    TextMatteList = self:AddInput("Matte List", "MatteList", {
+        LINKS_Name = "Matte List",
+        LINKID_DataType = "Text",
+        INPID_InputControl = "TextEditControl",
+        TEC_Lines = 1,
+        TEC_Wrap = false,
+        TEC_DeferSetInputs = true,
+        INP_External = true
+    })
+
+    ButtonClear = self:AddInput("Clear", "Clear", {
+        LINKS_Name = "Clear",
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_Integer = true,
+        INP_DoNotifyChanged = true,
+        INP_External = false
+    })
+
+    create_separator()
+
+    -- layer selection
+    -- SliderCryptoLayer = self:AddInput("Layer Index", "LayerIndex", {
+    --     LINKID_DataType = "Number",
+    --     INPID_InputControl = "SliderControl",
+    --     IC_Steps = 1,
+    --     INP_Integer = true,
+    --     INP_MinAllowed = 1,
+    --     INP_MaxAllowed = 100,
+    --     INP_External = true
+    -- })
+
+    -- TextCryptoLayer = self:AddInput("Layer Name", "LayerName", {
+    --     LINKID_DataType = "Text",
+    --     INPID_InputControl = "TextEditControl",
+    --     TEC_Lines = 1,
+    --     TEC_ReadOnly = true,
+    --     INP_External = false
+    -- })
+
+    -- advanced
+    SeparatorCallbacks = create_separator()
+    SeparatorCallbacks:SetAttrs({ICS_ControlPage = "Advanced"})
+
+    -- name checker
+    LocatorName = self:AddInput("Locator Name Checker", "LocatorName", {
+        LINKID_DataType = "Point",
+        INPID_InputControl = "OffsetControl",
+        INPID_PreviewControl = "CrosshairControl",
+        ICS_Name = "Name Checker Locator",
+        ICS_ControlPage = "Advanced",
+        PC_Visible = false,
+        INP_External = false
+    })
+
+    ButtonShow = self:AddInput("Show", "Show", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 0.5
+    })
+
+    ButtonHide = self:AddInput("Hide", "Hide", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "ButtonControl",
+        INP_External = false,
+        INP_DoNotifyChanged = true,
+        ICD_Width = 0.5
+    })
+
+    TextMatteName = self:AddInput("Matte Name", "MatteName", {
+        LINKS_Name = "Matte Name",
+        LINKID_DataType = "Text",
+        INPID_InputControl = "TextEditControl",
+        TEC_Lines = 1,
+        TEC_Wrap = false,
+        TEC_ReadOnly = true,
+        INP_External = false
+    })
+
+    separator = create_separator()
+
+    -- callbacks
+    separator:SetAttrs({IC_Visible = SHOW_CALLBACKS})
+    CheckboxAdd = self:AddInput("Add Callback", "AddCallback", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "CheckboxControl",
+        INP_Integer = true,
+        INP_Default = 0.0,
+        IC_Visible = SHOW_CALLBACKS,
+        INP_External = false
+    })
+
+    CheckboxRemove = self:AddInput("Remove Callback", "RemoveCallback", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "CheckboxControl",
+        INP_Integer = true,
+        INP_Default = 0.0,
+        IC_Visible = SHOW_CALLBACKS,
+        INP_External = false
+    })
+
+    CheckboxToggle = self:AddInput("Toggle Callback", "ToggleCallback", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "CheckboxControl",
+        INP_Integer = true,
+        INP_Default = 0.0,
+        IC_Visible = SHOW_CALLBACKS,
+        INP_External = false
+    })
+end
+
+p = nil
+
+function InitChunkProcessor()
+    global_p_00 = Pixel()
+    global_p_01 = Pixel()
+    local_p = Pixel()
+
+    pixptr_00 = PixPtr(layer_0_image, global_p_00)
+    pixptr_01 = PixPtr(layer_1_image, global_p_01)
+    pixptr_out = PixPtr(output_image, local_p)
+end
+
+function ProcessSingleChunk(y)
+    local p = Pixel()
+	for x=0,In.Width-1 do
+		In:GetPixel(x,y, p)
+		local l1a = p.U
+		local l1b = p.V
+		local l1g = p.NX
+		local l1r = p.NY
+        local l2a = p.NZ
+        local l2b = p.VectX
+        local l2g = p.VectY
+        local l2r = p.BackVectX
+
+        -- get mantissa of R and B channels of both layer 0 and 1
+        local m00_rg, _ = math.frexp(math.abs(l1r))
+        local m00_ba, _ = math.frexp(math.abs(l1b))
+        local m01_rg, _ = math.frexp(math.abs(l2r))
+        local m01_ba, _ = math.frexp(math.abs(l2b))
+        
+        -- calculate RGB channel values for final id colored image
+        -- red
+        local r_00_rg = (m00_rg * 1 % 0.25) * l1g
+        local r_00_ba = (m00_ba * 1 % 0.25) * l1a
+        local r_01_rg = (m01_rg * 1 % 0.25) * l2g
+        local r_01_ba = (m01_ba * 1 % 0.25) * l2a
+        
+        -- green
+        local g_00_rg = (m00_rg * 4 % 0.25) * l1g
+        local g_00_ba = (m00_ba * 4 % 0.25) * l1a
+        local g_01_rg = (m01_rg * 4 % 0.25) * l2g
+        local g_01_ba = (m01_ba * 4 % 0.25) * l2a
+
+        -- blue
+        local b_00_rg = (m00_rg * 16 % 0.25) * l1g
+        local b_00_ba = (m00_ba * 16 % 0.25) * l1a
+        local b_01_rg = (m01_rg * 16 % 0.25) * l2g
+        local b_01_ba = (m01_ba * 16 % 0.25) * l2a
+
+        -- store calculated R,G and B values
+        p.R = (r_00_rg + r_00_ba + r_01_rg + r_01_ba)
+        p.G = (g_00_rg + g_00_ba + g_01_rg + g_01_ba)
+        p.B = (b_00_rg + b_00_ba + b_01_rg + b_01_ba)
+        p.A = 0
+        
+		Out:SetPixel(x,y, p)
+	end
+end
+
+function Process(req)sophia⁷#5616
+    local t_start = os.clock()
+
+    local current_matte_names_str = TextMatteList:GetSource(req.Time).Value
+    local input_image = InImage:GetValue(req)
+
+    local output_image = input_image:CopyOf()
+    output_image:Clear()
+
+    self:DoMultiProcess(
+        InitChunkProcessor,
+        {
+            In = input_image,
+            Gain = 1.5,
+            Out = output_image
+        },
+        input_image.Height,
+        ProcessSingleChunk
+    )
+
+    OutImage:Set(req, output_image)
+end
+
+function NotifyChanged(inp, param, time)
+    --[[
+    Handles all input control events.
+
+    :param inp: Input that triggered a signal.
+    :type inp: Input
+
+    :param param: Parameter object holding the (new) value.
+    :type param: Parameter
+
+    :param time: Current frame number.
+    :type time: number
+    ]]
+    -- trigger callbacks
+    if param and param.Value == 1 then
+        if inp == ButtonAdd then
+            CheckboxAdd:SetSource(Number(1), time, 0)
+        elseif inp == ButtonRemove then
+            CheckboxRemove:SetSource(Number(1), time, 0)
+        elseif inp == ButtonToggle then
+            CheckboxToggle:SetSource(Number(1), time, 0)
+        elseif inp == ButtonClear then
+            TextMatteList:SetSource(Text(""), time, 0)
+        elseif inp == ButtonShow then
+            LocatorName:SetAttrs({PC_Visible = true})
+        elseif inp == ButtonHide then
+            TextMatteName:SetSource(Text(""), time, 0)
+            LocatorName:SetAttrs({PC_Visible = false})
+        end
+    end
+end

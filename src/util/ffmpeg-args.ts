@@ -23,27 +23,12 @@ export function isNvencAvailable(): boolean {
 }
 
 export function getFFMpegH264Args() {
-  if (isNvencAvailable()) {
-    return [
-      ['-c:v', 'h264_nvenc'],
-      ['-preset:v', 'slow'],
-      ['-tune:v', 'hq'],
-      ['-rc:v', 'vbr'],
-      ['-cq:v', '19'],
-      ['-b:v', '0'],
-      ['-profile:v', 'high'],
-      ['-c:a', 'aac'],
-      ['-pix_fmt', 'yuv420p'],
-      ['-movflags', '+faststart'],
-    ].flat();
-  }
-
   return [
-    ['-c:v', 'libx264'],
+    ['-c:v', isNvencAvailable() ? 'h264_nvenc' : 'libx264'],
     ['-preset:v', 'slow'],
     ['-tune:v', 'hq'],
     ['-rc:v', 'vbr'],
-    ['-cq:v', '19'],
+    ['-cq:v', '18'],
     ['-b:v', '0'],
     ['-profile:v', 'high'],
     ['-c:a', 'aac'],

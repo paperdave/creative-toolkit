@@ -54,7 +54,7 @@
 			PipeStyle = 1,
 			Direction = 0
 		},
-		LastFile = "/render/Test-Sequencer-Step1/1.exr",
+		LastFile = "/render/Donut-Sequencer-Step1/0.jpg",
 		Interactive = {
 			Proxy = {
 				Scale = 3,
@@ -714,7 +714,7 @@
 			Pos = {
 				Top = 413,
 				Height = 500,
-				Left = 1255,
+				Left = 1313,
 				Width = 240
 			}
 		},
@@ -859,6 +859,11 @@
 		},
 		Script = {
 			EditorPath = "",
+			GlobalData = {
+				ReadEXR = {
+					lastFolder = "/render/Donut-Sequencer-Step1/"
+				}
+			},
 			Python3Forced = false,
 			LoginName = "",
 			LoginRequired = 0,
@@ -898,18 +903,18 @@
 				["LoaderCache:"] = "Temp:DiskCache",
 				["UserPaths:"] = "UserData:;AllData:;Fusion:;Reactor:Deploy",
 				["Templates:"] = "UserPaths:Templates",
-				["Fonts:"] = "SystemFonts:",
+				["Models:"] = "Fusion:Models",
 				["Reactor:"] = "/var/BlackmagicDesign/Fusion/Reactor/",
 				["SystemFonts:"] = "$(FUSION_FONTS);/usr/share/fonts",
 				["Macros:"] = "UserPaths:Macros",
-				["Settings:"] = "UserPaths:Settings",
+				["Thumbs:"] = "Stamps:",
 				["DiskCaches:"] = "Temp:DiskCache",
 				["Queues:"] = "AllDocs:Queue",
 				["Stamps:"] = "UserData:Stamps",
-				["Thumbs:"] = "Stamps:",
+				["Settings:"] = "UserPaths:Settings",
 				["Previews:"] = "Temp:",
 				["Plugins:"] = "UserPaths:Plugins",
-				["Models:"] = "Fusion:Models",
+				["Fonts:"] = "SystemFonts:",
 				["Scripts:"] = "UserPaths:Scripts;Reactor:System/Scripts",
 				["Bins:"] = "UserData:Bins",
 				["Filters:"] = "UserPaths:Filters"
@@ -998,7 +1003,9 @@
 				{ "/project/test/step2/", 19312 },
 				{ "/render/What-Waveform/", 19312 },
 				{ "/render/Test-Sequencer-Step1/", 19312 },
-				{ "/project/test/step2/", 19314 }
+				{ "/project/test/step2/", 19314 },
+				{ "/project/donut/step2/", 19316 },
+				{ "/render/Donut-Sequencer-Step1/", 19316 }
 			}
 		},
 		FloatingListBox = {
@@ -1025,7 +1032,7 @@
 		VideoIO = {
 			ShowSplash = false
 		},
-		LastCompFile = "/project/test/step2/000-250_Composition1.comp",
+		LastCompFile = "/project/donut/step2/102-229_Composition1.comp",
 		DXPreview = {
 			KeepAspect = true,
 			Monitor = 0,
@@ -1101,6 +1108,9 @@
 			SaveCompressedComps = false
 		},
 		RecentComps = {
+			"/project/donut/step2/102-229_Composition1.comp",
+			"/project/donut/step2/000-730_Composition1.comp",
+			"/project/donut/step2/054-730_Composition1.comp",
 			"/project/test/step2/000-250_Composition1.comp",
 			"/project/test/step2/Composition1.comp",
 			"/home/dave/Desktop/woah.comp",
@@ -1112,9 +1122,7 @@
 			"/code/paperdave/creative-toolkit/assets/fusion/default.comp",
 			"/home/dave/Documents/BlackmagicDesign/Fusion/template001.comp",
 			"/home/dave/Documents/BlackmagicDesign/Fusion/template.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/test.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/Sampling.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/stresstest.comp"
+			"/home/dave/Documents/BlackmagicDesign/Fusion/test.comp"
 		},
 		ActionStrip = {
 			ToolbarLocked = false,

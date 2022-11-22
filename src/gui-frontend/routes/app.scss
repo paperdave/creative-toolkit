@@ -1,5 +1,7 @@
 body > theme-root {
-  background-color: #000000dd;
+  --on-bg: 250, 232, 255 !important;
+  background-color: rgba(0, 0, 0, 0.3);
+  user-select: none;
 }
 layout-fill {
   display: flex;

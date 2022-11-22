@@ -17,7 +17,7 @@ electron.contextBridge.exposeInMainWorld('CTFilmBackend', {
         '-s',
         `1920x1080`,
         '-r',
-        '60',
+        '30',
         '-i',
         '-',
         '-c:v',
@@ -28,7 +28,7 @@ electron.contextBridge.exposeInMainWorld('CTFilmBackend', {
         'slow',
         '-crf',
         '19',
-        '/project/test/test.mp4',
+        opts.filename,
       ],
       {
         stdio: ['pipe', 'ignore', 'ignore'],
