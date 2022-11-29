@@ -1,19 +1,21 @@
+# we derive render visibility from viewport visibility, doing the other way around just doesn't work
+# when animating stuff, so idk.
+#
+# initially this used the msgbus rna stuff, but in reality this isnt needed at all since render
+# visibility is only meaningful at ... render time. in the future this should be rewritten to
+# only use render events and stuff, but this works.
+#
+# this addon is a part of paperdave's creative toolkit, but you can also install it as a
+# standalone addon by installing this file as an addon or running it as a script.
+ 
 import bpy
 from bpy.app.handlers import persistent
 import textwrap
 
-# we derive render visibility from viewport visibility, doing the other way around just doesn't work
-# when animating stuff, so idk.
-
-# initially this used the msgbus rna stuff, but in reality this isnt needed at all since render
-# visibility is only meaningful at ... render time. in the future this should be rewritten to
-# only use render events and stuff, but this works.
-
 bl_info = {
   'name': "Creative Toolkit - Sync Render Visibility",
   'author': "Dave Caruso",
-  'version': (1, 0, 0),
-  'blender': (3, 2, 0),
+  'blender': (3, 3, 0),
   'api': 44136,
   'description': "makes visibility options a little more sensible. disabled by default in files",
   'wiki_url': "https://github.com/paperdave/creative-toolkit/blob/main/src/blender-addon/sync_render_visibility.py",

@@ -3,20 +3,18 @@
 # of visible characters. it also supports dynamic python driven texts, data blocks,
 # and list of different strings.
 #
-# typist is a part of paperdave's creative toolkit, but you can also install it as a
-# standalone addon by installing this file as an addon or running it as a script. 
+# this addon is a part of paperdave's creative toolkit, but you can also install it as a
+# standalone addon by installing this file as an addon or running it as a script.
+ 
 import bpy
 from bpy.app.handlers import persistent
 
 bl_info = {
   'name': "Creative Toolkit - Typist",
   'author': "Dave Caruso",
-  'version': (1, 0, 0),
-  'blender': (3, 2, 0),
-  'api': 44136,
+  'blender': (3, 3, 0),
   'description': "be the coolest typist on the block",
   'wiki_url': "https://github.com/paperdave/creative-toolkit/blob/main/src/blender-addon/typist.py",
-  'tracker_url': "",
   'category': "Text"
 }
 

@@ -3,7 +3,6 @@ bl_info = {
   "author" : "Dave Caruso",
   "description" : "Collection of tools for paperdave content",
   "blender" : (3, 3, 0),
-  "version" : (0, 0, 0),
   "category" : "Generic"
 }
 

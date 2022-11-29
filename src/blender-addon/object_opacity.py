@@ -1,68 +1,57 @@
 import bpy
 
+# this addon adds a per-object opacity slider at the top of the material panel. in order to use
+# it, you have to opt-in all your materials to have an extra node group to handle applying the object
+# opacity data. one material can work with multiple objects, so this opt-in does not copy the material
+# after that, it just works as you would expect an opacity slider to work
+#
+# this addon is a part of paperdave's creative toolkit, but you can also install it as a
+# standalone addon by installing this file as an addon or running it as a script. 
+
 bl_info = {
   'name': "Creative Toolkit - Object Opacity",
   'author': "Dave Caruso",
-  'version': (1, 0, 0),
-  'blender': (3, 2, 0),
-  'api': 44136,
+  'blender': (3, 3, 0),
   'description': "Lets you set/animate opacity without each instance needing it's own material.",
   'wiki_url': "https://github.com/paperdave/creative-toolkit/blob/main/src/blender-addon/object_opacity.py",
-  'tracker_url': "",
-  'category': "Generic"
+  'category': "Material"
 }
 
-NODE_GROUP_NAME = "Apply Object Opacity"
+MIX_NODE_TREE_NAME = "Apply Object Opacity"
 
-def create_node_tree():
-  if NODE_GROUP_NAME in bpy.data.node_groups:
-    return bpy.data.node_groups[NODE_GROUP_NAME]
+def create_mix_node_tree():
+  if MIX_NODE_TREE_NAME in bpy.data.node_groups:
+    return bpy.data.node_groups[MIX_NODE_TREE_NAME]
   
-  node_tree = bpy.data.node_groups.new(NODE_GROUP_NAME, 'ShaderNodeTree')
+  node_tree = bpy.data.node_groups.new(MIX_NODE_TREE_NAME, 'ShaderNodeTree')
   node_tree.inputs.new('NodeSocketShader', 'Surface')
   node_tree.outputs.new('NodeSocketShader', 'Surface')
 
   n_group_input = node_tree.nodes.new('NodeGroupInput')
-  n_group_input.location = (-200, -80)
+  n_group_input.location = (-80, -60)
   n_group_input.hide = True
 
   n_group_output = node_tree.nodes.new('NodeGroupOutput')
-  n_group_output.location = (260, 40)
+  n_group_output.location = (270, 40)
 
   n_mix_shader = node_tree.nodes.new('ShaderNodeMixShader')
   n_mix_shader.location = (100, 40)
 
   n_transparent = node_tree.nodes.new('ShaderNodeBsdfTransparent')
-  n_transparent.location = (-200, -40)
+  n_transparent.location = (-80, -20)
   n_transparent.hide = True
 
   n_o1 = node_tree.nodes.new('ShaderNodeAttribute')
-  n_o1.location = (-200, 40)
+  n_o1.location = (-80, 40)
   n_o1.attribute_name = 'opacity'
   n_o1.attribute_type = 'INSTANCER'
   n_o1.label = 'Object Opacity'
   n_o1.hide = True
   n_o1.width = 125
 
-  n_o2 = node_tree.nodes.new('ShaderNodeAttribute')
-  n_o2.location = (-200, 0)
-  n_o2.attribute_name = 'data.opacity'
-  n_o2.attribute_type = 'INSTANCER'
-  n_o2.label = 'Mesh Opacity'
-  n_o2.hide = True
-  n_o2.width = 125
-
-  n_multiply = node_tree.nodes.new('ShaderNodeMath')
-  n_multiply.operation = 'MULTIPLY'
-  n_multiply.location = (-40, 20)
-  n_multiply.hide = True
-  n_multiply.width = 100
-
   node_tree.links.new(n_group_input.outputs[0], n_mix_shader.inputs[2])
   node_tree.links.new(n_transparent.outputs[0], n_mix_shader.inputs[1])
-  node_tree.links.new(n_o1.outputs[0], n_multiply.inputs[0])
-  node_tree.links.new(n_o2.outputs[0], n_multiply.inputs[1])
-  node_tree.links.new(n_multiply.outputs[0], n_mix_shader.inputs[0])
+  node_tree.links.new(n_o1.outputs[0], n_mix_shader.inputs[0])
   node_tree.links.new(n_mix_shader.outputs[0], n_group_output.inputs[0])
 
   return node_tree
@@ -75,7 +64,9 @@ def add_support_material(material, self):
 
   if material.blend_method == 'OPAQUE':
     material.blend_method = 'BLEND'
-    material.shadow_method = 'HASHED'
+    material.show_transparent_back = False
+    if material.shadow_method != 'NONE':
+      material.shadow_method = 'HASHED'
 
   for node in tree.nodes:
     if node.type == 'OUTPUT_MATERIAL':
@@ -89,7 +80,7 @@ def add_support_material(material, self):
 
   n_group = tree.nodes.new('ShaderNodeGroup')
   n_group.name = 'ApplyObjectOpacityNode'
-  n_group.node_tree = create_node_tree()
+  n_group.node_tree = create_mix_node_tree()
   n_group.location = n_output.location
   n_group.location[1] -= 40
   n_output.location[0] += 200
@@ -128,37 +119,18 @@ def obj_has_opacity_support(obj):
 
 def draw_material_menu(self, context):
   if obj_has_opacity_support(context.object):
-    self.layout.prop(context.object.data, "opacity", text='Opacity', slider=True)
-  else:
-    self.layout.operator("object.enable_opacity")
-
-def draw_obj_visibility_menu(self, context):
-  if obj_has_opacity_support(context.object):
-    self.layout.prop(context.object, "opacity", text='Object Opacity', slider=True)
+    self.layout.prop(context.object, "opacity", text='Opacity', slider=True)
   else:
     self.layout.operator("object.enable_opacity")
 
 def register():
   bpy.types.Object.opacity = bpy.props.FloatProperty(
     name="Object Opacity",
-    description="Opacity of the object",
+    description="Opacity",
     default=1.0,
     min=0.0,
     max=1.0,
-  )
-  bpy.types.Mesh.opacity = bpy.props.FloatProperty(
-    name="Mesh Opacity",
-    description="Opacity of the mesh",
-    default=1.0,
-    min=0.0,
-    max=1.0,
-  )
-  bpy.types.Curve.opacity = bpy.props.FloatProperty(
-    name="Curve Opacity",
-    description="Opacity of the curve",
-    default=1.0,
-    min=0.0,
-    max=1.0,
+    options={'ANIMATABLE'},
   )
   bpy.types.Material.has_opacity_support = bpy.props.BoolProperty(
     name="Has Opacity Support",
@@ -169,15 +141,15 @@ def register():
   bpy.utils.register_class(OBJECT_OT_EnableOpacity)
 
   bpy.types.EEVEE_MATERIAL_PT_context_material.prepend(draw_material_menu)
-  bpy.types.OBJECT_PT_visibility.prepend(draw_obj_visibility_menu)
-
 
 def unregister():
   bpy.types.EEVEE_MATERIAL_PT_context_material.remove(draw_material_menu)
-  bpy.types.OBJECT_PT_visibility.remove(draw_obj_visibility_menu)
 
   bpy.utils.unregister_class(OBJECT_OT_EnableOpacity)
 
   del bpy.types.Object.opacity
   del bpy.types.Mesh.opacity
   del bpy.types.Material.has_opacity_support
+
+if __name__ == "__main__":
+  register()
