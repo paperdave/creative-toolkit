@@ -7,11 +7,13 @@ bl_info = {
   "category" : "Generic"
 }
 
+from . import object_opacity
 from . import sync_render_visibility
 from . import towards_camera
 from . import typist
 
 modules = (
+  object_opacity,
   sync_render_visibility,
   towards_camera,
   typist
