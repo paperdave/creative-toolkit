@@ -7,13 +7,28 @@ bl_info = {
   "category" : "Generic"
 }
 
+from . import sync_render_visibility
 from . import towards_camera
 from . import typist
 
+modules = (
+  sync_render_visibility,
+  towards_camera,
+  typist
+)
+
 def register():
-  towards_camera.register()
-  typist.register()
+  for module in modules:
+    try:
+      module.register()
+    except Exception as e:
+      print("Error registering module: " + module.__name__)
+      print(e)
 
 def unregister():
-  towards_camera.unregister()
-  typist.unregister()
+  for module in reversed(modules):
+    try:
+      module.unregister()
+    except Exception as e:
+      print("Error unregistering module: " + module.__name__)
+      print(e)
