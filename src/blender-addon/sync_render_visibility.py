@@ -18,7 +18,7 @@ bl_info = {
   'blender': (3, 3, 0),
   'api': 44136,
   'description': "makes visibility options a little more sensible. disabled by default in files",
-  'wiki_url': "https://github.com/paperdave/creative-toolkit/blob/main/src/blender-addon/sync_render_visibility.py",
+  'wiki_url': "https://github.com/paperdave/creative-toolkit",
   'tracker_url': "",
   'category': "Generic"
 }

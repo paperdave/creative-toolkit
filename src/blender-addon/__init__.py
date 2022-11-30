@@ -6,16 +6,18 @@ bl_info = {
   "category" : "Generic"
 }
 
+from . import fade_tools
 from . import object_opacity
 from . import sync_render_visibility
 from . import towards_camera
 from . import typist
 
 modules = (
+  fade_tools,
   object_opacity,
   sync_render_visibility,
   towards_camera,
-  typist
+  typist,
 )
 
 def register():

@@ -14,7 +14,7 @@ bl_info = {
   'author': "Dave Caruso",
   'blender': (3, 3, 0),
   'description': "be the coolest typist on the block",
-  'wiki_url': "https://github.com/paperdave/creative-toolkit/blob/main/src/blender-addon/typist.py",
+  'wiki_url': "https://github.com/paperdave/creative-toolkit",
   'category': "Text"
 }
 

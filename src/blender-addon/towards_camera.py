@@ -23,6 +23,7 @@ class MoveTowardsCameraOperator(bpy.types.Operator):
   )
 
 def menu_func(self, context):
+  self.layout.separator()
   self.layout.operator(PointAtCameraOperator.bl_idname)
   self.layout.operator(MoveTowardsCameraOperator.bl_idname)
 

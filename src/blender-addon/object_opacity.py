@@ -13,7 +13,7 @@ bl_info = {
   'author': "Dave Caruso",
   'blender': (3, 3, 0),
   'description': "Lets you set/animate opacity without each instance needing it's own material.",
-  'wiki_url': "https://github.com/paperdave/creative-toolkit/blob/main/src/blender-addon/object_opacity.py",
+  'wiki_url': "https://github.com/paperdave/creative-toolkit",
   'category': "Material"
 }
 
@@ -112,6 +112,8 @@ class OBJECT_OT_EnableOpacity(bpy.types.Operator):
     return {'FINISHED'}
 
 def obj_has_opacity_support(obj):
+  if len(obj.material_slots) == 0:
+    return False
   for material in obj.material_slots:
     if not material.material.has_opacity_support:
       return False
@@ -121,7 +123,9 @@ def draw_material_menu(self, context):
   if obj_has_opacity_support(context.object):
     self.layout.prop(context.object, "opacity", text='Opacity', slider=True)
   else:
-    self.layout.operator("object.enable_opacity")
+    row = self.layout.row()
+    row.operator("object.enable_opacity")
+    row.enabled = len(context.object.material_slots) > 0
 
 def register():
   bpy.types.Object.opacity = bpy.props.FloatProperty(
