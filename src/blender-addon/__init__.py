@@ -11,9 +11,11 @@ from . import object_opacity
 from . import sync_render_visibility
 from . import towards_camera
 from . import typist
+from .thirdparty import lockview
 
 modules = (
   fade_tools,
+  lockview,
   object_opacity,
   sync_render_visibility,
   towards_camera,

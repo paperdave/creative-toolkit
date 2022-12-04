@@ -94,6 +94,8 @@ def add_support_material(material, self):
 
   tree.links.new(n_group.outputs[0], n_output.inputs[0])
 
+  n_group.inputs[0].show_expanded = True
+
   material.has_opacity_support = True
 
   return True
