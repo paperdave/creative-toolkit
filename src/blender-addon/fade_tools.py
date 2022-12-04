@@ -80,7 +80,7 @@ class OBJECT_OT_fadetools(Operator):
     return len(context.selected_objects) > 0
 
   def invoke(self, context, event):
-    context.window_manager.popup_menu(menu, title="Fade Tools", icon='NONE')
+    context.window_manager.popup_menu(menu, title="FadeTools", icon='NONE')
     return {'RUNNING_MODAL'}
 
   def execute(self, context):
