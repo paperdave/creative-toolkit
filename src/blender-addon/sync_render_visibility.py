@@ -1,16 +1,12 @@
 # we derive render visibility from viewport visibility, doing the other way around just doesn't work
 # when animating stuff, so idk.
 #
-# initially this used the msgbus rna stuff, but in reality this isnt needed at all since render
-# visibility is only meaningful at ... render time. in the future this should be rewritten to
-# only use render events and stuff, but this works.
-#
-# this addon is a part of paperdave's creative toolkit, but you can also install it as a
-# standalone addon by installing this file as an addon or running it as a script.
+# initially this updated the data every frame, but that causes crashes during render, now it copies
+# the fcurve animations from viewport to render visibility before rendering starts
  
 import bpy
 from bpy.app.handlers import persistent
-import textwrap
+from .util.layout import label_multiline
 
 bl_info = {
   'name': "Creative Toolkit - Sync Render Visibility",
@@ -23,20 +19,34 @@ bl_info = {
   'category': "Generic"
 }
 
-owner = object()
-
-def update_scene():
-  if bpy.context.scene.sync_visibility_enabled:
-    for obj in bpy.context.scene.objects:
-      obj.hide_render = obj.hide_viewport
-
 @persistent
-def on_load_post(scene):
-  update_scene()
+def on_render_init(scene):
+  for action in bpy.data.actions:
+    hide_viewport = None
+    hide_render = None
 
-@persistent
-def on_frame_update(scene):
-  update_scene()
+    for curve in action.fcurves:
+      if curve.data_path == "hide_viewport":
+        hide_viewport = curve
+        if hide_render:
+          break
+      elif curve.data_path == "hide_render":
+        hide_render = curve
+        if hide_viewport:
+          break
+
+    if hide_render:
+      action.fcurves.remove(hide_render)
+    
+    if hide_viewport:
+      # copy the hide_viewport curve to hide_render
+      hide_render = action.fcurves.new(data_path="hide_render")
+      hide_render.keyframe_points.add(len(hide_viewport.keyframe_points))
+      for i, keyframe_point in enumerate(hide_viewport.keyframe_points):
+        hide_render.keyframe_points[i].co = keyframe_point.co
+        hide_render.keyframe_points[i].interpolation = keyframe_point.interpolation
+        hide_render.keyframe_points[i].handle_left = keyframe_point.handle_left
+        hide_render.keyframe_points[i].handle_right = keyframe_point.handle_right
 
 def on_enable(self, context):
   if bpy.context.scene.sync_visibility_enabled:
@@ -50,13 +60,6 @@ def on_enable(self, context):
               space.show_restrict_column_render = False
               space.show_restrict_column_viewport = True
 
-def label_multiline(context, text, parent):
-  chars = int(context.region.width / 7)   # 7 pix on 1 character
-  wrapper = textwrap.TextWrapper(width=chars)
-  text_lines = wrapper.wrap(text=text)
-  for text_line in text_lines:
-    parent.label(text=text_line)
-      
 class SYNCVIS_PT_Panel(bpy.types.Panel):
   bl_label = "Sync Render Visibility"
   bl_idname = "SYNCVIS_PT_Panel"
@@ -75,8 +78,7 @@ class SYNCVIS_PT_Panel(bpy.types.Panel):
     )
 
 def register():
-  bpy.app.handlers.load_post.append(on_load_post)
-  bpy.app.handlers.frame_change_post.append(on_frame_update)
+  bpy.app.handlers.render_init.append(on_render_init)
   bpy.types.Scene.sync_visibility_enabled = bpy.props.BoolProperty(
     name="Sync Render Visibility",
     description="Automatically assign all object's render visibility from it's viewport visibility",
@@ -86,7 +88,6 @@ def register():
   bpy.utils.register_class(SYNCVIS_PT_Panel)
 
 def unregister():
-  bpy.app.handlers.load_post.remove(on_load_post)
-  bpy.app.handlers.frame_change_post.remove(on_frame_update)
+  bpy.app.handlers.render_init.remove(on_render_init)
   del bpy.types.Scene.sync_visibility_enabled
   bpy.utils.unregister_class(SYNCVIS_PT_Panel)

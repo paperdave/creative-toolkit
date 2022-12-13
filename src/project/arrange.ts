@@ -75,7 +75,7 @@ async function arrangeSingleClip(
         if (!MainInput) {
           Logger.warn(`No MainInput tool found in Fusion step${clip.step}:${clip.label}`);
         } else if (MainInput.Type !== 'Loader') {
-          Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);
+          Logger.warn(`MainInput tool in Fusion step${clip.step}:${clip.label} is not a Loader.`);
         } else {
           let inputClip: Clip;
 
@@ -114,7 +114,7 @@ async function arrangeSingleClip(
       }
 
       const MainOutput = comp.Tools.get('MainOutput', SaverTool);
-      if (!MainInput) {
+      if (!MainOutput) {
         Logger.warn(`No MainOutput tool found in Fusion step${clip.step}:${clip.label}.`);
       } else if (MainOutput.Type !== 'Saver') {
         Logger.warn(`MainOutput tool in Fusion step${clip.step}:${clip.label} is not a Saver.`);

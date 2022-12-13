@@ -77,9 +77,11 @@ exec --no-startup-id xmodmap ~/.Xmodmap
 exec --no-startup-id polybar -r
 exec --no-startup-id picom
 exec --no-startup-id dunst
+exec --no-startup-id wired
+exec --no-startup-id node /code/paperdave/creative-toolkit/src/discord-rpc/index.cjs DISCORD_RPC_PROCESS
 exec --no-startup-id sh -c 'feh --bg-scale $(cat .wallpaper)'
-exec --no-startup-id xinput set-prop 'keyboard:HUION Huion Tablet_HS61' 'Device Enabled' 0
-exec --no-startup-id xinput set-prop 'keyboard:HUION Huion Tablet_HS61 Keyboard' 'Device Enabled' 0
+exec --no-startup-id xinput set-prop 'keyboard:HUION Huion Tablet_HS611 Consumer Control' 'Device Enabled' 0
+exec --no-startup-id xinput set-prop 'keyboard:HUION Huion Tablet_HS611 Keyboard' 'Device Enabled' 0
 
 # Visual
 font pango:Recursive 8
@@ -104,8 +106,6 @@ client.background       #ffffff
 # Workspace Assignments
 # 1. Main Productivity (Browsing + Code)
 assign [class="microsoft-edge"] 1
-assign [class="code"] 1
-assign [class="obsidian"] 1
 assign [class="thunderbird"] 1
 
 # 2-3. Video Production
@@ -117,6 +117,5 @@ assign [class="Natron"] 3
 assign [title="^Bitwig Studio"] 4
 
 # 5. Social
-assign [title="^TrackingTime"] 5
 assign [class="spotify"] 5
 assign [class="discord"] 5

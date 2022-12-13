@@ -104,7 +104,7 @@ def trim_text(
   
   return text[start:end]
 
-def update_text(text):
+def update_text(text, scene):
   if text.typist_mode == 'STATIC':
     source = text.typist_text.replace("\\n", "\n")
   elif text.typist_mode == 'EXPR':
@@ -113,7 +113,7 @@ def update_text(text):
         "bpy": bpy,
         "data": bpy.data,
         "self": text,
-        "frame": bpy.context.scene.frame_current,
+        "frame": scene.frame_current,
       }))
     except Exception as e:
       text.body = "[error] " + str(e)
@@ -147,12 +147,32 @@ def update_text(text):
     ignore_spaces=text.typist_ignore_spaces
   )
 
-@persistent   
-def on_frame_change(scene):
-  pass
+  print(f'updating object {text.name} at frame {scene.frame_current} to "{text.body}"')
+
+def update_scene(scene):
   for text in scene.objects:
     if text.type == 'FONT' and text.data.typist_enabled:
-      update_text(text.data)
+      update_text(text.data, scene)
+
+# is_rendering = False
+
+@persistent   
+def on_frame_change(scene):
+  update_scene(scene)
+
+# @persistent   
+# def on_render_init(scene):
+#   global is_rendering
+#   is_rendering = True
+
+# @persistent   
+# def on_render_end(scene):
+#   global is_rendering
+#   is_rendering = False
+
+# @persistent   
+# def on_pre_render(scene):
+#   update_scene(scene)
 
 def on_attr_update(self, context):
   if self.typist_enabled:

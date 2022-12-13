@@ -43,18 +43,19 @@ export function renderClip(opts: RenderClipOptions) {
   });
 
   let renderer: ClipRenderer;
+  let ext: string;
   switch (opts.clip.type) {
     case RenderProgram.Blender:
       renderer = renderBlenderClip(opts);
+      ext = 'exr';
       break;
     case RenderProgram.Fusion:
       renderer = renderFusionClip(opts);
+      ext = 'png';
       break;
     default:
       throw new Error(`Unsupported clip type: ${opts.clip.type}`);
   }
-
-  const internalDone = renderer.done;
 
   const [promise, resolve, reject] = deferred<boolean>();
 
@@ -95,7 +96,7 @@ export function renderClip(opts: RenderClipOptions) {
         }
         const renderBase = opts.project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2');
         for (const checkFrame of iterateRange(opts.ranges)) {
-          const filename = `${renderBase}/${checkFrame}.exr`;
+          const filename = `${renderBase}/${checkFrame}.${ext}`;
           if (!existsSync(filename)) {
             const e = new CLIError(
               `Fusion Render Failed`,

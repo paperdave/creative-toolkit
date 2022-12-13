@@ -309,7 +309,7 @@ function ProcessSingleChunk(y)
 	end
 end
 
-function Process(req)sophia⁷#5616
+function Process(req)
     local t_start = os.clock()
 
     local current_matte_names_str = TextMatteList:GetSource(req.Time).Value

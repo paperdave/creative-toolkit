@@ -11,9 +11,11 @@ from . import object_opacity
 from . import sync_render_visibility
 from . import towards_camera
 from . import typist
+# from . import control_surface
 from .thirdparty import lockview
 
 modules = (
+  # control_surface, # too unstable
   fade_tools,
   lockview,
   object_opacity,

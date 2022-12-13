@@ -1,4 +1,4 @@
-## Next Version
+## Toolkit 2022-12-12 (it's snowing)
 
 - Repository acts somewhat as a dotfiles for my whole system.
 - Rewritten to use only Bun, new cli tools and so on.
@@ -14,6 +14,11 @@
 - removed `exec*` path map entries, these are defined globally.
 - gui rewritten to use sveltekit and an api in bun
 - waveform renders to a mp4 file as it loads faster (and at all, which i didn't realize) on fusion.
+- Blender addons
+  - Typist: easily animate text data
+  - Sync Render Visbility: copies `hide_viewport` to `hide_render`
+  - Object Opacity: gives a per-object opacity slider
+- Prototype for reading Davinci Resolve Speed Editor and controlling blender with it (not stable)
 
 ## Toolkit 2022-10-06 (mystery of life)
 

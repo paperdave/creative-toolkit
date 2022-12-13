@@ -44,8 +44,8 @@ if [ "$input" = "$output" ]; then
   output="/tmp/$(date +%s).mp4"
 fi
 
-ffmpeg -i "$input" -c:v h264_nvenc -preset:v slow -tune:v hq -rc:v vbr -cq:v "$quality" -b:v 0 -profile:v high -c:a aac -pix
-_fmt yuv420p -movflags +faststart "$overwrite" "$output"
+echo "Encoding $input to $output"
+ffmpeg -i "$input" -c:v h264_nvenc -preset:v slow -tune:v hq -rc:v vbr -cq:v "$quality" -b:v 0 -profile:v high -c:a aac -pix_fmt yuv420p -movflags +faststart $overwrite "$output"
 
 if [ -n "$overwrite2" ]; then
   mv "$output" "$overwrite2"

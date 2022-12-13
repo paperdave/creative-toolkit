@@ -45,16 +45,16 @@
 			AutoSnap = true,
 			PipesOnTop = true,
 			FullToolIndicator = true,
-			ForceModes = true,
+			ShowThumbnails = true,
 			ShowHidden = true,
 			ConnectedSnap = true,
-			ShowThumbnails = true,
+			ForceModes = true,
 			ShowGrid = true,
 			GridSnap = true,
 			PipeStyle = 1,
 			Direction = 0
 		},
-		LastFile = "/render/Donut-Sequencer-Step1/0.jpg",
+		LastFile = "/project/it's snowing/thumbnail/thumbnail",
 		Interactive = {
 			Proxy = {
 				Scale = 3,
@@ -79,17 +79,17 @@
 			AspectLoader = 0,
 			DepthLoader = 0,
 			DepthInteractive = 0,
-			TimeCodeType = 0,
+			PerFeet = 1,
 			DepthPreview = 0,
 			Rate = 60,
 			Width = 1920,
 			AspectX = 1,
 			Fields = false,
-			Name = "HD 1080",
+			DepthFull = 0,
 			Height = 1080,
 			GuideY1 = 0,
-			DepthFull = 0,
-			PerFeet = 1,
+			Name = "HD 1080",
+			TimeCodeType = 0,
 			GuideX1 = 0
 		},
 		Splines = {
@@ -108,10 +108,10 @@
 			ExportMode = 16,
 			PolyLineEditMode = "InsertAndModify",
 			DefOnionSkinStep = 5,
-			DefOnionSkinRange = 3,
 			RotoAssistDistance = 8,
-			OnionSkinClickSetCT = false,
+			DefOnionSkinRange = 3,
 			SelectPointsFromMultiPolies = true,
+			OnionSkinClickSetCT = false,
 			AutoSmoothBSplines = true,
 			OnionSkinShowHull = true,
 			RotoAssistMultiplePts = false,
@@ -121,11 +121,11 @@
 		},
 		Tweaks = {
 			CloneOverlayMethod = 0,
-			CloneOverlayBlend = 0.6,
 			GPU = {
 				Enable = 2,
 				Caching = 2
 			},
+			CloneOverlayBlend = 0.6,
 			DisableFlowReordering = false
 		},
 		SplineEditor = {
@@ -261,11 +261,11 @@
 						Show = true,
 						Top = 1,
 						Auto = false,
-						Bottom = 0,
+						Lock = false,
 						Enable = false,
 						Right = 1,
 						Left = 0,
-						Lock = false
+						Bottom = 0
 					},
 					ShowControls = true,
 					Layer = "",
@@ -295,8 +295,8 @@
 					Show = false,
 					Center = true,
 					SafeTitle = true,
-					FrameAspect = "Default",
 					Film = false,
+					FrameAspect = "Default",
 					SafeImage = true
 				},
 				Waveform = {
@@ -438,10 +438,10 @@
 							Z = 0
 						}
 					},
-					TextureDepth = "int8",
+					SortMethod = "ZBuffer",
 					OverscanMode = 0,
 					CustomOverscan = 1.37,
-					SortMethod = "ZBuffer",
+					TextureDepth = "int8",
 					CameraName = "Perspective"
 				},
 				Mirror = {
@@ -454,18 +454,18 @@
 					Enabled = false,
 					Swap = false,
 					AnaglyphMethod = "Color",
-					Stack = false,
-					OffsetX = {
-						QuadB = 0,
-						Stack = 0
-					},
-					ABSource = false,
-					DisplayMethod = "Quad Buffer",
-					StackMethod = "Horizontal",
 					OffsetY = {
 						QuadB = 0,
 						Stack = 0
 					},
+					OffsetX = {
+						QuadB = 0,
+						Stack = 0
+					},
+					StackMethod = "Horizontal",
+					DisplayMethod = "Quad Buffer",
+					ABSource = false,
+					Stack = false,
 					AnaglyphColor = "Red/Cyan"
 				},
 				OpToolbar = {
@@ -505,10 +505,21 @@
 				RulersShow = true
 			},
 			View1 = {
-				PickW = 1,
-				PrevCtrlInactiveColor = 4278255360,
 				FullScreen = false,
+				PrevCtrlInactiveColor = 4278255360,
+				PickW = 1,
 				AlwaysOnTop = true,
+				PickH = 1,
+				PrevCtrlActiveColor = 4278190335,
+				Viewer = {
+					EnableLUTs = false,
+					LUTPlugin = "FusionViewLUT",
+					FitMarginY = 0,
+					FitMarginX = 0,
+					FitMarginType = 0,
+					FarZ = -1000,
+					NearZ = 0
+				},
 				SideB = {
 					PrevCtrlInactiveColor = 4278255360,
 					PickW = 1,
@@ -523,18 +534,7 @@
 						FarZ = -1000,
 						FitMarginY = 0
 					}
-				},
-				PrevCtrlActiveColor = 4278190335,
-				Viewer = {
-					EnableLUTs = false,
-					LUTPlugin = "FusionViewLUT",
-					FitMarginY = 0,
-					FitMarginX = 0,
-					FitMarginType = 0,
-					FarZ = -1000,
-					NearZ = 0
-				},
-				PickH = 1
+				}
 			},
 			RightView = {
 				PrevCtrlInactiveColor = 4278255360,
@@ -714,7 +714,7 @@
 			Pos = {
 				Top = 413,
 				Height = 500,
-				Left = 1313,
+				Left = 1529,
 				Width = 240
 			}
 		},
@@ -826,7 +826,7 @@
 			LastDroppedTimeout = 30000,
 			ImageOverlay = 1,
 			PaintFasterUpdate = false,
-			ReadAheadBuffers = 4,
+			LoadCompTimeout = 150000,
 			ViewLUTMaxRange = 30,
 			BorderlessToolbars = true,
 			ImageViewerDoSmoothResize = 0,
@@ -839,7 +839,7 @@
 			GraphicsMemory = 24576,
 			DisableViewLUTShaders = false,
 			DisableDirectReads = true,
-			LoadCompTimeout = 150000,
+			ReadAheadBuffers = 4,
 			Use10BitFramebuffer = false
 		},
 		Main = {
@@ -893,28 +893,28 @@
 				["Guides:"] = "UserPaths:Guides",
 				["Help:"] = "Fusion:Help",
 				["LUTs:"] = "UserPaths:LUTs",
-				["Config:"] = "UserPaths:Config",
-				["Libraries:"] = "UserPaths:Library",
-				["LuaModules:"] = "UserPaths:Modules/Lua",
-				["Defaults:"] = "UserPaths:Defaults",
-				["Comps:"] = "UserDocs:",
 				["Fuses:"] = "UserPaths:Fuses",
+				["Libraries:"] = "UserPaths:Library",
 				["Brushes:"] = "UserPaths:Brushes",
 				["LoaderCache:"] = "Temp:DiskCache",
+				["Comps:"] = "UserDocs:",
+				["Config:"] = "UserPaths:Config",
+				["LuaModules:"] = "UserPaths:Modules/Lua",
+				["Defaults:"] = "UserPaths:Defaults",
 				["UserPaths:"] = "UserData:;AllData:;Fusion:;Reactor:Deploy",
 				["Templates:"] = "UserPaths:Templates",
-				["Models:"] = "Fusion:Models",
+				["Thumbs:"] = "Stamps:",
 				["Reactor:"] = "/var/BlackmagicDesign/Fusion/Reactor/",
 				["SystemFonts:"] = "$(FUSION_FONTS);/usr/share/fonts",
 				["Macros:"] = "UserPaths:Macros",
-				["Thumbs:"] = "Stamps:",
+				["Fonts:"] = "SystemFonts:",
 				["DiskCaches:"] = "Temp:DiskCache",
 				["Queues:"] = "AllDocs:Queue",
 				["Stamps:"] = "UserData:Stamps",
-				["Settings:"] = "UserPaths:Settings",
+				["Models:"] = "Fusion:Models",
 				["Previews:"] = "Temp:",
 				["Plugins:"] = "UserPaths:Plugins",
-				["Fonts:"] = "SystemFonts:",
+				["Settings:"] = "UserPaths:Settings",
 				["Scripts:"] = "UserPaths:Scripts;Reactor:System/Scripts",
 				["Bins:"] = "UserData:Bins",
 				["Filters:"] = "UserPaths:Filters"
@@ -945,8 +945,8 @@
 					Who = 80,
 					Status = 200,
 					PriorityClass = 46,
-					SubmitTime = 120,
-					Frames = 75
+					Frames = 75,
+					SubmitTime = 120
 				},
 				ColumnOrder = {
 					Completed = 2,
@@ -955,25 +955,24 @@
 					Who = 5,
 					Status = 3,
 					PriorityClass = 4,
-					SubmitTime = -1,
-					Frames = 1
+					Frames = 1,
+					SubmitTime = -1
 				}
 			},
 			Window = {
-				Top = 0,
-				Height = 382,
-				Left = 0,
-				Width = 917
+				Top = 28,
+				Height = 1251,
+				Left = 959,
+				Width = 1316
 			},
-			HorizSplitPos = 212,
-			VertSplitPos = 184
+			HorizSplitPos = 256,
+			VertSplitPos = 264
 		},
 		DiskCache = {
 			CacheLoaders = {
 				DisableAll = false
 			}
 		},
-		LastFilterFile = "Filters:",
 		FileReq = {
 			History = {
 				{ "/home/dave/Documents/BlackmagicDesign/Fusion/", 19277 },
@@ -1005,9 +1004,23 @@
 				{ "/render/Test-Sequencer-Step1/", 19312 },
 				{ "/project/test/step2/", 19314 },
 				{ "/project/donut/step2/", 19316 },
-				{ "/render/Donut-Sequencer-Step1/", 19316 }
+				{ "/render/Donut-Sequencer-Step1/", 19316 },
+				{ "/archive/", 19330 },
+				{ "/home/dave/Downloads/", 19333 },
+				{ "/home/dave/Desktop/", 19333 },
+				{ "/project/it's snowing/step2/", 19336 },
+				{ "/project/donut/step2/", 19336 },
+				{ "/render/ItsSnowing-Sequencer-Step1/", 19336 },
+				{ "/project/it's snowing/step2/", 19337 },
+				{ "/render/ItsSnowing-Sequencer-Step1/", 19337 },
+				{ "/project/it's snowing/", 19338 },
+				{ "/project/it's snowing/step2/", 19338 },
+				{ "/render/ItsSnowing-Sequencer-Step1/", 19338 },
+				{ "/project/it's snowing/thumbnail/", 19338 },
+				{ "/home/dave/Documents/BlackmagicDesign/Fusion/Default AutoSaves/", 19338 }
 			}
 		},
+		LastFilterFile = "Filters:",
 		FloatingListBox = {
 			Show = false,
 			Window = {
@@ -1032,26 +1045,22 @@
 		VideoIO = {
 			ShowSplash = false
 		},
-		LastCompFile = "/project/donut/step2/102-229_Composition1.comp",
+		LastCompFile = "/project/it's snowing/step2/0000-0150_Composition1.comp",
 		DXPreview = {
 			KeepAspect = true,
 			Monitor = 0,
 			VSync = true,
 			ScaleX = 1,
-			ResizeToFit = true,
+			Enable = true,
 			ScaleY = 1,
 			Stereo = {
 				Swap = false,
 				Mode = 1
 			},
-			Enable = true
+			ResizeToFit = true
 		},
 		VR = {
-			Lighting = {
-				Enable = "auto",
-				Shadows = false,
-				Ambient = 0.3
-			},
+			RelativePose = "seated",
 			Mirror = {
 				Show = true,
 				X = -1,
@@ -1061,13 +1070,17 @@
 			},
 			MatteObjects = false,
 			SortMethod = "zbuffer",
-			RelativePose = "seated",
-			Format = "auto",
+			Lighting = {
+				Enable = "auto",
+				Shadows = false,
+				Ambient = 0.3
+			},
+			API = "auto",
 			Stereo = {
 				Method = "auto",
 				Swap = false
 			},
-			API = "auto"
+			Format = "auto"
 		},
 		FBX = {
 			Import = {
@@ -1080,13 +1093,13 @@
 				UpAxis = 1,
 				EnableAxisConversion = true,
 				Animation = true,
-				Nulls = true,
 				FPS = 24,
+				Nulls = true,
 				GroupMeshes = false,
 				Meshes = true,
 				LastFile = "Comps:",
-				BakeAnimation = true,
 				Materials = true,
+				BakeAnimation = true,
 				Hierarchy = false,
 				OptimizeForDisplay = true,
 				Triangulate = true,
@@ -1100,29 +1113,26 @@
 				Top = 527
 			}
 		},
-		Unsorted = {
-			AutoSummedAreaTables = true,
-			DevLicenceAgreement = true,
-			CheckForUpdates = true,
-			ToolbarState = false,
-			SaveCompressedComps = false
+		Preview = {
+			ToolBarSize = -1,
+			ToolBarMode = 0
 		},
 		RecentComps = {
-			"/project/donut/step2/102-229_Composition1.comp",
-			"/project/donut/step2/000-730_Composition1.comp",
-			"/project/donut/step2/054-730_Composition1.comp",
-			"/project/test/step2/000-250_Composition1.comp",
-			"/project/test/step2/Composition1.comp",
-			"/home/dave/Desktop/woah.comp",
-			"/code/paperdave/creative-toolkit/local/step2/000-190_test.comp",
-			"/code/paperdave/creative-toolkit/local/cover.comp",
-			"/project/test/step2/000-050_test.comp",
-			"/code/paperdave/creative-toolkit/local/step2/hold.comp",
-			"/code/paperdave/creative-toolkit/local/step2/default copy.comp",
-			"/code/paperdave/creative-toolkit/assets/fusion/default.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/template001.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/template.comp",
-			"/home/dave/Documents/BlackmagicDesign/Fusion/test.comp"
+			"/project/it's snowing/step2/0000-0150_Composition1.comp",
+			"/project/it's snowing/step2/1641-2267_Composition9.comp",
+			"/project/it's snowing/step2/1453-1640_Composition8.comp",
+			"/project/it's snowing/step2/1200-1452_Composition7.comp",
+			"/project/it's snowing/step2/1122-1199_Composition6.comp",
+			"/project/it's snowing/step2/0911-1121_Composition5.comp",
+			"/project/it's snowing/step2/0668-0910_Composition4.comp",
+			"/project/it's snowing/step2/0490-0667_Composition3.comp",
+			"/project/it's snowing/step2/0151-0489_Composition2.comp",
+			"/project/it's snowing/step2/0000-2267_Composition9.comp",
+			"/project/it's snowing/step2/0000-2267_Composition8.comp",
+			"/project/it's snowing/step2/0000-2267_Composition7.comp",
+			"/project/it's snowing/step2/0000-2267_Composition6.comp",
+			"/project/it's snowing/step2/0000-2267_Composition5.comp",
+			"/project/it's snowing/step2/0000-2267_Composition4.comp"
 		},
 		ActionStrip = {
 			ToolbarLocked = false,
@@ -1134,39 +1144,11 @@
 		},
 		FloatView = {
 			{
-				Top = -1,
-				Height = -1,
 				Mode = 1,
 				Left = -1,
-				Width = -1
-			},
-			{
 				Top = -1,
-				Height = -1,
-				Mode = 1,
-				Left = -1,
-				Width = -1
-			},
-			{
-				Top = -1,
-				Height = -1,
-				Mode = 1,
-				Left = -1,
-				Width = -1
-			},
-			{
-				Top = -1,
-				Height = -1,
-				Mode = 1,
-				Left = -1,
-				Width = -1
-			},
-			{
-				Top = -1,
-				Height = -1,
-				Mode = 1,
-				Left = -1,
-				Width = -1
+				Width = -1,
+				Height = -1
 			}
 		},
 		Timeline = {
@@ -1181,8 +1163,8 @@
 			AutoScale = false,
 			AutoSnapPoints = 2,
 			AnimatedTools = false,
-			ShowSpreadsheet = false,
-			DisplayPointValues = false
+			DisplayPointValues = false,
+			ShowSpreadsheet = false
 		},
 		Interactive = {
 			Proxy = {
@@ -1197,7 +1179,7 @@
 			AutoClipBrowse = true,
 			WheelZoomModifiers = 4,
 			ShowActivePane = true,
-			Skin = "Fusion",
+			Skin = "Neutral",
 			ShowRenderSettings = true,
 			ScaleFactor = 0,
 			Language = "auto",
@@ -1242,9 +1224,12 @@
 			AutoMerge = false
 		},
 		LastSettingFile = "Settings:",
-		Preview = {
-			ToolBarSize = -1,
-			ToolBarMode = 0
+		Unsorted = {
+			AutoSummedAreaTables = true,
+			DevLicenceAgreement = true,
+			CheckForUpdates = true,
+			ToolbarState = false,
+			SaveCompressedComps = false
 		},
 		LensDistort = {
 			Import = {
