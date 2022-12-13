@@ -1,0 +1,54 @@
+#!/bin/bash
+input=
+output=
+overwrite=
+overwrite2=
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -y)
+      overwrite="-y"
+      ;;
+    *)
+      if [ -z "$input" ]; then
+        input="$1"
+      elif [ -z "$output" ]; then
+        output="$1"
+      fi
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$input" ]; then
+  echo "Usage: $0 input output"
+  exit 1
+fi
+
+if [ -z "$output" ]; then
+  output="${input%.*}.webm"
+fi
+
+if [ "$input" = "$output" ]; then
+  echo "Input and output files must be different"
+  read -p "Overwrite $(basename $input)? [y/N] " i
+  if [ "$i" != "y" ]; then
+    exit 1
+  fi
+  overwrite2="$input"
+  output="/tmp/$(date +%s).mp4"
+fi
+
+echo "Encoding $input to $output"
+targetBitrate=3000
+tileColumns=2
+threads=$(( 2 ** $tileColumns * 2 ))
+targetQuality=31
+speedValue=2
+
+ffmpeg -i "$input" -b:v "${targetBitrate}k" -minrate $(echo "$targetBitrate * 0.5" | bc)k -maxrate $(echo "$targetBitrate * 1.45" | bc)k -tile-columns "$tileColumns" -g 240 -threads "$threads" -quality good -crf $targetQuality -c:v libvpx-vp9 -pass 1 -speed 4 $overwrite "$output"
+ffmpeg -i "$input" -b:v "${targetBitrate}k" -minrate $(echo "$targetBitrate * 0.5" | bc)k -maxrate $(echo "$targetBitrate * 1.45" | bc)k -tile-columns "$tileColumns" -g 240 -threads "$threads" -quality good -crf $targetQuality -c:v libvpx-vp9 -pass 2 -speed $speedValue -c:a libopus -b:a 128k -y "$output"
+
+if [ -n "$overwrite2" ]; then
+  mv "$output" "$overwrite2"
+fi
