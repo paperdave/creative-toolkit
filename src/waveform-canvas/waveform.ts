@@ -1,7 +1,7 @@
 import path from 'path';
 import W from 'wavefile';
 import { Project, RenderProgram } from '$/project';
-import { getFFMpegH264Args } from '$/util/ffmpeg-args';
+import { getFfmpegH264Args } from '$/util/ffmpeg-args';
 import { Progress } from '@paperdave/logger';
 import { Dict, range } from '@paperdave/utils';
 import { createCanvas } from 'canvas';
@@ -93,7 +93,7 @@ export async function nodejs_renderWaveformSequence(project: Project) {
       ['-r', `${FPS}`],
       ['-i', '-'],
       // OUTPUT
-      ...getFFMpegH264Args(),
+      ...getFfmpegH264Args(),
       path.join(root, 'waveform.mp4'),
     ].flat(),
     {

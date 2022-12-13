@@ -2,7 +2,7 @@ import path from 'path';
 import { appPath } from '$/global/exec-paths';
 import {
   countRangeFrames,
-  getFFMpegH264Args,
+  getFfmpegH264Args,
   intersectRanges,
   IRange,
   iterateRange,
@@ -193,9 +193,13 @@ export async function renderProject({
     project.fps,
     '-i',
     path.join(project.getRenderFullPath(RenderProgram.CTSequencer, 'Step2'), '%d.png'),
-    ...getFFMpegH264Args(),
+    ...getFfmpegH264Args({
+      audio: project.hasAudio ? project.paths.audio : undefined,
+    }),
     path.join(project.paths.output, 'render.mp4'),
   ];
+
+  console.log(ffmpegArgs);
 
   const ffmpeg = Bun.spawn({
     cmd: ffmpegArgs as any,

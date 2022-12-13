@@ -1,10 +1,13 @@
 import { Logger } from '@paperdave/logger';
 import { spawnSync } from 'child_process';
 
-let cachedNvencAvailable: boolean | null = null;
+export interface FfmpegArgsOptions {
+  audio?: string;
+}
 
 // H264 / MP4
 
+let cachedNvencAvailable: boolean | null = null;
 export function isNvencAvailable(): boolean {
   if (cachedNvencAvailable == null) {
     const process = spawnSync('ffmpeg', ['-hide_banner', '-encoders'], {
@@ -22,8 +25,9 @@ export function isNvencAvailable(): boolean {
   return cachedNvencAvailable;
 }
 
-export function getFFMpegH264Args() {
+export function getFfmpegH264Args({ audio }: FfmpegArgsOptions) {
   return [
+    audio ? ['-i', audio] : [],
     ['-c:v', isNvencAvailable() ? 'h264_nvenc' : 'libx264'],
     ['-preset:v', 'slow'],
     ['-tune:v', 'hq'],
@@ -31,9 +35,14 @@ export function getFFMpegH264Args() {
     ['-cq:v', '18'],
     ['-b:v', '0'],
     ['-profile:v', 'high'],
-    ['-c:a', 'aac'],
     ['-pix_fmt', 'yuv420p'],
     ['-movflags', '+faststart'],
+    ...(audio
+      ? [
+          ['-c:a', 'aac'],
+          ['-b:a', '128k'],
+        ]
+      : []),
   ].flat();
 }
 
@@ -47,7 +56,7 @@ const threads = 2 ** tileColumns * 2;
 const targetQuality = 31;
 const speedValue = 2;
 
-export function getFFMpegVP9Pass1Args() {
+export function getFfmpegVP9Pass1Args({}: FfmpegArgsOptions) {
   // todo: allow user to configure the values, preferably using the target resolution + fps
   return [
     ['-b:v', `${targetBitrate}k`],
@@ -64,7 +73,7 @@ export function getFFMpegVP9Pass1Args() {
   ].flat();
 }
 
-export function getFFMpegVP9Pass2Args() {
+export function getFfmpegVP9Pass2Args({ audio }: FfmpegArgsOptions) {
   return [
     ['-b:v', `${targetBitrate}k`],
     ['-minrate', `${targetBitrate * 0.5}k`],
@@ -77,5 +86,12 @@ export function getFFMpegVP9Pass2Args() {
     ['-c:v', 'libvpx-vp9'],
     ['-pass', '2'],
     ['-speed', `${speedValue}`],
+    ...(audio
+      ? [
+          ['-i', audio],
+          ['-c:a', 'libopus'],
+          ['-b:a', '128k'],
+        ]
+      : []),
   ].flat();
 }
